@@ -34,7 +34,7 @@ class Grid:
         self.resolution_y = resolution_y
 
     def fill(self, screen):
-        pygame.draw.rect(screen, (0, 0, 180), (((self.resolution_x-self.x)/2), ((self.resolution_y-self.y)/2), self.x, self.y))
+        pygame.draw.rect(screen, (0, 0, 180), (((self.resolution_x-self.x)/2), ((self.resolution_y-self.y)/2), self.x, self.y), 0)
 
     def draw(self, screen):
         gridlines = 0
@@ -68,7 +68,7 @@ def program():
 
 
     pygame.init()
-    pygame.display.set_caption("BattlePort")
+
     screen = pygame.display.set_mode(size)
 
     while not process_events():

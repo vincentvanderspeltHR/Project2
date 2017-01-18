@@ -1,8 +1,12 @@
 # Project2
 Project 2 Groep: 4 klas: INF1k
 
-# Handige guides:
-
-https://guides.github.com/introduction/flow/
-
-https://www.youtube.com/watch?v=XdhuWDdu-rk
+A               A
+  M           M
+    B       B
+      E   E
+        R 
+      L    L
+    A        A
+  M            M
+B                B
