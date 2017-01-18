@@ -55,6 +55,7 @@ def process_events():
     return False
 
 def program():
+    print("Github is gay")
     width = 1000
     height = 1000
     size = (width, height)
