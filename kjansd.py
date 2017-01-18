@@ -34,7 +34,7 @@ class Grid:
         self.resolution_y = resolution_y
 
     def fill(self, screen):
-        pygame.draw.rect(screen, (0, 0, 180), (((self.resolution_x-self.x)/2), ((self.resolution_y-self.y)/2), self.x, self.y), 0)
+        pygame.draw.rect(screen, (0, 0, 180), (((self.resolution_x-self.x)/2), ((self.resolution_y-self.y)/2), self.x, self.y))
 
     def draw(self, screen):
         gridlines = 0
@@ -55,7 +55,6 @@ def process_events():
     return False
 
 def program():
-    print("Github is gay")
     width = 1000
     height = 1000
     size = (width, height)
@@ -69,7 +68,7 @@ def program():
 
 
     pygame.init()
-
+    pygame.display.set_caption("BattlePort")
     screen = pygame.display.set_mode(size)
 
     while not process_events():
