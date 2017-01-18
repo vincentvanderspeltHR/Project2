@@ -21,7 +21,7 @@ def update(self):
     elif keys[pygame.K_DOWN]:
         self.y += 1
 
-print("Test123")
+print("Test1234")
 
 def draw_circle(self, screen):
     pygame.draw.rect(screen, (255, 0, 0, 128), (int(self.X), int(self.Y), int(self.Length))
