@@ -112,18 +112,21 @@ def text_to_button(text, color, buttonx, buttony, buttonwidth, buttonheight, siz
     textRect.center = ((buttonx+(buttonwidth/2)), buttony+(buttonheight/2))
     screen.blit(textSurf, textRect)
 
+
 def button(text, x, y, width, height, inactive_color, active_color, text_color, action = None):
     cursor = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
 
     if x+width > cursor[0] > x and y+height > cursor[1] > y:
         pygame.draw.rect(screen, active_color, (x, y, width, height))
-        if click[0] == 1 and action != None:
-            do_action(action)
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                do_action(action)
     else:
         pygame.draw.rect(screen, inactive_color, (x, y, width, height))
 
     text_to_button(text, text_color, x, y, width, height)
+
 
 def do_action(action):
     if action == "quit":
@@ -148,6 +151,7 @@ def do_action(action):
     elif action == "rules_kaarten":
         gameRules("kaarten")
 
+
 def gameIntro():
     gameExit = False
     while not gameExit:
@@ -165,6 +169,7 @@ def gameIntro():
 
     pygame.quit()
     quit()
+
 
 def gameRules(page):
     gameExit = False
@@ -247,6 +252,7 @@ def gameRules(page):
 
     pygame.quit()
     quit()
+
 
 def gameLoop():
      gameExit = False
