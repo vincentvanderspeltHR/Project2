@@ -57,8 +57,8 @@
       <file leaf-file-name="gameIntro+gameLoop+gameRules.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/gameIntro+gameLoop+gameRules.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="179">
-              <caret line="251" column="17" selection-start-line="251" selection-start-column="17" selection-end-line="251" selection-end-column="17" />
+            <state relative-caret-position="238">
+              <caret line="123" column="33" selection-start-line="123" selection-start-column="33" selection-end-line="123" selection-end-column="33" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -558,8 +558,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gameIntro+gameLoop+gameRules.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="179">
-          <caret line="251" column="17" selection-start-line="251" selection-start-column="17" selection-end-line="251" selection-end-column="17" />
+        <state relative-caret-position="238">
+          <caret line="123" column="33" selection-start-line="123" selection-start-column="33" selection-end-line="123" selection-end-column="33" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
