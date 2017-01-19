@@ -42,7 +42,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="gameIntro+gameLoop.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="gameIntro+gameLoop.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/gameIntro+gameLoop.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="17">
@@ -54,7 +54,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Boot+grid.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Boot+grid.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Boot+grid.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="349">
@@ -150,7 +150,7 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
-  <component name="RunManager" selected="Python.Boot+grid">
+  <component name="RunManager" selected="Python.gameIntro+gameLoop">
     <configuration default="false" name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -379,8 +379,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.Boot+grid" />
-        <item index="1" class="java.lang.String" itemvalue="Python.gameIntro+gameLoop" />
+        <item index="0" class="java.lang.String" itemvalue="Python.gameIntro+gameLoop" />
+        <item index="1" class="java.lang.String" itemvalue="Python.Boot+grid" />
         <item index="2" class="java.lang.String" itemvalue="Python.Framework" />
         <item index="3" class="java.lang.String" itemvalue="Python.gameIntro" />
         <item index="4" class="java.lang.String" itemvalue="Python.test" />
@@ -523,22 +523,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gameIntro+gameLoop.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="102" column="9" selection-start-line="102" selection-start-column="9" selection-end-line="102" selection-end-column="9" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Boot+grid.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="349">
           <caret line="67" column="27" selection-start-line="67" selection-start-column="27" selection-end-line="67" selection-end-column="27" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gameIntro+gameLoop.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="102" column="9" selection-start-line="102" selection-start-column="9" selection-end-line="102" selection-end-column="9" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
