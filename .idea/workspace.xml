@@ -45,8 +45,8 @@
       <file leaf-file-name="gameIntro+gameLoop.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/gameIntro+gameLoop.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="102" column="9" selection-start-line="102" selection-start-column="9" selection-end-line="102" selection-end-column="9" />
+            <state relative-caret-position="340">
+              <caret line="121" column="18" selection-start-line="121" selection-start-column="18" selection-end-line="121" selection-end-column="18" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -85,8 +85,8 @@
         <option value="$PROJECT_DIR$/Piramide.py" />
         <option value="$PROJECT_DIR$/kjansd.py" />
         <option value="$USER_HOME$/PycharmProjects/BattlePorts/test.py" />
-        <option value="$PROJECT_DIR$/gameIntro+gameLoop.py" />
         <option value="$PROJECT_DIR$/Boot+grid.py" />
+        <option value="$PROJECT_DIR$/gameIntro+gameLoop.py" />
       </list>
     </option>
   </component>
@@ -535,8 +535,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gameIntro+gameLoop.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="102" column="9" selection-start-line="102" selection-start-column="9" selection-end-line="102" selection-end-column="9" />
+        <state relative-caret-position="340">
+          <caret line="121" column="18" selection-start-line="121" selection-start-column="18" selection-end-line="121" selection-end-column="18" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
