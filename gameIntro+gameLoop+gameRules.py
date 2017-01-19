@@ -66,6 +66,8 @@ class Boat:
         pygame.draw.ellipse(screen, (0, 0, 0), self.position, 0)
 
 
+
+
 def text_objects(text, color, size = "small"):
     if size == "small":
         textSurface = smallfont.render(text, True, color)
@@ -105,30 +107,80 @@ def do_action(action):
         quit()
     if action == "high score":
         pass
-    if action == "start":
+    elif action == "start":
         gameLoop()
-    if action == "rules":
-        pass
+    elif action == "main":
+        gameIntro()
+    elif action == "rules_main":
+        gameRules("main")
+    elif action == "rules_voorbereiding":
+        gameRules("voorbereiding")
+    elif action == "rules_spelverloop":
+        gameRules("spelverloop")
+    elif action == "rules_boten":
+        gameRules("boten")
+    elif action == "rules_bewegen&posities":
+        gameRules("bewegen & posities")
+    elif action == "rules_kaarten":
+        gameRules("kaarten")
 
 def gameIntro():
     gameExit = False
-    gameStart = False
-    while not gameExit or gameStart:
+    while not gameExit:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameExit = True
         screen.fill(white)
         text_to_screen("Battleships", black, -(display_height*0.35), "medium")
-        button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_red, black, "start")
-        button("rules", (display_width / 2) - 75, (display_height * 0.45), 150, 50, red, light_blue, black, "rules")
+        button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "start")
+        button("Help", (display_width / 2) - 75, (display_height * 0.45), 150, 50, red, light_blue, black, "rules_main")
         button("High score",  (display_width/2)-75, (display_height*0.55), 150, 50, red, light_blue, black, "high score")
-        button("quit game", (display_width/2)-75, (display_height*0.65), 150, 50, red, light_blue,black, "quit")
+        button("Verlaat", (display_width/2)-75, (display_height*0.65), 150, 50, red, light_blue,black, "quit")
 
         pygame.display.update()
 
+    pygame.quit()
+    quit()
+
+def gameRules(page):
+    gameExit = False
+    while not gameExit:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameExit = True
+        screen.fill(white)
+        if page == "main":
+            text_to_screen("Welkom op pagina main", black)
+
+        elif page == "voorbereiding":
+            text_to_screen("Welkom op pagina voorbereiding", black)
+
+        elif page == "spelverloop":
+            text_to_screen("Welkom op pagina spelverloop", black)
+
+        elif page == "boten":
+            text_to_screen("Welkom op pagina boten", black)
+
+        elif page == "bewegen & posities":
+            text_to_screen("Welkom op pagina bewegen & posities", black)
+
+        elif page == "kaarten":
+            text_to_screen("Welkom op pagina kaarten", black)
+
+        button("Voorbereiding", display_width*0.75, display_height*0.2, 250, 60, red, light_blue, black, "rules_voorbereiding")
+        button("Spelverloop", display_width*0.75, display_height*0.3, 250, 60, red, light_blue, black, "rules_spelverloop")
+        button("Boten", display_width * 0.75, display_height * 0.4, 250, 60, red, light_blue, black, "rules_boten")
+        button("Bewegen & posities", display_width * 0.75, display_height * 0.5, 250, 60, red, light_blue, black, "rules_bewegen&posities")
+        button("Kaarten", display_width * 0.75, display_height * 0.6, 250, 60, red, light_blue, black, "rules_kaarten")
+        button("Hoofdmenu", display_width*0.75, display_height*0.8, 250, 60, green, light_blue, black, "main")
+
+        pygame.display.update()
+
+    pygame.quit()
+    quit()
+
 def gameLoop():
      gameExit = False
-     gameOver = False
      FPS = 15
      while not gameExit:
          for event in pygame.event.get():
