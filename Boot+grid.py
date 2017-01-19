@@ -4,6 +4,30 @@ import pygame
 clock = pygame.time.Clock()
 FPS = 60
 
+class Grid:
+    def __init__(self, resolution_x, resolution_y):
+        self.x = resolution_x*0.6
+        self.y = resolution_y*0.6
+        self.resolution_x = resolution_x
+        self.resolution_y = resolution_y
+        self.gridstartx = ((self.resolution_x-self.x)/2)
+        self.gridstarty = ((self.resolution_y-self.y)/2)
+        self.gridx = self.x/20
+        self.gridy = self.y/20
+
+    def fill(self, screen):
+        pygame.draw.rect(screen, (0, 0, 180), (self.gridstartx, self.gridstarty, self.x, self.y), 0)
+
+    def draw(self, screen):
+        gridlines = 0
+        while not gridlines > 20:
+            pygame.draw.line(screen, (0, 0, 0), (((self.resolution_x-self.x)/2), (((self.resolution_y-self.y)/2)+self.gridy*gridlines)), ((((self.resolution_x-self.x)/2)+self.x), (((self.resolution_y-self.y)/2)+self.gridy*gridlines)), 2)
+            gridlines += 1
+        gridlines = 0
+        while not gridlines > 20:
+            pygame.draw.line(screen, (0, 0, 0), (((self.resolution_x-self.x)/2)+self.gridx*gridlines, ((self.resolution_y-self.y)/2)), (((self.resolution_x-self.x)/2)+self.gridx*gridlines, ((self.resolution_y-self.y)/2)+self.y), 2)
+            gridlines += 1
+
 class Boat:
     def __init__(self, x, y, length, gamegrid):
         self.x = x
