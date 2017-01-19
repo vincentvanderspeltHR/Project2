@@ -119,7 +119,6 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
     if x+width > cursor[0] > x and y+height > cursor[1] > y:
         pygame.draw.rect(screen, active_color, (x, y, width, height))
         for event in pygame.event.get():
-            print(event)
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 do_action(action)
         #if click[0] == 1 and action != None:
