@@ -115,13 +115,11 @@ def text_to_button(text, color, buttonx, buttony, buttonwidth, buttonheight, siz
 def button(text, x, y, width, height, inactive_color, active_color, text_color, action = None):
     cursor = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
-    clicked = 0
 
     if x+width > cursor[0] > x and y+height > cursor[1] > y:
         pygame.draw.rect(screen, active_color, (x, y, width, height))
-        if click[0] == 1 and action != None and clicked == 0:
+        if click[0] == 1 and action != None:
             do_action(action)
-            clicked += 1
     else:
         pygame.draw.rect(screen, inactive_color, (x, y, width, height))
 
