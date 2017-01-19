@@ -27,7 +27,7 @@ def program():
 
     while process_events():
         screen.fill((255, 255, 255))
-        pygame.draw.rect(screen, (0, 0, 0), (170, 40, 300, 80), 10)
+        pygame.draw.rect(screen, (black), (170, 40, 200, 70), 10)
         screen.blit(game_name,(180,50))
         screen.blit(game_start, (180, 200))
         screen.blit(game_help, (180, 350))
