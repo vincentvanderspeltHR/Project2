@@ -118,8 +118,12 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
 
     if x+width > cursor[0] > x and y+height > cursor[1] > y:
         pygame.draw.rect(screen, active_color, (x, y, width, height))
-        if click[0] == 1 and action != None:
-            do_action(action)
+        for event in pygame.event.get():
+            print(event)
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                do_action(action)
+        #if click[0] == 1 and action != None:
+         #   do_action(action)
     else:
         pygame.draw.rect(screen, inactive_color, (x, y, width, height))
 
@@ -250,7 +254,6 @@ def gameRules(page):
 
 def gameLoop():
      gameExit = False
-     FPS = 15
      while not gameExit:
          for event in pygame.event.get():
              if event.type == pygame.QUIT:
@@ -265,10 +268,9 @@ def gameLoop():
          GameGrid.draw(screen)
          Boat2.draw(screen)
 
-         button("Quit game", (display_width/2)-75, (display_height*0.1), 150, 50, red, light_red, black, "quit")
+         button("Quit game", (display_width/2)-75, (display_height*0.1), 150, 50, red, light_blue, black, "quit")
 
          pygame.display.update()
-         clock.tick(FPS)
 
 
      pygame.quit()
