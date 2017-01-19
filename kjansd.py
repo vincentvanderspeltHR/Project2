@@ -9,9 +9,10 @@ class Boat:
         self.x = x
         self.y = y
         self.length = length
+        self.position = (self.x, self.y, 22, (30*self.length - 8))
 
     def draw(self, screen):
-        pygame.draw.ellipse(screen, (0, 0, 0), (self.x, self.y, 22, (30*self.length - 8)), 0)
+        pygame.draw.ellipse(screen, (0, 0, 0), self.position, 0)
 
     def move(self):
         keys = pygame.key.get_pressed()
@@ -54,6 +55,7 @@ def process_events():
 
     return False
 
+
 def program():
     width = 1000
     height = 1000
@@ -66,12 +68,12 @@ def program():
     Boat4 = Boat(265, 205, 4)
 
 
-
     pygame.init()
     pygame.display.set_caption("BattlePort")
     screen = pygame.display.set_mode(size)
 
     while not process_events():
+
          screen.fill((255, 255, 255))
          GameGrid.fill(screen)
          GameGrid.draw(screen)
