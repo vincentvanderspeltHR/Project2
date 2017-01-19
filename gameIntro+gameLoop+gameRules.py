@@ -115,14 +115,13 @@ def text_to_button(text, color, buttonx, buttony, buttonwidth, buttonheight, siz
 def button(text, x, y, width, height, inactive_color, active_color, text_color, action = None):
     cursor = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
+    clicked = 0
 
     if x+width > cursor[0] > x and y+height > cursor[1] > y:
         pygame.draw.rect(screen, active_color, (x, y, width, height))
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                do_action(action)
-        #if click[0] == 1 and action != None:
-         #   do_action(action)
+        if click[0] == 1 and action != None and clicked == 0:
+            do_action(action)
+            clicked += 1
     else:
         pygame.draw.rect(screen, inactive_color, (x, y, width, height))
 
@@ -238,12 +237,16 @@ def gameRules(page):
             text_to_screen("Welkom op pagina kaarten", black)
             text_to_screen("Pagina nog niet gevonden.", black, +50, "rules")
 
-
-        button("Voorbereiding", display_width*0.75, display_height*0.2, 250, 60, red, light_blue, black, "rules_voorbereiding")
-        button("Spelverloop", display_width*0.75, display_height*0.3, 250, 60, red, light_blue, black, "rules_spelverloop")
-        button("Boten", display_width * 0.75, display_height * 0.4, 250, 60, red, light_blue, black, "rules_boten")
-        button("Bewegen & posities", display_width * 0.75, display_height * 0.5, 250, 60, red, light_blue, black, "rules_bewegen&posities")
-        button("Kaarten", display_width * 0.75, display_height * 0.6, 250, 60, red, light_blue, black, "rules_kaarten")
+        if not page == "voorbereiding":
+            button("Voorbereiding", display_width*0.75, display_height*0.2, 250, 60, red, light_blue, black, "rules_voorbereiding")
+        if not page == "spelverloop":
+            button("Spelverloop", display_width*0.75, display_height*0.3, 250, 60, red, light_blue, black, "rules_spelverloop")
+        if not page == "boten":
+            button("Boten", display_width * 0.75, display_height * 0.4, 250, 60, red, light_blue, black, "rules_boten")
+        if not page == "bewegen & posities":
+            button("Bewegen & posities", display_width * 0.75, display_height * 0.5, 250, 60, red, light_blue, black, "rules_bewegen&posities")
+        if not page == "kaarten":
+            button("Kaarten", display_width * 0.75, display_height * 0.6, 250, 60, red, light_blue, black, "rules_kaarten")
         button("Hoofdmenu", display_width*0.75, display_height*0.8, 250, 60, green, light_blue, black, "main")
 
         pygame.display.update()
