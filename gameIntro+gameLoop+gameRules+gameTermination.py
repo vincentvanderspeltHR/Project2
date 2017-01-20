@@ -147,6 +147,8 @@ def do_action(action):
         gameRules("bewegen & posities")
     elif action == "rules_kaarten":
         gameRules("kaarten")
+    elif action == "termination_screen":
+        gameTermination()
 
 def gameIntro():
     gameExit = False
@@ -154,6 +156,7 @@ def gameIntro():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameExit = True
+
         screen.fill(white)
         text_to_screen("Battleships", black, -(display_height*0.35), "medium")
         button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "start")
@@ -268,12 +271,31 @@ def gameLoop():
          GameGrid.draw(screen)
          Boat2.draw(screen)
 
-         button("Quit game", (display_width/2)-75, (display_height*0.1), 150, 50, red, light_blue, black, "quit")
+         button("Game beëindigen", (display_width/2)-150, (display_height*0.1), 300, 50, red, light_blue, black, "termination_screen")
+         button("Hoofdmenu", display_width * 0.825, display_height * 0.85, 190, 60, green, light_blue, black, "main")
 
          pygame.display.update()
 
 
      pygame.quit()
      quit()
+
+def gameTermination():
+    gameExit = False
+    while not gameExit:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameExit = True
+
+
+        screen.fill(white)
+        text_to_screen("The game has ended", black, -(display_height/4), "medium")
+        button("Hoofdmenu", display_width * 0.5 - 125, display_height * 0.4, 250, 60, red, light_blue, black, "main")
+        button("Quit", display_width * 0.5 - 125, display_height * 0.6, 250, 60, red, light_blue, black, "quit")
+
+        pygame.display.update()
+
+    pygame.quit()
+    quit()
 
 gameIntro()
