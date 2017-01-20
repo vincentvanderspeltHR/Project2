@@ -87,7 +87,7 @@ class Boat:
         self.steps = steps
         self.gamegrid = gamegrid
         self.position_attacking = (self.x, self.y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
-        self.position_defending = (self.position_attacking[0]-self.gamegrid.gridx, self.position_attacking[1]+self.gamegrid.gridy, self.position_attacking[3], self.position_attacking[2])
+        self.position_defending = (self.x, self.y, self.position_attacking[3], self.position_attacking[2])
         self.new_position = (self.new_x, self.new_y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
         self.original_stance = "attacking"
         self.new_stance = "attacking"
@@ -100,25 +100,28 @@ class Boat:
             pygame.draw.ellipse(screen, black, self.position_defending, 0)
 
     def draw_new_stance(self, screen):
-        if not self.original_stance == self.new_stance:
-            if self.new_stance == "attacking":
-                pygame.draw.ellipse(screen, light_red, self.position_attacking, 0)
-            else:
-                pygame.draw.ellipse(screen, light_red, self.position_defending, 0)
-
-    def draw_new_position(self, screen):
-        if self.position_attacking == self.new_position:
+        if not self.original_stance == self.new_stance and self.new_stance == "defending":
+            pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, self.position_attacking[3], self.position_attacking[2]), 0)
+        elif not self.original_stance == self.new_stance and self.new_stance == "attacking":
             if not self.movement == self.steps:
                 pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4))), 0)
+            else:
+                pygame.draw.ellipse(screen, light_red, (self.x, self.y, (self.gamegrid.gridx) - (self.gamegrid.gridx / 4), ((self.gamegrid.gridy) * self.length - (self.gamegrid.gridx / 4))), 0)
+        elif self.original_stance == "defending" and not self.movement == self.steps:
+            pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, self.position_attacking[3], self.position_attacking[2]), 0)
+        elif self.original_stance == "attacking" and not self.movement == self.steps:
+            pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, (self.gamegrid.gridx) - (self.gamegrid.gridx / 4), ((self.gamegrid.gridy) * self.length - (self.gamegrid.gridx / 4))), 0)
 
 
     def change_stance(self):
-        if self.new_stance == "defending":
-            self.new_stance = "attacking"
-            print("attacking")
-        else:
-            self.new_stance = "defending"
-            print("defending")
+        if self.movement > 0:
+            if self.new_stance == "defending":
+                self.new_stance = "attacking"
+            else:
+                self.new_stance = "defending"
+        print(self.movement)
+
+
 
     def move(self, direction):
         if self.new_stance == "attacking":
@@ -356,7 +359,6 @@ def gameLoop():
          GameGrid.draw(screen)
          Boat2.draw(screen)
          Boat2.draw_new_stance(screen)
-         Boat2.draw_new_position(screen)
 
          button("Game beëindigen", (display_width/2)-150, (display_height*0.1), 300, 50, red, light_blue, black, "termination_screen")
          button("Hoofdmenu", display_width * 0.825, display_height * 0.85, 190, 60, green, light_blue, black, "main")
