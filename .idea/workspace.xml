@@ -21,8 +21,8 @@
       <file leaf-file-name="Intro+Loop+Rules+Termination+BoatPositionMethod.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Intro+Loop+Rules+Termination+BoatPositionMethod.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="112" column="127" selection-start-line="112" selection-start-column="127" selection-end-line="112" selection-end-column="127" />
+            <state relative-caret-position="587">
+              <caret line="361" column="27" selection-start-line="361" selection-start-column="27" selection-end-line="361" selection-end-column="27" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -122,7 +122,7 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
-  <component name="RunManager" selected="Python.gameIntro+gameLoop+gameRules+gameTermination">
+  <component name="RunManager" selected="Python.Intro+Loop+Rules+Termination+BoatPositionMethod">
     <configuration default="false" name="Boot+grid" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -351,8 +351,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.gameIntro+gameLoop+gameRules+gameTermination" />
-        <item index="1" class="java.lang.String" itemvalue="Python.Intro+Loop+Rules+Termination+BoatPositionMethod" />
+        <item index="0" class="java.lang.String" itemvalue="Python.Intro+Loop+Rules+Termination+BoatPositionMethod" />
+        <item index="1" class="java.lang.String" itemvalue="Python.gameIntro+gameLoop+gameRules+gameTermination" />
         <item index="2" class="java.lang.String" itemvalue="Python.gameIntro+gameLoop+gameRules" />
         <item index="3" class="java.lang.String" itemvalue="Python.gameIntro+gameLoop" />
         <item index="4" class="java.lang.String" itemvalue="Python.Boot+grid" />
@@ -573,8 +573,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Intro+Loop+Rules+Termination+BoatPositionMethod.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="112" column="127" selection-start-line="112" selection-start-column="127" selection-end-line="112" selection-end-column="127" />
+        <state relative-caret-position="587">
+          <caret line="361" column="27" selection-start-line="361" selection-start-column="27" selection-end-line="361" selection-end-column="27" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
