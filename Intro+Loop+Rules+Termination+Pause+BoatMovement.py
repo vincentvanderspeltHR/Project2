@@ -453,7 +453,7 @@ def gameLoop():
 
          for element in Game1.currentplayer.boatlist:
              element.draw_new(screen)
-             
+
          Game1.currentplayer.selectedboat(screen)
 
          button("Game beëindigen", (display_width/2)-150, (display_height*0.1), 300, 50, red, light_blue, black, "termination_screen")
