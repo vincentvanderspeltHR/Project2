@@ -91,7 +91,7 @@ class Boat:
         self.new_position = (self.new_x, self.new_y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
         self.original_stance = "attacking"
         self.new_stance = "attacking"
-        self.movement = 0
+        self.movement = self.steps
 
     def draw(self, screen):
         if self.original_stance == "attacking":
@@ -106,6 +106,12 @@ class Boat:
             else:
                 pygame.draw.ellipse(screen, light_red, self.position_defending, 0)
 
+    def draw_new_position(self, screen):
+        if self.position_attacking == self.new_position:
+            if not self.movement == self.steps:
+                pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4))), 0)
+
+
     def change_stance(self):
         if self.new_stance == "defending":
             self.new_stance = "attacking"
@@ -115,28 +121,45 @@ class Boat:
             print("defending")
 
     def move(self, direction):
-        max_movement = self.steps+1
         if self.new_stance == "attacking":
             if direction == "left":
-                if (self.new_x - self.gamegrid.gridx)-self.new_x
-                self.movement += 1
-                if max_movement > movement > -max_movement:
+                if (self.new_x - self.gamegrid.gridx) < self.x:
+                    if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
+                        if self.movement > 0:
+                            self.new_x -= self.gamegrid.gridx
+                            self.movement -= 1
+                else:
+                    self.movement += 1
                     self.new_x -= self.gamegrid.gridx
-                else:
-                    self.x_movement += 1
-
             elif direction == "right":
-                self.movement += 1
-                movement = self.x_movement + self.y_movement
-                if max_movement > movement > -max_movement:
-                    self.new_x += self.gamegrid.gridx
+                if (self.new_x + self.gamegrid.gridx) > self.x:
+                    if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
+                        if self.movement > 0:
+                            self.new_x += self.gamegrid.gridx
+                            self.movement -= 1
                 else:
-                    self.x_movement += 1
+                    self.movement += 1
+                    self.new_x += self.gamegrid.gridx
+            if direction == "up":
+                if (self.new_y - self.gamegrid.gridy) < self.y:
+                    if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
+                        if self.movement > 0:
+                            self.new_y -= self.gamegrid.gridy
+                            self.movement -= 1
+                else:
+                    self.movement += 1
+                    self.new_y -= self.gamegrid.gridy
+            if direction == "down":
+                if (self.new_y + self.gamegrid.gridy) > self.y:
+                    if self.new_y + self.gamegrid.gridy < self.gamegrid.gridstarty+self.gamegrid.y:
+                        if self.movement > 0:
+                            self.new_y += self.gamegrid.gridy
+                            self.movement -= 1
+                else:
+                    self.movement += 1
+                    self.new_y += self.gamegrid.gridy
 
 
-            print(self.movement)
-        print(self.new_x)
-        print(self.new_y)
 def text_objects(text, color, size = "small"):
     if size == "small":
         textSurface = smallfont.render(text, True, color)
@@ -305,8 +328,9 @@ def gameRules(page):
 
 def gameLoop():
      GameGrid = Grid(display_width, display_height)
-
-     Boat2 = Boat((GameGrid.gridstartx + ((1 / 6) * GameGrid.gridx)), (GameGrid.gridstarty + ((1 / 6) * GameGrid.gridy)),2, 3, GameGrid)
+     positie_boat2_x = GameGrid.gridstartx + ((1 / 6) * GameGrid.gridx)
+     positie_boat2_y = GameGrid.gridstarty + ((1 / 6) * GameGrid.gridy)
+     Boat2 = Boat(positie_boat2_x, positie_boat2_y, 2, 3, GameGrid)
 
      gameExit = False
      while not gameExit:
@@ -332,6 +356,7 @@ def gameLoop():
          GameGrid.draw(screen)
          Boat2.draw(screen)
          Boat2.draw_new_stance(screen)
+         Boat2.draw_new_position(screen)
 
          button("Game beëindigen", (display_width/2)-150, (display_height*0.1), 300, 50, red, light_blue, black, "termination_screen")
          button("Hoofdmenu", display_width * 0.825, display_height * 0.85, 190, 60, green, light_blue, black, "main")
