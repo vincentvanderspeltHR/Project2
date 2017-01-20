@@ -35,40 +35,6 @@ medfont = pygame.font.SysFont("centurygothic", 50)
 largefont = pygame.font.SysFont("centurygothic", 85)
 game_name = medfont.render("Battleships", True, black)
 
-class Game:
-    def __init__(self, firstplayer, P1, P2):
-        self.currentplayer = firstplayer
-        self.playerlist = [P1, P2]
-
-    def nextplayer(self):
-        if self.currentplayer == self.playerlist[0]:
-            self.currentplayer = self.playerlist[1]
-        else:
-            self.currentplayer = self.playerlist[0]
-
-    def __str__(self):
-        return str(self.currentplayer.name) + " is the current player."
-
-class Player:
-    def __init__(self, name, boat1, boat2):
-        self.name = name
-        self.score = 0
-        self.boatlist = [boat1, boat2]
-        self.currentboat = boat1
-        self.movableboats = self.boatlist
-
-    def selectedboat(self, screen):
-        pygame.draw.ellipse(screen, (255, 255, 255), self.currentboat.position, 4)
-
-    def nextboat(self):
-        if self.currentboat == self.movableboats[0]:
-            self.currentboat = self.movableboats[-1]
-            self.movableboats[-1].refresh()
-        else:
-            self.currentboat = self.movableboats[0]
-            self.movableboats[0].refresh()
-
-
 class Grid:
     def __init__(self, resolution_x, resolution_y):
         self.x = resolution_x*0.6
@@ -112,21 +78,87 @@ class Grid:
             perkcards += 1
 
 class Boat:
-    def __init__(self, x, y, length, gamegrid):
+    def __init__(self, x, y, length, steps, gamegrid):
         self.x = x
         self.y = y
+        self.new_x = x
+        self.new_y = y
         self.length = length
+        self.steps = steps
         self.gamegrid = gamegrid
-        self.position = (self.x, self.y, (self.gamegrid.gridx)-8, ((self.gamegrid.gridy)*self.length - 8))
+        self.position_attacking = (self.x, self.y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
+        self.position_defending = (self.position_attacking[0]-self.gamegrid.gridx, self.position_attacking[1]+self.gamegrid.gridy, self.position_attacking[3], self.position_attacking[2])
+        self.new_position = (self.new_x, self.new_y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
+        self.original_stance = "attacking"
+        self.new_stance = "attacking"
+        self.movement = self.steps
 
     def draw(self, screen):
-        pygame.draw.ellipse(screen, (0, 0, 0), self.position, 0)
+        if self.original_stance == "attacking":
+            pygame.draw.ellipse(screen, black, self.position_attacking, 0)
+        elif self.original_stance == "defending":
+            pygame.draw.ellipse(screen, black, self.position_defending, 0)
 
-    def refresh(self):
-        pass  #refresht alle values i.v.m. movement
+    def draw_new_stance(self, screen):
+        if not self.original_stance == self.new_stance:
+            if self.new_stance == "attacking":
+                pygame.draw.ellipse(screen, light_red, self.position_attacking, 0)
+            else:
+                pygame.draw.ellipse(screen, light_red, self.position_defending, 0)
 
-    def confirm(self):
-        pass #vervangt alle 'origenele' waarden met nieuwe waarden (x, y, stances) en haalt de boot uit movableboats list
+    def draw_new_position(self, screen):
+        if self.position_attacking == self.new_position:
+            if not self.movement == self.steps:
+                pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4))), 0)
+
+
+    def change_stance(self):
+        if self.new_stance == "defending":
+            self.new_stance = "attacking"
+            print("attacking")
+        else:
+            self.new_stance = "defending"
+            print("defending")
+
+    def move(self, direction):
+        if self.new_stance == "attacking":
+            if direction == "left":
+                if (self.new_x - self.gamegrid.gridx) < self.x:
+                    if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
+                        if self.movement > 0:
+                            self.new_x -= self.gamegrid.gridx
+                            self.movement -= 1
+                else:
+                    self.movement += 1
+                    self.new_x -= self.gamegrid.gridx
+            elif direction == "right":
+                if (self.new_x + self.gamegrid.gridx) > self.x:
+                    if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
+                        if self.movement > 0:
+                            self.new_x += self.gamegrid.gridx
+                            self.movement -= 1
+                else:
+                    self.movement += 1
+                    self.new_x += self.gamegrid.gridx
+            if direction == "up":
+                if (self.new_y - self.gamegrid.gridy) < self.y:
+                    if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
+                        if self.movement > 0:
+                            self.new_y -= self.gamegrid.gridy
+                            self.movement -= 1
+                else:
+                    self.movement += 1
+                    self.new_y -= self.gamegrid.gridy
+            if direction == "down":
+                if (self.new_y + self.gamegrid.gridy) > self.y:
+                    if self.new_y + self.gamegrid.gridy < self.gamegrid.gridstarty+self.gamegrid.y:
+                        if self.movement > 0:
+                            self.new_y += self.gamegrid.gridy
+                            self.movement -= 1
+                else:
+                    self.movement += 1
+                    self.new_y += self.gamegrid.gridy
+
 
 def text_objects(text, color, size = "small"):
     if size == "small":
@@ -213,6 +245,7 @@ def gameRules(page):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameExit = True
+
         screen.fill(white)
         if page == "main":
             text_to_screen("Welkom in het regelboek", black, 0)
@@ -295,35 +328,35 @@ def gameRules(page):
 
 def gameLoop():
      GameGrid = Grid(display_width, display_height)
-     Boat1 = Boat(GameGrid.gridstartx + ((1 / 6) * (GameGrid.gridx * 8)),
-                  (GameGrid.gridstarty + ((1 / 6) * GameGrid.gridy)), 4, GameGrid)
-
-     Boat2 = Boat(GameGrid.gridstartx + ((1 / 6) * (GameGrid.gridx)),
-                  (GameGrid.gridstarty + ((1 / 6) * GameGrid.gridy)), 2, GameGrid)
-
-     P1 = Player("p1", Boat1, Boat2)
-     P2 = Player("p2", Boat1, Boat2)
-
-     Game1 = Game(P1, P1, P2)
+     positie_boat2_x = GameGrid.gridstartx + ((1 / 6) * GameGrid.gridx)
+     positie_boat2_y = GameGrid.gridstarty + ((1 / 6) * GameGrid.gridy)
+     Boat2 = Boat(positie_boat2_x, positie_boat2_y, 2, 3, GameGrid)
 
      gameExit = False
      while not gameExit:
          for event in pygame.event.get():
              if event.type == pygame.QUIT:
                  gameExit = True
-             if event.type == pygame.KEYDOWN:
-                 if event.key == pygame.K_SPACE:
-                     P1.nextboat()
-                 elif event.key == pygame.K_n:
-                     Game1.nextplayer()
-                     print(Game1)
+             elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    Boat2.change_stance()
+                elif event.key == pygame.K_RIGHT:
+                     Boat2.move("right")
+                elif event.key == pygame.K_LEFT:
+                     Boat2.move("left")
+                elif event.key == pygame.K_UP:
+                     Boat2.move("up")
+                elif event.key == pygame.K_DOWN:
+                     Boat2.move("down")
+
+
+
 
          screen.fill(white)
          GameGrid.draw(screen)
-
          Boat2.draw(screen)
-         Boat1.draw(screen)
-         P1.selectedboat(screen)
+         Boat2.draw_new_stance(screen)
+         Boat2.draw_new_position(screen)
 
          button("Game beëindigen", (display_width/2)-150, (display_height*0.1), 300, 50, red, light_blue, black, "termination_screen")
          button("Hoofdmenu", display_width * 0.825, display_height * 0.85, 190, 60, green, light_blue, black, "main")
