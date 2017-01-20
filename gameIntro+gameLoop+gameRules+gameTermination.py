@@ -24,6 +24,7 @@ red = (255,0,0)
 light_red = (200,0,0)
 light_blue = (0,255,255)
 green = (0,255,0)
+blue = (0, 50, 200)
 
 clock = pygame.time.Clock()
 
@@ -46,7 +47,7 @@ class Grid:
         self.gridy = self.y/20
 
     def draw(self, screen):
-        pygame.draw.rect(screen, (0, 0, 180), (self.gridstartx, self.gridstarty, self.x, self.y), 0)
+        pygame.draw.rect(screen, (blue), (self.gridstartx, self.gridstarty, self.x, self.y), 0)
         gridlines = 0
         while not gridlines > 20:
             pygame.draw.line(screen, (0, 0, 0), (((self.resolution_x-self.x)/2), (((self.resolution_y-self.y)/2)+self.gridy*gridlines)), ((((self.resolution_x-self.x)/2)+self.x), (((self.resolution_y-self.y)/2)+self.gridy*gridlines)), 2)
