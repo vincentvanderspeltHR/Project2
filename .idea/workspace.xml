@@ -18,7 +18,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Intro+Loop+Rules+Termination+BoatPositionMethod.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Intro+Loop+Rules+Termination+BoatPositionMethod.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Intro+Loop+Rules+Termination+BoatPositionMethod.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="128">
@@ -30,11 +30,23 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="gameIntro+gameLoop+gameRules+gameTermination.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/gameIntro+gameLoop+gameRules+gameTermination.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="298">
+              <caret line="42" column="40" selection-start-line="42" selection-start-column="40" selection-end-line="42" selection-end-column="40" />
+              <folding>
+                <element signature="e#0#13#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="Boot+grid.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Boot+grid.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="42" column="8" selection-start-line="42" selection-start-column="8" selection-end-line="52" selection-end-column="42" />
+            <state relative-caret-position="816">
+              <caret line="79" column="8" selection-start-line="79" selection-start-column="8" selection-end-line="79" selection-end-column="8" />
               <folding />
             </state>
           </provider>
@@ -521,20 +533,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gameIntro+gameLoop+gameRules+gameTermination.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="655">
-          <caret line="63" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="301" selection-end-column="11" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Boot+grid.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="42" column="8" selection-start-line="42" selection-start-column="8" selection-end-line="52" selection-end-column="42" />
+        <state relative-caret-position="816">
+          <caret line="79" column="8" selection-start-line="79" selection-start-column="8" selection-end-line="79" selection-end-column="8" />
           <folding />
         </state>
       </provider>
@@ -543,6 +545,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="128">
           <caret line="120" column="64" selection-start-line="120" selection-start-column="64" selection-end-line="120" selection-end-column="64" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gameIntro+gameLoop+gameRules+gameTermination.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="298">
+          <caret line="42" column="40" selection-start-line="42" selection-start-column="40" selection-end-line="42" selection-end-column="40" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
