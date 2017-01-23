@@ -35,10 +35,12 @@ medfont = pygame.font.SysFont("centurygothic", 50)
 largefont = pygame.font.SysFont("centurygothic", 85)
 game_name = medfont.render("Battleships", True, black)
 
+
 class Game:
     def __init__(self, firstplayer, P1, P2):
         self.currentplayer = firstplayer
         self.playerlist = [P1, P2]
+        self.available_boats = [short_boat1, short_boat2, medium_boat1, medium_boat2, large_boat1, large_boat2]
 
     def changeplayers(self):
         if self.currentplayer == self.playerlist[0]:
@@ -59,16 +61,24 @@ class Game:
                 element.movement = element.steps
             self.changeplayers()
 
+    def nextplayer(self):
+        for element in self.currentplayer.boatlist:
+            element.confirm()
+        if self.currentplayer == self.playerlist[0]:
+            self.currentplayer = self.playerlist[1]
+        else:
+            self.currentplayer = self.playerlist[0]
 
     def __str__(self):
-        return str(self.currentplayer.name) + " is the current player."
+        return str(self.currentplayer.name)
+
 
 class Player:
-    def __init__(self, name, boat1, boat2):
+    def __init__(self, name):
         self.name = name
         self.score = 0
-        self.boatlist = [boat1, boat2]
-        self.currentboat = boat1
+        self.boatlist = []
+        self.currentboat = 0
 
     def selectedboat(self, screen):
         if self.currentboat.new_stance == "attacking":
@@ -125,8 +135,9 @@ class Grid:
             pygame.draw.rect(screen, black, (self.gridstartx + self.x, self.gridstarty + self.y - (self.y / 10) * perkcards, self.x / 4, self.x / 10),  10)
             perkcards += 1
 
+
 class Boat:
-    def __init__(self, x, y, length, steps, gamegrid):
+    def __init__(self, x, y, length, steps, gamegrid, HP, attacking_range_x, attacking_range_y, defending_range_y):
         self.x = x
         self.y = y
         self.new_x = x
@@ -138,10 +149,17 @@ class Boat:
         self.attackingboat_height = ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4))
         self.defendingboat_width = self.attackingboat_height
         self.defendingboat_height = self.attackingboat_width
+        #self.position_attacking = (self.x, self.y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
+        #self.position_defending = (self.x, self.y, self.position_attacking[3], self.position_attacking[2])
         self.new_position = (self.new_x, self.new_y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
         self.original_stance = "attacking"
         self.new_stance = "attacking"
         self.movement = self.steps
+        self.HP = HP
+        self.horizontal_attackingrange = attacking_range_x
+        self.vertical_attackingrange = attacking_range_y
+        self.horizontal_defendingrange = 0
+        self.vertical_defendingrange = defending_range_y
 
     def draw(self, screen):
         if self.original_stance == "attacking":
@@ -167,12 +185,19 @@ class Boat:
 
     def change_stance(self):
         if self.original_stance == "defending" and self.movement == self.steps:
-            self.movement -= 1
+            if self.steps > 1:
+                self.movement -= 1
         if self.movement > 0:
             if self.new_stance == "defending":
                 self.new_stance = "attacking"
+                if self.steps == 1 and self.original_stance == "defending":
+                    self.movement -= 1
             else:
                 self.new_stance = "defending"
+        elif self.steps == 1 and self.original_stance == "defending":
+            self.new_stance = "defending"
+            self.movement += 1
+
 
     def move(self, direction):
         if self.new_stance == "attacking":
@@ -215,53 +240,78 @@ class Boat:
 
     def confirm(self):
         for player in Game1.playerlist:
-                for boat in player.boatlist:
-                    tiles = self.steps -1
-                    while tiles >= 0:
-                        if not boat.x == self.x:
-                            if self.new_stance == "attacking":
-                                if boat.new_stance == "attacking":
-                                    if boat.new_x-(self.gamegrid.gridx/6) < self.new_x < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
-                                        if boat.new_y-(self.gamegrid.gridy/6) < self.new_y+self.gamegrid.gridy*tiles < boat.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*boat.length: # or boat.new_y-(self.gamegrid.gridy/6) < self.y+self.attackingboat_height < boat.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*boat.length:
-                                            return False
-                                elif boat.new_stance == "defending":
-                                    if boat.new_x-(self.gamegrid.gridx/6) < self.new_x < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx*boat.length:
-                                        if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y+self.gamegrid.gridy*tiles < boat.new_y - (self.gamegrid.gridy / 6) + self.gamegrid.gridy: # or boat.new_y - (self.gamegrid.gridx / 6) < self.new_y+self.attackingboat_height < boat.new_y - (self.gamegrid.gridy / 6) + self.gamegrid.gridy:
-                                            return False
-                            elif self.new_stance == "defending":
-                                if boat.new_stance == "attacking":
-                                    if boat.new_x-(self.gamegrid.gridx/6) < self.new_x+self.gamegrid.gridx*tiles < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx: # or boat.new_x-(self.gamegrid.gridx/6) < self.new_x+self.gamegrid.gridx*self.length < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
-                                        if boat.new_y-(self.gamegrid.gridy/6) < self.new_y < boat.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*boat.length:
-                                            return False
-                                elif boat.new_stance == "defending":
-                                    if boat.new_x-(self.gamegrid.gridx/6) < self.new_x+self.gamegrid.gridx*tiles < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx: # or boat.new_x-(self.gamegrid.gridx/6) < self.new_x+self.gamegrid.gridx*self.length < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
-                                        if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (self.gamegrid.gridy / 6) + self.gamegrid.gridy:
-                                            return False
-                        tiles -= 1
+            for boat in player.boatlist:
+                tiles = self.steps - 1
+                while tiles >= 0:
+                    if not boat.x == self.x:
+                        if self.new_stance == "attacking":
+                            if boat.new_stance == "attacking":
+                                if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (
+                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:
+                                    if boat.new_y - (
+                                        self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (
+                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:  # or boat.new_y-(self.gamegrid.gridy/6) < self.y+self.attackingboat_height < boat.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*boat.length:
+                                        return False
+                            elif boat.new_stance == "defending":
+                                if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (
+                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx * boat.length:
+                                    if boat.new_y - (
+                                        self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (
+                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy:  # or boat.new_y - (self.gamegrid.gridx / 6) < self.new_y+self.attackingboat_height < boat.new_y - (self.gamegrid.gridy / 6) + self.gamegrid.gridy:
+                                        return False
+                        elif self.new_stance == "defending":
+                            if boat.new_stance == "attacking":
+                                if boat.new_x - (
+                                    self.gamegrid.gridx / 6) < self.new_x + self.gamegrid.gridx * tiles < boat.new_x - (
+                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:  # or boat.new_x-(self.gamegrid.gridx/6) < self.new_x+self.gamegrid.gridx*self.length < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
+                                    if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (
+                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:
+                                        return False
+                            elif boat.new_stance == "defending":
+                                if boat.new_x - (
+                                    self.gamegrid.gridx / 6) < self.new_x + self.gamegrid.gridx * tiles < boat.new_x - (
+                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:  # or boat.new_x-(self.gamegrid.gridx/6) < self.new_x+self.gamegrid.gridx*self.length < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
+                                    if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (
+                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy:
+                                        return False
+                    tiles -= 1
 
         return True
 
 
 GameGrid = Grid(display_width, display_height)
 
-positie_boat1_x = GameGrid.gridstartx + GameGrid.gridx/6
-positie_boat1_y = GameGrid.gridstarty + GameGrid.gridy/6
-Boat1 = Boat(positie_boat1_x, positie_boat1_y, 2, 3, GameGrid)
 
-positie_boat2_x = GameGrid.gridstartx + GameGrid.gridx/6 + GameGrid.gridx
-positie_boat2_y = GameGrid.gridstarty + GameGrid.gridy/6
-Boat2 = Boat(positie_boat2_x, positie_boat2_y, 3, 3, GameGrid)
+#Posities boten
+positie_short_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6)
+positie_short_boat1_y = GameGrid.gridstarty + (GameGrid.gridy/6)
 
-positie_boat3_x = GameGrid.gridstartx + GameGrid.gridx/6 + GameGrid.gridx*2
-positie_boat3_y = GameGrid.gridstarty + GameGrid.gridy/6
-Boat3 = Boat(positie_boat3_x, positie_boat3_y, 4, 3, GameGrid)
+positie_short_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6) + GameGrid.gridx
+positie_short_boat2_y = GameGrid.gridstarty + (GameGrid.gridy/6)
 
-positie_boat4_x = GameGrid.gridstartx + GameGrid.gridx/6 + GameGrid.gridx*3
-positie_boat4_y = GameGrid.gridstarty + GameGrid.gridy/6
-Boat4 = Boat(positie_boat4_x, positie_boat4_y, 5, 3, GameGrid)
+positie_medium_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 2*GameGrid.gridx
+positie_medium_boat1_y = GameGrid.gridstarty + (GameGrid.gridy/6)
 
-P1 = Player("p1", Boat1, Boat2)
-P2 = Player("p2", Boat3, Boat4)
+positie_medium_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 3*GameGrid.gridx
+positie_medium_boat2_y = GameGrid.gridstarty + (GameGrid.gridy/6)
+
+positie_large_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 4*GameGrid.gridx
+positie_large_boat1_y = GameGrid.gridstarty + (GameGrid.gridy/6)
+
+positie_large_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 5*GameGrid.gridx
+positie_large_boat2_y = GameGrid.gridstarty + (GameGrid.gridy/6)
+
+#Alle boten
+short_boat1 = Boat(positie_short_boat1_x, positie_short_boat1_y, 2, 3, GameGrid, 2, 2, 2, 3)
+short_boat2 = Boat(positie_short_boat2_x, positie_short_boat2_y, 2, 3, GameGrid, 2, 2, 2, 3)
+medium_boat1 = Boat(positie_medium_boat1_x, positie_medium_boat1_y, 3, 2, GameGrid, 3, 3, 3, 4)
+medium_boat2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y, 3, 2, GameGrid, 3, 3, 3, 4)
+large_boat1 = Boat(positie_large_boat1_x, positie_large_boat1_y, 4, 1, GameGrid, 4, 4, 4, 5)
+large_boat2 = Boat(positie_large_boat2_x, positie_large_boat2_y, 4, 1, GameGrid, 4, 4, 4, 5)
+
+
+P1 = Player("P1")
+P2 = Player("P2")
 
 Game1 = Game(P1, P1, P2)
 
@@ -278,15 +328,18 @@ def text_objects(text, color, size = "small"):
 
     return textSurface, textSurface.get_rect()
 
+
 def text_to_screen(text, color, y_displace = 0, size = "small"):
     textSurf, textRect = text_objects(text, color, size)
     textRect.center = (int(display_width / 2), int(display_height / 2)+y_displace)
     screen.blit(textSurf, textRect)
 
+
 def text_to_button(text, color, buttonx, buttony, buttonwidth, buttonheight, size = "small"):
     textSurf, textRect = text_objects(text, color, size)
     textRect.center = ((buttonx+(buttonwidth/2)), buttony+(buttonheight/2))
     screen.blit(textSurf, textRect)
+
 
 def button(text, x, y, width, height, inactive_color, active_color, text_color, action = None):
     cursor = pygame.mouse.get_pos()
@@ -300,6 +353,7 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
         pygame.draw.rect(screen, inactive_color, (x, y, width, height))
 
     text_to_button(text, text_color, x, y, width, height)
+
 
 def do_action(action):
     if action == "quit":
@@ -326,7 +380,34 @@ def do_action(action):
     elif action == "termination_screen":
         gameTermination()
     elif action == "next_player":
+        Game1.nextplayer_ingame()
+    elif action == "chooseboats":
+        chooseBoats()
+    elif action == "shortboat1":
+        Game1.currentplayer.boatlist.append(short_boat1)
+        Game1.available_boats.remove(short_boat1)
         Game1.nextplayer()
+    elif action == "shortboat2":
+        Game1.currentplayer.boatlist.append(short_boat2)
+        Game1.available_boats.remove(short_boat2)
+        Game1.nextplayer()
+    elif action == "mediumboat1":
+        Game1.currentplayer.boatlist.append(medium_boat1)
+        Game1.available_boats.remove(medium_boat1)
+        Game1.nextplayer()
+    elif action == "mediumboat2":
+        Game1.currentplayer.boatlist.append(medium_boat2)
+        Game1.available_boats.remove(medium_boat2)
+        Game1.nextplayer()
+    elif action == "largeboat1":
+        Game1.currentplayer.boatlist.append(large_boat1)
+        Game1.available_boats.remove(large_boat1)
+        Game1.nextplayer()
+    elif action == "largeboat2":
+        Game1.currentplayer.boatlist.append(large_boat2)
+        Game1.available_boats.remove(large_boat2)
+        Game1.nextplayer()
+
 
 def gamePause():
     paused = True
@@ -346,6 +427,44 @@ def gamePause():
                     paused = False
 
 
+def chooseBoats():
+    gameExit = False
+    while not gameExit:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameExit = True
+
+        screen.fill(white)
+        if len(Game1.available_boats) > 2:
+            if short_boat1 in Game1.available_boats:
+                button("Short boat 1", display_width / 6, display_height / 2, 190, 50, red, light_blue, black, "shortboat1")
+            if short_boat2 in Game1.available_boats:
+                button("Short boat 2", display_width / 6 + display_width / 5, display_height / 2, 190, 50, red, light_blue, black, "shortboat2")
+            if medium_boat1 in Game1.available_boats:
+                button("Medium boat 1", display_width / 6 + 2*display_width / 5, display_height / 2, 190, 50, red, light_blue, black, "mediumboat1")
+            if medium_boat2 in Game1.available_boats:
+                button("Medium boat 2", display_width / 6, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "mediumboat2")
+            if large_boat1 in Game1.available_boats:
+                button("Large boat 1", display_width / 6 + display_width / 5, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "largeboat1")
+            if large_boat2 in Game1.available_boats:
+                button("Large boat 2", display_width / 6 + 2*display_width / 5, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "largeboat2")
+
+        if len(Game1.available_boats) == 2:
+            for player in Game1.playerlist:
+                player.currentboat = player.boatlist[0]
+            text_to_screen("Alle boten zijn gekozen", black, -display_height * 0.35, "medium")
+        else:
+            text_to_screen((str(Game1)) + ", kies een schip.", black, -(display_height * 0.35), "medium")
+        button("Start game", (display_width)-display_width/6, (display_height*0.85), 150, 50, red, light_blue, black, "start")
+        button("Hoofdmenu", (display_width)-display_width/6, (display_height*0.75), 150, 50, red, light_blue,black, "main")
+
+        pygame.display.flip()
+
+
+    pygame.quit()
+    quit()
+
+
 def gameIntro():
     gameExit = False
     while not gameExit:
@@ -355,7 +474,7 @@ def gameIntro():
 
         screen.fill(white)
         text_to_screen("Battleships", black, -(display_height*0.35), "medium")
-        button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "start")
+        button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "chooseboats")
         button("Help", (display_width / 2) - 75, (display_height * 0.45), 150, 50, red, light_blue, black, "rules_main")
         button("High score",  (display_width/2)-75, (display_height*0.55), 150, 50, red, light_blue, black, "high score")
         button("Quit", (display_width/2)-75, (display_height*0.65), 150, 50, red, light_blue,black, "quit")
@@ -364,6 +483,7 @@ def gameIntro():
 
     pygame.quit()
     quit()
+
 
 def gameRules(page):
     gameExit = False
@@ -451,6 +571,7 @@ def gameRules(page):
     pygame.quit()
     quit()
 
+
 def gameLoop():
      gameExit = False
      while not gameExit:
@@ -497,6 +618,7 @@ def gameLoop():
 
      pygame.quit()
      quit()
+
 
 def gameTermination():
     gameExit = False
