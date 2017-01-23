@@ -49,7 +49,7 @@ class Game:
             self.currentplayer = self.playerlist[0]
 
     def __str__(self):
-        return str(self.currentplayer.name) + " is the current player."
+        return str(self.currentplayer.name)
 
 
 class Player:
@@ -296,6 +296,7 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
 
     text_to_button(text, text_color, x, y, width, height)
 
+
 def do_action(action):
     if action == "quit":
         pygame.quit()
@@ -322,6 +323,8 @@ def do_action(action):
         gameTermination()
     elif action == "next_player":
         Game1.nextplayer()
+    elif action == "chooseboats":
+        chooseBoats()
 
 
 def gamePause():
@@ -342,6 +345,25 @@ def gamePause():
                     paused = False
 
 
+def chooseBoats():
+    gameExit = False
+    while not gameExit:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameExit = True
+
+        screen.fill(white)
+        text_to_screen((str(Game1)) + " ,kies een schip.", black, -(display_height*0.35), "medium")
+        button("Start game", (display_width)-display_width/6, (display_height*0.85), 150, 50, red, light_blue, black, "start")
+        button("Hoofdmenu", (display_width)-display_width/6, (display_height*0.75), 150, 50, red, light_blue,black, "main")
+
+        pygame.display.flip()
+
+
+    pygame.quit()
+    quit()
+
+
 def gameIntro():
     gameExit = False
     while not gameExit:
@@ -351,7 +373,7 @@ def gameIntro():
 
         screen.fill(white)
         text_to_screen("Battleships", black, -(display_height*0.35), "medium")
-        button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "start")
+        button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "chooseboats")
         button("Help", (display_width / 2) - 75, (display_height * 0.45), 150, 50, red, light_blue, black, "rules_main")
         button("High score",  (display_width/2)-75, (display_height*0.55), 150, 50, red, light_blue, black, "high score")
         button("Quit", (display_width/2)-75, (display_height*0.65), 150, 50, red, light_blue,black, "quit")
@@ -360,6 +382,7 @@ def gameIntro():
 
     pygame.quit()
     quit()
+
 
 def gameRules(page):
     gameExit = False
@@ -447,6 +470,7 @@ def gameRules(page):
     pygame.quit()
     quit()
 
+
 def gameLoop():
      gameExit = False
      while not gameExit:
@@ -496,6 +520,7 @@ def gameLoop():
 
      pygame.quit()
      quit()
+
 
 def gameTermination():
     gameExit = False
