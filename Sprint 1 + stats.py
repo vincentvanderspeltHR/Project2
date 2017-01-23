@@ -35,10 +35,13 @@ medfont = pygame.font.SysFont("centurygothic", 50)
 largefont = pygame.font.SysFont("centurygothic", 85)
 game_name = medfont.render("Battleships", True, black)
 
+
 class Game:
     def __init__(self, firstplayer, P1, P2):
         self.currentplayer = firstplayer
         self.playerlist = [P1, P2]
+        self.available_boats = [short_boat1, short_boat2, medium_boat1, medium_boat2, large_boat1, large_boat2]
+
 
     def nextplayer(self):
         for element in self.currentplayer.boatlist:
@@ -53,11 +56,11 @@ class Game:
 
 
 class Player:
-    def __init__(self, name, boat1, boat2):
+    def __init__(self, name):
         self.name = name
         self.score = 0
-        self.boatlist = [boat1, boat2]
-        self.currentboat = boat1
+        self.boatlist = []
+        self.currentboat = 0
 
     def selectedboat(self, screen):
         if self.currentboat.new_stance == "attacking":
@@ -250,10 +253,9 @@ medium_boat2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y, 3, 2, GameGr
 large_boat1 = Boat(positie_large_boat1_x, positie_large_boat1_y, 4, 1, GameGrid, 4, 4, 4, 5)
 large_boat2 = Boat(positie_large_boat2_x, positie_large_boat2_y, 4, 1, GameGrid, 4, 4, 4, 5)
 
-all_boats_list = [short_boat1, short_boat2, medium_boat1, medium_boat2, large_boat1, large_boat2]
 
-P1 = Player("p1", short_boat1, large_boat1)
-P2 = Player("p2", medium_boat1, large_boat2)
+P1 = Player("P1")
+P2 = Player("P2")
 
 Game1 = Game(P1, P1, P2)
 
@@ -325,6 +327,30 @@ def do_action(action):
         Game1.nextplayer()
     elif action == "chooseboats":
         chooseBoats()
+    elif action == "shortboat1":
+        Game1.currentplayer.boatlist.append(short_boat1)
+        Game1.available_boats.remove(short_boat1)
+        Game1.nextplayer()
+    elif action == "shortboat2":
+        Game1.currentplayer.boatlist.append(short_boat2)
+        Game1.available_boats.remove(short_boat2)
+        Game1.nextplayer()
+    elif action == "mediumboat1":
+        Game1.currentplayer.boatlist.append(medium_boat1)
+        Game1.available_boats.remove(medium_boat1)
+        Game1.nextplayer()
+    elif action == "mediumboat2":
+        Game1.currentplayer.boatlist.append(medium_boat2)
+        Game1.available_boats.remove(medium_boat2)
+        Game1.nextplayer()
+    elif action == "largeboat1":
+        Game1.currentplayer.boatlist.append(large_boat1)
+        Game1.available_boats.remove(large_boat1)
+        Game1.nextplayer()
+    elif action == "largeboat2":
+        Game1.currentplayer.boatlist.append(large_boat2)
+        Game1.available_boats.remove(large_boat2)
+        Game1.nextplayer()
 
 
 def gamePause():
@@ -353,7 +379,24 @@ def chooseBoats():
                 gameExit = True
 
         screen.fill(white)
-        text_to_screen((str(Game1)) + " ,kies een schip.", black, -(display_height*0.35), "medium")
+        text_to_screen((str(Game1)) + ", kies een schip.", black, -(display_height*0.35), "medium")
+        if len(Game1.available_boats) > 2:
+            if short_boat1 in Game1.available_boats:
+                button("Short boat 1", display_width / 6, display_height / 2, 190, 50, red, light_blue, black, "shortboat1")
+            if short_boat2 in Game1.available_boats:
+                button("Short boat 2", display_width / 6 + display_width / 5, display_height / 2, 190, 50, red, light_blue, black, "shortboat2")
+            if medium_boat1 in Game1.available_boats:
+                button("Medium boat 1", display_width / 6 + 2*display_width / 5, display_height / 2, 190, 50, red, light_blue, black, "mediumboat1")
+            if medium_boat2 in Game1.available_boats:
+                button("Medium boat 2", display_width / 6, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "mediumboat2")
+            if large_boat1 in Game1.available_boats:
+                button("Large boat 1", display_width / 6 + display_width / 5, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "largeboat1")
+            if large_boat2 in Game1.available_boats:
+                button("Large boat 2", display_width / 6 + 2*display_width / 5, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "largeboat2")
+
+        if len(Game1.available_boats) == 2:
+            for player in Game1.playerlist:
+                player.currentboat = player.boatlist[0]
         button("Start game", (display_width)-display_width/6, (display_height*0.85), 150, 50, red, light_blue, black, "start")
         button("Hoofdmenu", (display_width)-display_width/6, (display_height*0.75), 150, 50, red, light_blue,black, "main")
 
