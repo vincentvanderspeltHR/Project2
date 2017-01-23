@@ -24,6 +24,7 @@ red = (255,0,0)
 light_red = (200,0,0)
 light_blue = (0,255,255)
 green = (0,255,0)
+blue = (0, 50, 200)
 
 clock = pygame.time.Clock()
 
@@ -33,6 +34,42 @@ smallfont = pygame.font.SysFont("centurygothic", 25)
 medfont = pygame.font.SysFont("centurygothic", 50)
 largefont = pygame.font.SysFont("centurygothic", 85)
 game_name = medfont.render("Battleships", True, black)
+
+class Game:
+    def __init__(self, firstplayer, P1, P2):
+        self.currentplayer = firstplayer
+        self.playerlist = [P1, P2]
+
+    def nextplayer(self):
+        for element in self.currentplayer.boatlist:
+            element.confirm()
+        if self.currentplayer == self.playerlist[0]:
+            self.currentplayer = self.playerlist[1]
+        else:
+            self.currentplayer = self.playerlist[0]
+
+    def __str__(self):
+        return str(self.currentplayer.name) + " is the current player."
+
+class Player:
+    def __init__(self, name, boat1, boat2):
+        self.name = name
+        self.score = 0
+        self.boatlist = [boat1, boat2]
+        self.currentboat = boat1
+
+    def selectedboat(self, screen):
+        if self.currentboat.new_stance == "attacking":
+            pygame.draw.ellipse(screen, (255, 255, 255), (self.currentboat.new_x, self.currentboat.new_y, (self.currentboat.gamegrid.gridx)-(self.currentboat.gamegrid.gridx/4), ((self.currentboat.gamegrid.gridy)*self.currentboat.length - (self.currentboat.gamegrid.gridx/4))), 4)
+        else:
+            pygame.draw.ellipse(screen, (255, 255, 255), (self.currentboat.new_x, self.currentboat.new_y, ((self.currentboat.gamegrid.gridy)*self.currentboat.length - (self.currentboat.gamegrid.gridx/4)), (self.currentboat.gamegrid.gridx)-(self.currentboat.gamegrid.gridx/4)), 4)
+
+    def nextboat(self):
+        if self.currentboat == self.boatlist[0]:
+            self.currentboat = self.boatlist[-1]
+        else:
+            self.currentboat = self.boatlist[0]
+
 
 class Grid:
     def __init__(self, resolution_x, resolution_y):
@@ -46,7 +83,7 @@ class Grid:
         self.gridy = self.y/20
 
     def draw(self, screen):
-        pygame.draw.rect(screen, (0, 0, 180), (self.gridstartx, self.gridstarty, self.x, self.y), 0)
+        pygame.draw.rect(screen, (blue), (self.gridstartx, self.gridstarty, self.x, self.y), 0)
         gridlines = 0
         while not gridlines > 20:
             pygame.draw.line(screen, (0, 0, 0), (((self.resolution_x-self.x)/2), (((self.resolution_y-self.y)/2)+self.gridy*gridlines)), ((((self.resolution_x-self.x)/2)+self.x), (((self.resolution_y-self.y)/2)+self.gridy*gridlines)), 2)
@@ -77,17 +114,124 @@ class Grid:
             perkcards += 1
 
 class Boat:
-    def __init__(self, x, y, length, gamegrid):
+    def __init__(self, x, y, length, steps, gamegrid):
         self.x = x
         self.y = y
+        self.new_x = x
+        self.new_y = y
         self.length = length
+        self.steps = steps
         self.gamegrid = gamegrid
-        self.position = (self.x, self.y, (self.gamegrid.gridx)-8, ((self.gamegrid.gridy)*self.length - 8))
+        self.attackingboat_width = (self.gamegrid.gridx)-(self.gamegrid.gridx/4)
+        self.attackingboat_height = ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4))
+        self.defendingboat_width = self.attackingboat_height
+        self.defendingboat_height = self.attackingboat_width
+        #self.position_attacking = (self.x, self.y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
+        #self.position_defending = (self.x, self.y, self.position_attacking[3], self.position_attacking[2])
+        self.new_position = (self.new_x, self.new_y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
+        self.original_stance = "attacking"
+        self.new_stance = "attacking"
+        self.movement = self.steps
 
     def draw(self, screen):
-        pygame.draw.ellipse(screen, (0, 0, 0), self.position, 0)
+        if self.original_stance == "attacking":
+            pygame.draw.ellipse(screen, black, (self.x, self.y, self.attackingboat_width, self.attackingboat_height), 0)
+        elif self.original_stance == "defending":
+            pygame.draw.ellipse(screen, black, (self.x, self.y, self.defendingboat_width, self.defendingboat_height), 0)
+
+    def draw_new(self, screen):
+        if not self.original_stance == self.new_stance and self.new_stance == "defending":
+            pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, self.defendingboat_width, self.defendingboat_height), 0)
+        elif not self.original_stance == self.new_stance and self.new_stance == "attacking":
+            if not self.movement == self.steps:
+                pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, self.attackingboat_width, self.attackingboat_height), 0)
+            else:
+                pygame.draw.ellipse(screen, light_red, (self.x, self.y, self.attackingboat_width, self.defendingboat_height), 0)
+        elif self.original_stance == "defending" and not self.movement == self.steps:
+            if self.new_stance == "defending" and self.movement == self.steps - 1:
+                pygame.draw.ellipse(screen, black, (self.x, self.y, self.defendingboat_width, self.defendingboat_height), 0)
+            else:
+                pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, self.defendingboat_width, self.defendingboat_height), 0)
+        elif self.original_stance == "attacking" and not self.movement == self.steps:
+            pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, self.attackingboat_width, self.attackingboat_height), 0)
+
+    def change_stance(self):
+        if self.original_stance == "defending" and self.movement == self.steps:
+            self.movement -= 1
+        if self.movement > 0:
+            if self.new_stance == "defending":
+                self.new_stance = "attacking"
+            else:
+                self.new_stance = "defending"
+
+    def move(self, direction):
+        if self.new_stance == "attacking":
+            if direction == "left":
+                if (self.new_x - self.gamegrid.gridx) < self.x:
+                    if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
+                        if self.movement > 0:
+                            self.new_x -= self.gamegrid.gridx
+                            self.movement -= 1
+                else:
+                    self.movement += 1
+                    self.new_x -= self.gamegrid.gridx
+            elif direction == "right":
+                if (self.new_x + self.gamegrid.gridx) > self.x:
+                    if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
+                        if self.movement > 0:
+                            self.new_x += self.gamegrid.gridx
+                            self.movement -= 1
+                else:
+                    self.movement += 1
+                    self.new_x += self.gamegrid.gridx
+            if direction == "up":
+                if (self.new_y - self.gamegrid.gridy) < self.y:
+                    if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
+                        if self.movement > 0:
+                            self.new_y -= self.gamegrid.gridy
+                            self.movement -= 1
+                else:
+                    self.movement += 1
+                    self.new_y -= self.gamegrid.gridy
+            if direction == "down":
+                if (self.new_y + self.gamegrid.gridy) > self.y:
+                    if self.new_y + self.gamegrid.gridy < self.gamegrid.gridstarty+self.gamegrid.y:
+                        if self.movement > 0:
+                            self.new_y += self.gamegrid.gridy
+                            self.movement -= 1
+                else:
+                    self.movement += 1
+                    self.new_y += self.gamegrid.gridy
+
+    def confirm(self):
+        self.x = self.new_x
+        self.y = self.new_y
+        self.original_stance = self.new_stance
+        self.movement = self.steps
 
 
+GameGrid = Grid(display_width, display_height)
+
+positie_boat1_x = GameGrid.gridstartx + ((1 / 6) * GameGrid.gridx)
+positie_boat1_y = GameGrid.gridstarty + ((1 / 6) * GameGrid.gridy)
+Boat1 = Boat(positie_boat1_x, positie_boat1_y, 2, 3, GameGrid)
+
+positie_boat2_x = GameGrid.gridstartx + ((1 / 6) * GameGrid.gridx * 6)
+positie_boat2_y = GameGrid.gridstarty + ((1 / 6) * GameGrid.gridy)
+Boat2 = Boat(positie_boat2_x, positie_boat2_y, 3, 3, GameGrid)
+
+positie_boat3_x = GameGrid.gridstartx + ((1 / 6) * GameGrid.gridx * 12)
+positie_boat3_y = GameGrid.gridstarty + ((1 / 6) * GameGrid.gridy)
+Boat3 = Boat(positie_boat3_x, positie_boat3_y, 4, 3, GameGrid)
+
+positie_boat4_x = GameGrid.gridstartx + ((1 / 6) * GameGrid.gridx * 18)
+positie_boat4_y = GameGrid.gridstarty + ((1 / 6) * GameGrid.gridy)
+Boat4 = Boat(positie_boat4_x, positie_boat4_y, 5, 3, GameGrid)
+
+P1 = Player("p1", Boat1, Boat2)
+P2 = Player("p2", Boat3, Boat4)
+
+Game1 = Game(P1, P1, P2)
 
 
 def text_objects(text, color, size = "small"):
@@ -147,6 +291,28 @@ def do_action(action):
         gameRules("bewegen & posities")
     elif action == "rules_kaarten":
         gameRules("kaarten")
+    elif action == "termination_screen":
+        gameTermination()
+    elif action == "next_player":
+        Game1.nextplayer()
+
+def gamePause():
+    paused = True
+
+    pygame.draw.rect(screen, white, (0, display_height*0.3, display_width, display_height*0.1), 0)
+    text_to_screen("Het spel is gepauzeerd", black, -display_height*0.15, "medium")
+
+    pygame.display.update()
+
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    paused = False
+
 
 def gameIntro():
     gameExit = False
@@ -154,6 +320,7 @@ def gameIntro():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameExit = True
+
         screen.fill(white)
         text_to_screen("Battleships", black, -(display_height*0.35), "medium")
         button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "start")
@@ -258,22 +425,66 @@ def gameLoop():
          for event in pygame.event.get():
              if event.type == pygame.QUIT:
                  gameExit = True
-
-
-         GameGrid = Grid(display_width, display_height)
-
-         Boat2 = Boat((GameGrid.gridstartx + ((1 / 6) * GameGrid.gridx)), (GameGrid.gridstarty + ((1 / 6) * GameGrid.gridy)), 2, GameGrid)
+             if event.type == pygame.KEYDOWN:
+                 if event.key == pygame.K_SPACE:
+                     Game1.currentplayer.nextboat()
+                 elif event.key == pygame.K_n:
+                     Game1.nextplayer()
+                     print(Game1)
+                 elif event.key == pygame.K_p:
+                     gamePause()
+                 elif event.key == pygame.K_c:
+                     Game1.currentplayer.currentboat.change_stance()
+                 elif event.key == pygame.K_RIGHT:
+                     Game1.currentplayer.currentboat.move("right")
+                 elif event.key == pygame.K_LEFT:
+                     Game1.currentplayer.currentboat.move("left")
+                 elif event.key == pygame.K_UP:
+                     Game1.currentplayer.currentboat.move("up")
+                 elif event.key == pygame.K_DOWN:
+                     Game1.currentplayer.currentboat.move("down")
 
          screen.fill(white)
          GameGrid.draw(screen)
-         Boat2.draw(screen)
 
-         button("Quit game", (display_width/2)-75, (display_height*0.1), 150, 50, red, light_blue, black, "quit")
+         for player in Game1.playerlist:
+             for boat in player.boatlist:
+                 boat.draw(screen)
+
+         for element in Game1.currentplayer.boatlist:
+             element.draw_new(screen)
+
+         Game1.currentplayer.selectedboat(screen)
+
+         button("Game beëindigen", (display_width/2)-150, (display_height*0.1), 300, 50, red, light_blue, black, "termination_screen")
+         if Game1.currentplayer == P1:
+            button("Volgende", display_width * 0.825, display_height * 0.83, 190, 60, green, light_blue, black, "next_player")
+         if Game1.currentplayer == P2:
+            button("Volgende", 0, display_height * 0.83, 190, 60, green, light_blue, black, "next_player")
+         button("Hoofdmenu", display_width * 0.825, display_height * 0.9, 190, 60, green, light_blue, black, "main")
 
          pygame.display.update()
 
 
      pygame.quit()
      quit()
+
+def gameTermination():
+    gameExit = False
+    while not gameExit:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameExit = True
+
+
+        screen.fill(white)
+        text_to_screen("The game has ended", black, -(display_height/4), "medium")
+        button("Hoofdmenu", display_width * 0.5 - 125, display_height * 0.4, 250, 60, red, light_blue, black, "main")
+        button("Quit", display_width * 0.5 - 125, display_height * 0.6, 250, 60, red, light_blue, black, "quit")
+
+        pygame.display.update()
+
+    pygame.quit()
+    quit()
 
 gameIntro()

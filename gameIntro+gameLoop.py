@@ -53,6 +53,28 @@ class Grid:
         while not gridlines > 20:
             pygame.draw.line(screen, (0, 0, 0), (((self.resolution_x-self.x)/2)+self.gridx*gridlines, ((self.resolution_y-self.y)/2)), (((self.resolution_x-self.x)/2)+self.gridx*gridlines, ((self.resolution_y-self.y)/2)+self.y), 2)
             gridlines += 1
+        pygame.draw.rect(screen, black, (self.gridstartx-140, self.gridstarty, 135, self.y/3), 8)
+        pygame.draw.rect(screen, black, (self.gridstartx-140, self.y+self.gridstarty-(self.y/3), 135, self.y / 3), 8)
+        pygame.draw.rect(screen, black, (self.gridstartx+self.x, self.gridstarty+(self.y/10)*4, self.gridstartx,(self.y/10)*2), 8)
+        trapcards = 0
+        while not trapcards > 6:
+            pygame.draw.rect(screen, black, (self.gridstartx+(self.x/7*trapcards), self.gridstarty-self.gridstarty*0.75, self.x/7, self.gridstarty*0.75), 10)
+            trapcards += 1
+        trapcards = 0
+        while not trapcards > 6:
+            pygame.draw.rect(screen, black, (self.gridstartx + (self.x / 7 * trapcards), self.gridstarty+self.y, self.x / 7,self.gridstarty * 0.75), 10)
+            trapcards += 1
+        perkcards = 0
+        while not perkcards > 3:
+            pygame.draw.rect(screen, black, (self.gridstartx+self.x, self.gridstarty+(self.y/10)*perkcards, self.x/4, self.x / 10), 10)
+            perkcards += 1
+        perkcards = 1
+        while not perkcards > 4:
+            pygame.draw.rect(screen, black, (self.gridstartx+self.x, self.gridstarty+self.y-(self.y/10)*perkcards, self.x/4, self.x / 10), 10)
+            perkcards += 1
+
+
+
 
 class Boat:
     def __init__(self, x, y, length, gamegrid):
