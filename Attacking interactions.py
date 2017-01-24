@@ -81,6 +81,7 @@ class Player:
         self.boatlist = []
         self.currentboat = 0
         self.attackable_boats = []
+        self.targeted_boat = 0
 
     def selectedboat(self, screen):
         if self.currentboat.new_stance == "attacking":
@@ -93,6 +94,25 @@ class Player:
             self.currentboat = self.boatlist[-1]
         else:
             self.currentboat = self.boatlist[0]
+
+    def next_attackable_boat(self):
+        self.targeted_boat = self.attackable_boats[0]
+        attacking = True
+        while attacking == True:
+            for event in pygame.event.get():
+                if event == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                if event == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        if self.targeted_boat == self.attackable_boats[0]:
+                            self.targeted_boat = self.attackable_boats[-1]
+                        else:
+                            self.targeted_boat = self.attackable_boats[0]
+                    if event.key == pygame.K_RETURN:
+                        attacking = False
+
+        self.attack(self.targetedboat)
 
     def attack(self, boat):
         if Game1.currentplayer == P1:
@@ -113,6 +133,7 @@ class Player:
             if enemy.boatlist == []:
                 text_to_screen(str(enemy.name) + " has no more boats left. " + str(P1.name) + " wins!", red, 0, "medium", 0)
                 gameTermination()
+        self.targeted_boat = 0
 
 
 class Grid:
@@ -650,10 +671,7 @@ def gameLoop():
                      Game1.currentplayer.currentboat.move("up")
                  elif event.key == pygame.K_DOWN:
                      Game1.currentplayer.currentboat.move("down")
-                 elif event.key == pygame.K_a:
-                     Game1.currentplayer.attack(short_boat1)
-                 elif event.key == pygame.K_b:
-                     Game1.currentplayer.attack(short_boat2)
+
 
          screen.fill(white)
          GameGrid.draw(screen)
