@@ -370,7 +370,7 @@ class Boat:
                 else:
                     self.movement += 1
                     self.new_y += self.gamegrid.gridy
-        self.switch_x = self.new_x
+            self.switch_x = self.new_x
 
     def confirm(self):
         for player in Game1.playerlist:
@@ -412,7 +412,36 @@ class Boat:
 
         return True
 
+    def attack_check(self):
+        attackable = False
+        if self.confirm():
+            if Game1.currentplayer == P1:
+                enemy = P2
+            elif Game1.currentplayer == P2:
+                enemy = P1
 
+            for boat in enemy.boatlist:
+                tiles = boat.steps - 1
+                attackable = False
+                while tiles >= 0:
+                    if self.new_stance == "attacking":
+                        if boat.original_stance == "attacking":
+                            if self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx*(self.horizontal_attackingrange+1) > boat.x > self.new_x-(self.gamegrid.gridx/6)-self.gamegrid.gridx*self.horizontal_attackingrange:
+                                if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*self.length > boat.new_y + self.gamegrid.gridy * tiles > self.new_y-(self.gamegrid.gridy/6):
+                                    attackable = True
+                            if self.new_x-(self.gamegrid.gridx/6)> boat.x > self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
+                                if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*(self.length+self.vertical_attackingrange) > boat.new_y + self.gamegrid.gridy * tiles > self.new_y-(self.gamegrid.gridy/6)-self.gamegrid.gridy*self.vertical_attackingrange:
+                                    attackable = True
+                        elif boat.original_stance == "defending":
+                            if self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx*(self.horizontal_attackingrange+1) > boat.x + self.gamegrid.gridx * tiles > self.new_x-(self.gamegrid.gridx/6)-self.gamegrid.gridx*self.horizontal_attackingrange:
+                                if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*self.length > boat.new_y + self.gamegrid.gridy * tiles > self.new_y-(self.gamegrid.gridy/6):
+                                    attackable = True
+                            if self.new_x-(self.gamegrid.gridx/6)> boat.x + self.gamegrid.gridx * tiles > self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
+                                if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*(self.length+self.vertical_attackingrange) > boat.new_y + self.gamegrid.gridy * tiles > self.new_y-(self.gamegrid.gridy/6)-self.gamegrid.gridy*self.vertical_attackingrange:
+                                    attackable = True
+                    tiles -= 1
+        if attackable:
+            print("Attackable ships nearby")
 GameGrid = Grid(display_width, display_height)
 
 
@@ -727,6 +756,8 @@ def gameLoop():
                      Game1.currentplayer.currentboat.move("up")
                  elif event.key == pygame.K_DOWN:
                      Game1.currentplayer.currentboat.move("down")
+                 elif event.key == pygame.K_a:
+                     Game1.currentplayer.currentboat.attack_check()
 
          screen.fill(white)
          GameGrid.draw(screen)
