@@ -439,7 +439,7 @@ def do_action(action):
     if action == "high score":
         pass
     elif action == "start":
-        Game1.nextplayer()
+        Game1.currentplayer = P1
         gameLoop()
     elif action == "main":
         gameIntro()
@@ -461,30 +461,32 @@ def do_action(action):
         Game1.nextplayer_ingame()
     elif action == "chooseboats":
         chooseBoats()
+    elif action == "nextplayer":
+        Game1.nextplayer()
     elif action == "shortboat1":
         Game1.currentplayer.boatlist.append(short_boat1)
         Game1.available_boats.remove(short_boat1)
-        Game1.nextplayer()
     elif action == "shortboat2":
         Game1.currentplayer.boatlist.append(short_boat2)
         Game1.available_boats.remove(short_boat2)
-        Game1.nextplayer()
     elif action == "mediumboat1":
         Game1.currentplayer.boatlist.append(medium_boat1)
         Game1.available_boats.remove(medium_boat1)
-        Game1.nextplayer()
     elif action == "mediumboat2":
         Game1.currentplayer.boatlist.append(medium_boat2)
         Game1.available_boats.remove(medium_boat2)
-        Game1.nextplayer()
     elif action == "largeboat1":
         Game1.currentplayer.boatlist.append(large_boat1)
         Game1.available_boats.remove(large_boat1)
-        Game1.nextplayer()
     elif action == "largeboat2":
         Game1.currentplayer.boatlist.append(large_boat2)
         Game1.available_boats.remove(large_boat2)
-        Game1.nextplayer()
+    elif action == "removefirstboat":
+        Game1.available_boats.append(Game1.currentplayer.boatlist[0])
+        Game1.currentplayer.boatlist.remove([0])
+    elif action == "removesecondboat":
+        Game1.available_boats.append(Game1.currentplayer.boatlist[-1])
+        Game1.currentplayer.boatlist.remove([-1])
 
 
 def gamePause():
@@ -535,6 +537,17 @@ def chooseBoats():
             text_to_screen((str(Game1)) + ", kies een schip.", black, -(display_height * 0.35), "medium")
         button("Start game", (display_width)-display_width/6, (display_height*0.85), 150, 50, red, light_blue, black, "start")
         button("Hoofdmenu", (display_width)-display_width/6, (display_height*0.75), 150, 50, red, light_blue,black, "main")
+
+        if Game1.currentplayer == P1:
+            button("Volgende", display_width * 0.825, display_height * 0.1, 190, 60, green, light_blue, black,
+                   "nextplayer")
+        if Game1.currentplayer == P2:
+            button("Volgende", 0, display_height * 0.1, 190, 60, green, light_blue, black, "nextplayer")
+
+        button("Verwijder eerste boot", display_width / 7, display_height * 0.85, 270, 60, green, light_blue, black,
+               "removefirstboat")
+        button("Verwijder tweede boot", display_width *0.5, display_height * 0.85, 280, 60, green, light_blue, black,
+               "removesecondboat")
 
         pygame.display.flip()
 
@@ -671,7 +684,6 @@ def gameLoop():
                      Game1.currentplayer.currentboat.move("up")
                  elif event.key == pygame.K_DOWN:
                      Game1.currentplayer.currentboat.move("down")
-
 
          screen.fill(white)
          GameGrid.draw(screen)
