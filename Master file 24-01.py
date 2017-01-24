@@ -26,6 +26,7 @@ light_blue = (0,255,255)
 green = (0,255,0)
 blue = (0, 50, 200)
 yellow = (255, 255, 0)
+grey = (128, 128, 128)
 
 clock = pygame.time.Clock()
 
@@ -173,10 +174,14 @@ class Boat:
         self.movement = self.steps*self.movement_multiplier
 
     def draw(self, screen):
+        if self.x == Game1.currentplayer.currentboat.x and not Game1.currentplayer.currentboat.movement == Game1.currentplayer.currentboat.steps:
+            color = grey
+        else:
+            color = black
         if self.original_stance == "attacking":
-            pygame.draw.ellipse(screen, black, (self.x, self.y, self.attackingboat_width, self.attackingboat_height), 0)
+            pygame.draw.ellipse(screen, color, (self.x, self.y, self.attackingboat_width, self.attackingboat_height), 0)
         elif self.original_stance == "defending":
-            pygame.draw.ellipse(screen, black, (self.x, self.y, self.defendingboat_width, self.defendingboat_height), 0)
+            pygame.draw.ellipse(screen, color, (self.x, self.y, self.defendingboat_width, self.defendingboat_height), 0)
 
     def draw_new(self, screen):
         if not self.original_stance == self.new_stance and self.new_stance == "defending":
@@ -197,15 +202,67 @@ class Boat:
     def draw_range(self, screen):
         startpunt_x = self.new_x - (self.gamegrid.gridx / 6)
         startpunt_y = self.new_y - (self.gamegrid.gridy / 6)
-        range_width = (self.horizontal_attackingrange * 2 + 1) * self.gamegrid.gridx
-        range_height = (self.vertical_attackingrange * 2 + self.length) * self.gamegrid.gridy
-        pygame.draw.rect(screen, yellow, (
-        startpunt_x - self.gamegrid.gridx * self.horizontal_attackingrange, startpunt_y, range_width,
-        self.gamegrid.gridy * self.length))
-        pygame.draw.rect(screen, yellow, (
-        startpunt_x, startpunt_y - self.gamegrid.gridy * self.vertical_attackingrange, self.gamegrid.gridx,
-        range_height))
-        # pygame.draw.rect(screen, yellow,(startpunt_x, startpunt_y-self.gamegrid.gridy*self.vertical_attackingrange, self.gamegrid.gridy, self.gamegrid.gridy * (self.length+self.vertical_attackingrange*2)))
+        if self.new_stance == "attacking":
+            draw_grids = 0
+            while not draw_grids == self.horizontal_attackingrange:
+                draw_grids += 1
+                if startpunt_x - self.gamegrid.gridx * draw_grids < self.gamegrid.gridstartx:
+                    break
+                else:
+                    pygame.draw.rect(screen, yellow, (startpunt_x - self.gamegrid.gridx * draw_grids, startpunt_y, self.gamegrid.gridx, self.gamegrid.gridy * self.length))
+                if draw_grids == self.horizontal_attackingrange:
+                    break
+            draw_grids = 0
+            while not draw_grids == self.horizontal_attackingrange:
+                draw_grids += 1
+                if startpunt_x + self.gamegrid.gridx * (draw_grids+1) > self.gamegrid.gridstartx+self.gamegrid.x:
+                    break
+                else:
+                    pygame.draw.rect(screen, yellow, (startpunt_x + self.gamegrid.gridx * draw_grids, startpunt_y, self.gamegrid.gridx, self.gamegrid.gridy * self.length))
+                if draw_grids == self.horizontal_attackingrange:
+                    break
+            draw_grids = 0
+            while not draw_grids == self.vertical_attackingrange:
+                draw_grids += 1
+                if startpunt_y - self.gamegrid.gridy * draw_grids < self.gamegrid.gridstarty:
+                    break
+                else:
+                    pygame.draw.rect(screen, yellow, (
+                    startpunt_x, startpunt_y - self.gamegrid.gridy * draw_grids, self.gamegrid.gridx,
+                    self.gamegrid.gridy))
+                if draw_grids == self.vertical_attackingrange:
+                    break
+            draw_grids = 0
+            while not draw_grids == self.horizontal_attackingrange:
+                draw_grids += 1
+                if startpunt_y + self.gamegrid.gridy * (draw_grids+(self.length)) > self.gamegrid.gridstarty+self.gamegrid.y:
+                    break
+                else:
+                    pygame.draw.rect(screen, yellow, (
+                    startpunt_x, startpunt_y + self.gamegrid.gridy * (draw_grids+(self.length-1)), self.gamegrid.gridx,
+                    self.gamegrid.gridy))
+                if draw_grids == self.vertical_attackingrange:
+                    break
+
+        if self.new_stance == "defending":
+            draw_grids = 0
+            while not draw_grids == self.vertical_defendingrange:
+                draw_grids += 1
+                if startpunt_y - self.gamegrid.gridy * draw_grids < self.gamegrid.gridstarty:
+                    break
+                else:
+                    pygame.draw.rect(screen, yellow, (startpunt_x, startpunt_y - self.gamegrid.gridy * draw_grids, self.gamegrid.gridx*self.length,self.gamegrid.gridy))
+                if draw_grids == self.vertical_attackingrange:
+                    break
+            draw_grids = 0
+            while not draw_grids == self.vertical_defendingrange:
+                draw_grids += 1
+                if startpunt_y + self.gamegrid.gridy * (draw_grids+1) > self.gamegrid.gridstarty+self.gamegrid.y:
+                    break
+                else:
+                    pygame.draw.rect(screen, yellow, (startpunt_x, startpunt_y + self.gamegrid.gridy * draw_grids, self.gamegrid.gridx * self.length, self.gamegrid.gridy))
+                if draw_grids == self.vertical_attackingrange:
+                    break
 
     def change_stance(self):
         if self.original_stance == "defending" and self.movement == self.steps:
