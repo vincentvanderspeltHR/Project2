@@ -81,6 +81,8 @@ class Player:
         self.score = 0
         self.boatlist = []
         self.currentboat = 0
+        self.attackable_boats = []
+        self.targeted_boat = 0
 
     def selectedboat(self, screen):
         if self.currentboat.new_stance == "attacking":
@@ -94,6 +96,48 @@ class Player:
         else:
             self.currentboat = self.boatlist[0]
 
+    def next_attackable_boat(self):
+        self.targeted_boat = self.attackable_boats[0]
+        attacking = True
+        while attacking == True:
+            for event in pygame.event.get():
+                if event == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                if event == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        if self.targeted_boat == self.attackable_boats[0]:
+                            self.targeted_boat = self.attackable_boats[-1]
+                        else:
+                            self.targeted_boat = self.attackable_boats[0]
+                    if event.key == pygame.K_RETURN:
+                        attacking = False
+
+        self.attackable_boats = []
+        self.attack(self.targeted_boat)
+
+    def attack(self, boat):
+        if Game1.currentplayer == P1:
+            enemy = P2
+        elif Game1.currentplayer == P2:
+            enemy = P1
+
+        if boat.emp_buff > 0:
+            boat.emp_buff -= 1
+        else:
+            boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
+            print(str(boat.currenthp))
+            if Game1.currentplayer.currentboat.damage_buff > 0:
+                Game1.currentplayer.currentboat.damage_buff -= Game1.currentplayer.currentboat.damage_buff
+            if boat.currenthp <= 0:
+                print("Boat destroyed.")
+                text_to_screen(str(enemy.name) + ", your boat got destroyed!", black, -display_height*0.45, "small", 0)
+                enemy.boatlist.remove(boat)
+                if enemy.boatlist == []:
+                    text_to_screen(str(enemy.name) + " has no more boats left. " + str(P1.name) + " wins!", red, 0, "medium", 0)
+                    gameTermination()
+        self.targeted_boat = 0
+        self.currentboat.attack_amount = 0
 
 class Grid:
     def __init__(self, resolution_x, resolution_y):
@@ -172,12 +216,12 @@ class Boat:
         self.flakarmor_buff = 0
         self.movement_multiplier = 1
         self.movement = self.steps*self.movement_multiplier
+        self.attack_amount = 1
 
     def draw(self, screen):
-        if self.x == Game1.currentplayer.currentboat.x and not Game1.currentplayer.currentboat.movement == Game1.currentplayer.currentboat.steps:
+        color = black
+        if self.x == Game1.currentplayer.currentboat.x:
             color = grey
-        else:
-            color = black
         if self.original_stance == "attacking":
             pygame.draw.ellipse(screen, color, (self.x, self.y, self.attackingboat_width, self.attackingboat_height), 0)
         elif self.original_stance == "defending":
