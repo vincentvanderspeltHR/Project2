@@ -135,13 +135,19 @@ class Grid:
             pygame.draw.rect(screen, black, (self.gridstartx + self.x, self.gridstarty + self.y - (self.y / 10) * perkcards, self.x / 4, self.x / 10),  10)
             perkcards += 1
 
+    def show_stats(self, screen):
+        text_to_screen("HP: "+str(Game1.currentplayer.currentboat.currenthp)+"/"+str(Game1.currentplayer.currentboat.hp), black, -display_height*0.45, "small", -display_width*0.45)
+        text_to_screen(
+            "Steps: " + str(Game1.currentplayer.currentboat.movement) + "/" + str(Game1.currentplayer.currentboat.steps),
+            black, -display_height * 0.42, "small", -display_width * 0.435)
 
 class Boat:
-    def __init__(self, x, y, length, steps, gamegrid, HP, attacking_range_x, attacking_range_y, defending_range_y):
+    def __init__(self, x, y, length, steps, gamegrid, HP, currentHP, attacking_range_x, attacking_range_y, defending_range_y):
         self.x = x
         self.y = y
         self.new_x = x
         self.new_y = y
+        self.switch_x = x
         self.length = length
         self.steps = steps
         self.gamegrid = gamegrid
@@ -149,17 +155,21 @@ class Boat:
         self.attackingboat_height = ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4))
         self.defendingboat_width = self.attackingboat_height
         self.defendingboat_height = self.attackingboat_width
-        #self.position_attacking = (self.x, self.y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
-        #self.position_defending = (self.x, self.y, self.position_attacking[3], self.position_attacking[2])
         self.new_position = (self.new_x, self.new_y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
         self.original_stance = "attacking"
         self.new_stance = "attacking"
-        self.movement = self.steps
-        self.HP = HP
+        self.hp = HP
+        self.currenthp = currentHP
         self.horizontal_attackingrange = attacking_range_x
         self.vertical_attackingrange = attacking_range_y
         self.horizontal_defendingrange = 0
         self.vertical_defendingrange = defending_range_y
+        self.range_buff = 0
+        self.damage_buff = 0
+        self.emp_buff = 0
+        self.flakarmor_buff = 0
+        self.movement_multiplier = 1
+        self.movement = self.steps*self.movement_multiplier
 
     def draw(self, screen):
         if self.original_stance == "attacking":
@@ -189,11 +199,19 @@ class Boat:
                 self.movement -= 1
         if self.movement > 0:
             if self.new_stance == "defending":
+                if self.switch_x > display_width/2:
+                    self.new_x = self.new_x + self.gamegrid.gridx*(self.length - 1)
                 self.new_stance = "attacking"
+                if Game1.currentplayer == P2:
+                    self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) - self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
                 if self.steps == 1 and self.original_stance == "defending":
                     self.movement -= 1
             else:
+                if self.switch_x > display_width/2:
+                    self.new_x = self.new_x - self.gamegrid.gridx*(self.length - 1)
                 self.new_stance = "defending"
+                if Game1.currentplayer == P2:
+                    self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) + self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
         elif self.steps == 1 and self.original_stance == "defending":
             self.new_stance = "defending"
             self.movement += 1
@@ -237,6 +255,7 @@ class Boat:
                 else:
                     self.movement += 1
                     self.new_y += self.gamegrid.gridy
+        self.switch_x = self.new_x
 
     def confirm(self):
         for player in Game1.playerlist:
@@ -283,7 +302,7 @@ GameGrid = Grid(display_width, display_height)
 
 
 #Posities boten
-positie_short_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6)
+positie_short_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6) + GameGrid.gridx*10
 positie_short_boat1_y = GameGrid.gridstarty + (GameGrid.gridy/6)
 
 positie_short_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6) + GameGrid.gridx
@@ -302,12 +321,12 @@ positie_large_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 5*GameGrid.gr
 positie_large_boat2_y = GameGrid.gridstarty + (GameGrid.gridy/6)
 
 #Alle boten
-short_boat1 = Boat(positie_short_boat1_x, positie_short_boat1_y, 2, 3, GameGrid, 2, 2, 2, 3)
-short_boat2 = Boat(positie_short_boat2_x, positie_short_boat2_y, 2, 3, GameGrid, 2, 2, 2, 3)
-medium_boat1 = Boat(positie_medium_boat1_x, positie_medium_boat1_y, 3, 2, GameGrid, 3, 3, 3, 4)
-medium_boat2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y, 3, 2, GameGrid, 3, 3, 3, 4)
-large_boat1 = Boat(positie_large_boat1_x, positie_large_boat1_y, 4, 1, GameGrid, 4, 4, 4, 5)
-large_boat2 = Boat(positie_large_boat2_x, positie_large_boat2_y, 4, 1, GameGrid, 4, 4, 4, 5)
+short_boat1 = Boat(positie_short_boat1_x, positie_short_boat1_y, 2, 3, GameGrid, 2, 2, 2, 2, 3)
+short_boat2 = Boat(positie_short_boat2_x, positie_short_boat2_y, 2, 3, GameGrid, 2, 2, 2, 2, 3)
+medium_boat1 = Boat(positie_medium_boat1_x, positie_medium_boat1_y, 3, 2, GameGrid, 3, 3, 3, 3, 4)
+medium_boat2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y, 3, 2, GameGrid, 3, 3, 3, 3, 4)
+large_boat1 = Boat(positie_large_boat1_x, positie_large_boat1_y, 4, 1, GameGrid, 4, 4, 4, 4, 5)
+large_boat2 = Boat(positie_large_boat2_x, positie_large_boat2_y, 4, 1, GameGrid, 4, 4, 4, 4, 5)
 
 
 P1 = Player("P1")
@@ -329,9 +348,9 @@ def text_objects(text, color, size = "small"):
     return textSurface, textSurface.get_rect()
 
 
-def text_to_screen(text, color, y_displace = 0, size = "small"):
+def text_to_screen(text, color, y_displace = 0, size = "small", x_displace = 0):
     textSurf, textRect = text_objects(text, color, size)
-    textRect.center = (int(display_width / 2), int(display_height / 2)+y_displace)
+    textRect.center = (int(display_width / 2)+x_displace, int(display_height / 2)+y_displace)
     screen.blit(textSurf, textRect)
 
 
@@ -596,6 +615,7 @@ def gameLoop():
 
          screen.fill(white)
          GameGrid.draw(screen)
+         GameGrid.show_stats(screen)
 
          for player in Game1.playerlist:
              for boat in player.boatlist:
