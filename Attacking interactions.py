@@ -419,13 +419,18 @@ def text_to_button(text, color, buttonx, buttony, buttonwidth, buttonheight, siz
 
 
 def button(text, x, y, width, height, inactive_color, active_color, text_color, action = None):
-    cursor = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
 
-    if x+width > cursor[0] > x and y+height > cursor[1] > y:
+    if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
         pygame.draw.rect(screen, active_color, (x, y, width, height))
-        if click[0] == 1 and action != None:
-            do_action(action)
+        if pygame.mouse.get_pressed()[0] == 1 and action != None:
+            while pygame.mouse.get_pressed()[0] == 1:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
+                        if event.button == 1:
+                            do_action(action)
+                            break
+                    else:
+                        break
     else:
         pygame.draw.rect(screen, inactive_color, (x, y, width, height))
 
@@ -439,7 +444,7 @@ def do_action(action):
     if action == "high score":
         pass
     elif action == "start":
-        Game1.nextplayer()
+        Game1.currentplayer = P1
         gameLoop()
     elif action == "main":
         gameIntro()
@@ -461,30 +466,44 @@ def do_action(action):
         Game1.nextplayer_ingame()
     elif action == "chooseboats":
         chooseBoats()
+    elif action == "nextplayer":
+        Game1.nextplayer()
     elif action == "shortboat1":
         Game1.currentplayer.boatlist.append(short_boat1)
         Game1.available_boats.remove(short_boat1)
-        Game1.nextplayer()
+    elif action == "remove_short_boat1":
+        Game1.available_boats.append(short_boat1)
+        Game1.currentplayer.boatlist.remove(short_boat1)
     elif action == "shortboat2":
         Game1.currentplayer.boatlist.append(short_boat2)
         Game1.available_boats.remove(short_boat2)
-        Game1.nextplayer()
+    elif action == "remove_short_boat2":
+        Game1.available_boats.append(short_boat2)
+        Game1.currentplayer.boatlist.remove(short_boat2)
     elif action == "mediumboat1":
         Game1.currentplayer.boatlist.append(medium_boat1)
         Game1.available_boats.remove(medium_boat1)
-        Game1.nextplayer()
+    elif action == "remove_medium_boat1":
+        Game1.available_boats.append(medium_boat1)
+        Game1.currentplayer.boatlist.remove(medium_boat1)
     elif action == "mediumboat2":
         Game1.currentplayer.boatlist.append(medium_boat2)
         Game1.available_boats.remove(medium_boat2)
-        Game1.nextplayer()
+    elif action == "remove_medium_boat2":
+        Game1.available_boats.append(medium_boat2)
+        Game1.currentplayer.boatlist.remove(medium_boat2)
     elif action == "largeboat1":
         Game1.currentplayer.boatlist.append(large_boat1)
         Game1.available_boats.remove(large_boat1)
-        Game1.nextplayer()
+    elif action == "remove_large_boat1":
+        Game1.available_boats.append(large_boat1)
+        Game1.currentplayer.boatlist.remove(large_boat1)
     elif action == "largeboat2":
         Game1.currentplayer.boatlist.append(large_boat2)
         Game1.available_boats.remove(large_boat2)
-        Game1.nextplayer()
+    elif action == "remove_large_boat2":
+        Game1.available_boats.append(large_boat2)
+        Game1.currentplayer.boatlist.remove(large_boat2)
 
 
 def gamePause():
@@ -513,28 +532,123 @@ def chooseBoats():
                 gameExit = True
 
         screen.fill(white)
+#All boat selects
         if len(Game1.available_boats) > 2:
-            if short_boat1 in Game1.available_boats:
-                button("Short boat 1", display_width / 6, display_height / 2, 190, 50, red, light_blue, black, "shortboat1")
-            if short_boat2 in Game1.available_boats:
-                button("Short boat 2", display_width / 6 + display_width / 5, display_height / 2, 190, 50, red, light_blue, black, "shortboat2")
-            if medium_boat1 in Game1.available_boats:
-                button("Medium boat 1", display_width / 6 + 2*display_width / 5, display_height / 2, 190, 50, red, light_blue, black, "mediumboat1")
-            if medium_boat2 in Game1.available_boats:
-                button("Medium boat 2", display_width / 6, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "mediumboat2")
-            if large_boat1 in Game1.available_boats:
-                button("Large boat 1", display_width / 6 + display_width / 5, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "largeboat1")
-            if large_boat2 in Game1.available_boats:
-                button("Large boat 2", display_width / 6 + 2*display_width / 5, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "largeboat2")
+            if len(Game1.currentplayer.boatlist) < 2:
+                if Game1.currentplayer == P1 and len(P1.boatlist) <= len(P2.boatlist):
+                    if short_boat1 in Game1.available_boats:
+                        button("Short boat 1", display_width * 0.15, display_height * 0.3, 190, 50, red, light_blue,
+                               black,
+                               "shortboat1")
+                    if short_boat2 in Game1.available_boats:
+                        button("Short boat 2", display_width * 0.85 - 190, display_height * 0.3, 190, 50, red,
+                               light_blue,
+                               black, "shortboat2")
+                    if medium_boat1 in Game1.available_boats:
+                        button("Medium boat 1", display_width * 0.15, display_height * 0.4, 190, 50, red, light_blue,
+                               black,
+                               "mediumboat1")
+                    if medium_boat2 in Game1.available_boats:
+                        button("Medium boat 2", display_width * 0.85 - 190, display_height * 0.4, 190, 50, red,
+                               light_blue,
+                               black, "mediumboat2")
+                    if large_boat1 in Game1.available_boats:
+                        button("Large boat 1", display_width * 0.15, display_height * 0.5, 190, 50, red, light_blue,
+                               black,
+                               "largeboat1")
+                    if large_boat2 in Game1.available_boats:
+                        button("Large boat 2", display_width * 0.85 - 190, display_height * 0.5, 190, 50, red,
+                               light_blue,
+                               black, "largeboat2")
+                if Game1.currentplayer == P2 and len(P2.boatlist) < len(P1.boatlist):
+                    if short_boat1 in Game1.available_boats:
+                        button("Short boat 1", display_width * 0.15, display_height * 0.3, 190, 50, red, light_blue,
+                               black,
+                               "shortboat1")
+                    if short_boat2 in Game1.available_boats:
+                        button("Short boat 2", display_width * 0.85 - 190, display_height * 0.3, 190, 50, red,
+                               light_blue,
+                               black, "shortboat2")
+                    if medium_boat1 in Game1.available_boats:
+                        button("Medium boat 1", display_width * 0.15, display_height * 0.4, 190, 50, red, light_blue,
+                               black,
+                               "mediumboat1")
+                    if medium_boat2 in Game1.available_boats:
+                        button("Medium boat 2", display_width * 0.85 - 190, display_height * 0.4, 190, 50, red,
+                               light_blue,
+                               black, "mediumboat2")
+                    if large_boat1 in Game1.available_boats:
+                        button("Large boat 1", display_width * 0.15, display_height * 0.5, 190, 50, red, light_blue,
+                               black,
+                               "largeboat1")
+                    if large_boat2 in Game1.available_boats:
+                        button("Large boat 2", display_width * 0.85 - 190, display_height * 0.5, 190, 50, red,
+                               light_blue,
+                               black, "largeboat2")
 
-        if len(Game1.available_boats) == 2:
+
+
+                    # All the remove buttons
+            #All first boats removes
+            if len(Game1.currentplayer.boatlist) >= 1 and short_boat1 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, shortboat1", display_width*0.5-250, display_height*0.75, 500, 50, green, light_blue,
+                       black, "remove_short_boat1")
+            if len(Game1.currentplayer.boatlist) >= 1 and short_boat2 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, shortboat2", display_width*0.5-250, display_height*0.75, 500, 50, green, light_blue,
+                       black, "remove_short_boat2")
+            if len(Game1.currentplayer.boatlist) >= 1 and medium_boat1 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, mediumboat1", display_width*0.5-250, display_height*0.75, 500, 50, green, light_blue,
+                       black, "remove_medium_boat1")
+            if len(Game1.currentplayer.boatlist) >= 1 and medium_boat2 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, mediumboat2", display_width*0.5-250, display_height*0.75, 500, 50, green, light_blue,
+                       black, "remove_medium_boat2")
+            if len(Game1.currentplayer.boatlist) >= 1 and large_boat1 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, largeboat1", display_width*0.5-250, display_height*0.75, 500, 50, green, light_blue,
+                       black, "remove_large_boat1")
+            if len(Game1.currentplayer.boatlist) >= 1 and large_boat2 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, largeboat2", display_width*0.5-250, display_height*0.75, 500, 50, green, light_blue,
+                       black, "remove_large_boat2")
+
+            #All second boat removes
+            if len(Game1.currentplayer.boatlist) == 2 and short_boat1 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, shortboat1", display_width*0.5-250, display_height*0.85, 500, 50, green, light_blue,
+                       black, "remove_short_boat1")
+            if len(Game1.currentplayer.boatlist) == 2 and short_boat2 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, shortboat2", display_width*0.5-250, display_height*0.85, 500, 50, green, light_blue,
+                       black, "remove_short_boat2")
+            if len(Game1.currentplayer.boatlist) == 2 and medium_boat1 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, mediumboat1", display_width*0.5-250, display_height*0.85, 500, 50, green, light_blue,
+                       black, "remove_medium_boat1")
+            if len(Game1.currentplayer.boatlist) == 2 and medium_boat2 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, mediumboat2", display_width*0.5-250, display_height*0.85, 500, 50, green, light_blue,
+                       black, "remove_medium_boat2")
+            if len(Game1.currentplayer.boatlist) == 2 and large_boat1 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, largeboat1", display_width*0.5-250, display_height*0.85, 500, 50, green, light_blue,
+                       black, "remove_large_boat1")
+            if len(Game1.currentplayer.boatlist) == 2 and large_boat2 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, largeboat2", display_width*0.5-250, display_height*0.85, 500, 50, green, light_blue,
+                       black, "remove_large_boat2")
+
+            if len(Game1.currentplayer.boatlist) != 0:
+                button("Volgende", display_width * 0.825, display_height * 0.1, 190, 60, green, light_blue, black,
+                       "nextplayer")
+
+        if len(P1.boatlist) == 2 and len(P2.boatlist) == 2:
+            screen.fill(white)
+            text_to_screen("Alle boten zijn gekozen", black, -display_height * 0.35, "medium")
+
             for player in Game1.playerlist:
                 player.currentboat = player.boatlist[0]
-            text_to_screen("Alle boten zijn gekozen", black, -display_height * 0.35, "medium")
-        else:
+
+            button("Start game", (display_width) - display_width / 6, (display_height * 0.85), 150, 50, red,
+                   light_blue, black, "start")
+
+        if len(Game1.available_boats) > 2:
             text_to_screen((str(Game1)) + ", kies een schip.", black, -(display_height * 0.35), "medium")
-        button("Start game", (display_width)-display_width/6, (display_height*0.85), 150, 50, red, light_blue, black, "start")
-        button("Hoofdmenu", (display_width)-display_width/6, (display_height*0.75), 150, 50, red, light_blue,black, "main")
+
+        button("Hoofdmenu", (display_width) - display_width / 6, (display_height * 0.75), 150, 50, red, light_blue, black, "main")
+
+
 
         pygame.display.flip()
 
@@ -671,7 +785,6 @@ def gameLoop():
                      Game1.currentplayer.currentboat.move("up")
                  elif event.key == pygame.K_DOWN:
                      Game1.currentplayer.currentboat.move("down")
-
 
          screen.fill(white)
          GameGrid.draw(screen)
