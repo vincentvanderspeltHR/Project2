@@ -122,11 +122,9 @@ class Player:
             boat.emp_buff -= 1
         else:
             boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
-            print(str(boat.currenthp))
             if Game1.currentplayer.currentboat.damage_buff > 0:
                 Game1.currentplayer.currentboat.damage_buff -= Game1.currentplayer.currentboat.damage_buff
             if boat.currenthp <= 0:
-                print("Boat destroyed.")
                 text_to_screen(str(enemy.name) + ", your boat got destroyed!", black, -display_height*0.45, "small", 0)
                 enemy.boatlist.remove(boat)
                 if enemy.boatlist == []:
@@ -330,6 +328,8 @@ class Boat:
                 if Game1.currentplayer == P2:
                     self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) + self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
         elif self.steps == 1 and self.original_stance == "defending":
+            if self.switch_x > display_width / 2:
+                self.new_x = self.new_x - self.gamegrid.gridx * (self.length - 1)
             self.new_stance = "defending"
             self.movement += 1
 
@@ -489,7 +489,6 @@ class Boat:
                     tiles -= 1
                 if attackable:
                     Game1.currentplayer.attackable_boats.append(boat)
-                print(Game1.currentplayer.attackable_boats)
 
 GameGrid = Grid(display_width, display_height)
 
@@ -510,7 +509,7 @@ positie_medium_boat2_y = GameGrid.gridstarty + (GameGrid.gridy/6)
 positie_large_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 4*GameGrid.gridx
 positie_large_boat1_y = GameGrid.gridstarty + (GameGrid.gridy/6)
 
-positie_large_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 5*GameGrid.gridx
+positie_large_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 12*GameGrid.gridx
 positie_large_boat2_y = GameGrid.gridstarty + (GameGrid.gridy/6)
 
 #Alle boten
@@ -811,10 +810,6 @@ def gameLoop():
                              if len(Game1.currentplayer.attackable_boats) > 0:
                                  attacking = True
                                  Game1.currentplayer.targeted_boat = Game1.currentplayer.attackable_boats[0]
-                     elif event.key == pygame.K_q:
-                         print("x: "+str(Game1.currentplayer.currentboat.x))
-                         print("new_x: "+str(Game1.currentplayer.currentboat.new_x))
-                         print("switch_x: "+str(Game1.currentplayer.currentboat.switch_x))
                  elif attacking:
                      if event.key == pygame.K_SPACE:
                          Game1.currentplayer.next_attackable_boat()
