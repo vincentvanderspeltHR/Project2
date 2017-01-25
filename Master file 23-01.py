@@ -74,8 +74,8 @@ class Game:
 
 
 class Player:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
+        self.name = ""
         self.score = 0
         self.boatlist = []
         self.currentboat = 0
@@ -310,8 +310,8 @@ large_boat1 = Boat(positie_large_boat1_x, positie_large_boat1_y, 4, 1, GameGrid,
 large_boat2 = Boat(positie_large_boat2_x, positie_large_boat2_y, 4, 1, GameGrid, 4, 4, 4, 5)
 
 
-P1 = Player("P1")
-P2 = Player("P2")
+P1 = Player()
+P2 = Player()
 
 Game1 = Game(P1, P1, P2)
 
@@ -360,7 +360,7 @@ def do_action(action):
         pygame.quit()
         quit()
     if action == "high score":
-        pass
+        highScore()
     elif action == "start":
         gameLoop()
     elif action == "main":
@@ -379,8 +379,12 @@ def do_action(action):
         gameRules("kaarten")
     elif action == "termination_screen":
         gameTermination()
+    elif action == "next_player_input":
+        Game1.nextplayer()
     elif action == "next_player":
         Game1.nextplayer_ingame()
+    elif action == "inputname":
+        inputName()
     elif action == "chooseboats":
         chooseBoats()
     elif action == "shortboat1":
@@ -426,6 +430,111 @@ def gamePause():
                 if event.key == pygame.K_p:
                     paused = False
 
+def inputName():
+    gameExit = False
+    while not gameExit:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameExit = True
+            if event.type == pygame. KEYDOWN:
+                if event.key == pygame.K_q:
+                    Game1.currentplayer.name += "q"
+                if event.key == pygame.K_w:
+                    Game1.currentplayer.name += "w"
+                    pygame.display.update()
+                if event.key == pygame.K_e:
+                    Game1.currentplayer.name += "e"
+                    pygame.display.update()
+                if event.key == pygame.K_r:
+                    Game1.currentplayer.name += "r"
+                    pygame.display.update()
+                if event.key == pygame.K_t:
+                    Game1.currentplayer.name += "t"
+                    pygame.display.update()
+                if event.key == pygame.K_y:
+                    Game1.currentplayer.name += "y"
+                    pygame.display.update()
+                if event.key == pygame.K_u:
+                    Game1.currentplayer.name += "u"
+                    pygame.display.update()
+                if event.key == pygame.K_i:
+                    Game1.currentplayer.name += "i"
+                    pygame.display.update()
+                if event.key == pygame.K_o:
+                    Game1.currentplayer.name += "o"
+                    pygame.display.update()
+                if event.key == pygame.K_p:
+                    Game1.currentplayer.name += "p"
+                    pygame.display.update()
+                if event.key == pygame.K_a:
+                    Game1.currentplayer.name += "a"
+                    pygame.display.update()
+                if event.key == pygame.K_s:
+                    Game1.currentplayer.name += "s"
+                    pygame.display.update()
+                if event.key == pygame.K_d:
+                    Game1.currentplayer.name += "d"
+                    pygame.display.update()
+                if event.key == pygame.K_f:
+                    Game1.currentplayer.name += "f"
+                    pygame.display.update()
+                if event.key == pygame.K_g:
+                    Game1.currentplayer.name += "g"
+                    pygame.display.update()
+                if event.key == pygame.K_h:
+                    Game1.currentplayer.name += "h"
+                    pygame.display.update()
+                if event.key == pygame.K_j:
+                    Game1.currentplayer.name += "j"
+                    pygame.display.update()
+                if event.key == pygame.K_k:
+                    Game1.currentplayer.name += "k"
+                    pygame.display.update()
+                if event.key == pygame.K_l:
+                    Game1.currentplayer.name += "l"
+                    pygame.display.update()
+                if event.key == pygame.K_z:
+                    Game1.currentplayer.name += "z"
+                    pygame.display.update()
+                if event.key == pygame.K_x:
+                    Game1.currentplayer.name += "x"
+                    pygame.display.update()
+                if event.key == pygame.K_c:
+                    Game1.currentplayer.name += "c"
+                    pygame.display.update()
+                if event.key == pygame.K_v:
+                    Game1.currentplayer.name += "v"
+                    pygame.display.update()
+                if event.key == pygame.K_b:
+                    Game1.currentplayer.name += "b"
+                    pygame.display.update()
+                if event.key == pygame.K_n:
+                    Game1.currentplayer.name += "n"
+                    pygame.display.update()
+                if event.key == pygame.K_m:
+                    Game1.currentplayer.name += "m"
+                    pygame.display.update()
+                if event.key == pygame.K_SPACE:
+                    Game1.currentplayer.name += " "
+                if event.key == pygame.K_BACKSPACE:
+                    Game1.currentplayer.name = Game1.currentplayer.name[:-1]
+                    pygame.display.update()
+                if event.key == pygame.K_RETURN:
+                    Game1.nextplayer()
+        screen.fill(white)
+        text_to_screen("Naam: "+ str(Game1.currentplayer.name), black, -display_height*0.35, "medium")
+        if Game1.currentplayer == P1:
+            button("Volgende", (display_width) - display_width / 2, (display_height * 0.85), 150, 50, red, light_blue,black, "next_player_input")
+        if Game1.currentplayer == P2:
+            button("Volgende", (display_width) - display_width / 1, (display_height * 0.85), 150, 50, red, light_blue,
+               black, "next_player_input")
+        button("Start game", (display_width) - display_width / 6, (display_height * 0.85), 150, 50, red, light_blue,
+               black, "chooseboats")
+        pygame.display.update()
+
+
+    pygame.quit()
+    quit()
 
 def chooseBoats():
     gameExit = False
@@ -453,9 +562,11 @@ def chooseBoats():
             for player in Game1.playerlist:
                 player.currentboat = player.boatlist[0]
             text_to_screen("Alle boten zijn gekozen", black, -display_height * 0.35, "medium")
+            button("Start game", (display_width) - display_width / 6, (display_height * 0.85), 150, 50, red, light_blue,
+                   black, "start")
         else:
             text_to_screen((str(Game1)) + ", kies een schip.", black, -(display_height * 0.35), "medium")
-        button("Start game", (display_width)-display_width/6, (display_height*0.85), 150, 50, red, light_blue, black, "start")
+
         button("Hoofdmenu", (display_width)-display_width/6, (display_height*0.75), 150, 50, red, light_blue,black, "main")
 
         pygame.display.flip()
@@ -474,7 +585,7 @@ def gameIntro():
 
         screen.fill(white)
         text_to_screen("Battleships", black, -(display_height*0.35), "medium")
-        button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "chooseboats")
+        button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "inputname")
         button("Help", (display_width / 2) - 75, (display_height * 0.45), 150, 50, red, light_blue, black, "rules_main")
         button("High score",  (display_width/2)-75, (display_height*0.55), 150, 50, red, light_blue, black, "high score")
         button("Quit", (display_width/2)-75, (display_height*0.65), 150, 50, red, light_blue,black, "quit")
@@ -570,6 +681,26 @@ def gameRules(page):
 
     pygame.quit()
     quit()
+
+
+def highScore():
+    gameExit = False
+    while not gameExit:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameExit = True
+            screen.fill(white)
+            text_to_screen("High scores", black, -400)
+            if Game1.currentplayer.name:
+                text_to_screen("1. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, -300)
+                text_to_screen("2. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, -200)
+                text_to_screen("3. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, -100)
+                text_to_screen("4. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black)
+                text_to_screen("5. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, +100)
+            else:
+                text_to_screen("Er zijn nog geen spelers.", black)
+            button("Hoofdmenu", (display_width) - display_width / 6, (display_height * 0.93), 150, 50, red, light_blue, black, "main")
+            pygame.display.update()
 
 
 def gameLoop():
