@@ -15,6 +15,27 @@ if display_height <= 600:
 
 pygame.display.set_caption("Menu scherm")
 
+image1 = pygame.image.load("adrenaline rush.jpg")
+image2 = pygame.image.load("Advanced Rifling.jpg")
+image3 = pygame.image.load("Aluminium Hull.jpg")
+image4 = pygame.image.load("Backup.jpg")
+image5 = pygame.image.load("EMP.jpg")
+image6 = pygame.image.load("Extra fuel ll.jpg")
+image7 = pygame.image.load("extra fuel.jpg")
+image8 = pygame.image.load("Far sight.jpg")
+image9 = pygame.image.load("Flak armor.jpg")
+image10 = pygame.image.load("FMJ.jpg")
+image11 = pygame.image.load("Hack intel.jpg")
+image12 = pygame.image.load("Jack Sparrow.jpg")
+image13 = pygame.image.load("Naval Mine.jpg")
+image14 = pygame.image.load("Rally.jpg")
+image15 = pygame.image.load("reinforced hull.jpg")
+image16 = pygame.image.load("Repair.jpg")
+image17 = pygame.image.load("Rifling.jpg")
+image18 = pygame.image.load("sabotage.jpg")
+image19 = pygame.image.load("Smokescreen.jpg")
+image20 = pygame.image.load("Sonar.jpg")
+
 #icon = pygame.image.load(" ")
 #pygame.display.set_icon(icon)
 
@@ -44,6 +65,11 @@ class Game:
         self.playerlist = [P1, P2]
         self.available_boats = [short_boat1, short_boat2, medium_boat1, medium_boat2, large_boat1, large_boat2]
         self.setup_counter = 0
+        self.allcards = []
+        self.offense_cards = []
+        self.defense_cards = []
+        self.utility_cards = []
+        self.special_cards = []
 
     def changeplayers(self):
         if self.currentplayer == self.playerlist[0]:
@@ -72,6 +98,10 @@ class Game:
     def __str__(self):
         return str(self.currentplayer.name)
 
+class Card:
+    def __init__(self, name, image):
+        self.name = name
+        self.image = image
 
 class Player:
     def __init__(self):
@@ -578,6 +608,35 @@ P2 = Player()
 
 Game1 = Game(P1, P1, P2)
 
+
+card1 = Card("adrenaline rush",image1)
+card2 = Card("Advanced Rifling",image2)
+card3 = Card("Aluminium Hull",image3)
+card4 = Card("Backup",image4)
+card5 = Card("EMP",image5)
+card6 = Card("Extra fuel ll",image6)
+card7 = Card("extra fuel",image7)
+card8 = Card("Far sight",image8)
+card9 = Card("Flak armor",image9)
+card10 = Card("FMJ",image10,)
+card11 = Card("Hack intel",image11)
+card12 = Card("Jack Sparrow",image12)
+card13 = Card("Naval Mine",image13)
+card14 = Card("Rally",image14)
+card15 = Card("reinforced hull",image15)
+card16 = Card("Repair",image16)
+card17 = Card("Rifling",image17)
+card18 = Card("sabotage",image18)
+card19 = Card("Smokescreen",image19)
+card20 = Card("Sonar",image20)
+
+Game1.allcards = [card1, card2, card3, card4, card5, card6, card7, card8, card9, card10, card11, card12, card13, card14, card15, card16, card17, card18, card19, card20]
+Game1.offense_cards = [card2, card5, card10, card13, card17]
+Game1.defense_cards = [card15, card18, card19, card20]
+Game1.utility_cards = [card1, card4, card6, card7]
+Game1.special_cards = [card3, card8, card9, card11, card12, card16]
+
+
 def text_objects(text, color, size = "small"):
     if size == "small":
         textSurface = smallfont.render(text, True, color)
@@ -1005,6 +1064,8 @@ def gameIntro():
         button("Help", (display_width / 2) - 75, (display_height * 0.45), 150, 50, red, light_blue, black, "rules_main")
         button("High score",  (display_width/2)-75, (display_height*0.55), 150, 50, red, light_blue, black, "high score")
         button("Quit", (display_width/2)-75, (display_height*0.65), 150, 50, red, light_blue,black, "quit")
+
+        #screen.blit(card1.image, [50, 50])
 
         pygame.display.update()
 
