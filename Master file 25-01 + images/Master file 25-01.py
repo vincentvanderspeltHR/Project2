@@ -6,12 +6,13 @@ pygame.init()
 
 display_width = 1000
 display_height = 1000
-screen = pygame.display.set_mode((display_width, display_height))
 
 if display_width<= 600:
     display_width = 600
-if display_height <= 600:
-    display_height = 600
+if display_height <= 1000:
+    display_height = 1000
+
+screen = pygame.display.set_mode((display_width, display_height))
 
 pygame.display.set_caption("Menu scherm")
 
@@ -116,6 +117,7 @@ class Player:
         self.currentboat = 0
         self.attackable_boats = []
         self.targeted_boat = 0
+        self.cards_in_hand = []
 
     def show_stats(self, screen):
         text_to_screen("HP: "+str(self.currentboat.currenthp)+"/"+str(self.currentboat.hp), black, -display_height*0.45, "small", -display_width*0.45)
@@ -210,6 +212,13 @@ class Player:
 
         Game1.currentplayer.attackable_boats = []
         Game1.currentplayer.targeted_boat = 0
+
+    def draw_cards(self, screen):
+        drawn_cards = 0
+        for card in self.cards_in_hand:
+            image = pygame.transform.scale(card.image,(int((display_width*0.8)/6), int(display_height*0.15)))
+            screen.blit(image, [0+int((display_width*0.8)/6)*drawn_cards, GameGrid.gridstarty * 1.7 + GameGrid.y])
+            drawn_cards += 1
 
 class Grid:
     def __init__(self, resolution_x, resolution_y):
@@ -917,8 +926,6 @@ def inputName():
                 elif event.key == pygame.K_BACKSPACE:
                     Game1.currentplayer.name = Game1.currentplayer.name[:-1]
                     pygame.display.update()
-                elif event.key == pygame.K_RETURN:
-                    Game1.changeplayers()
         screen.fill(white)
         text_to_screen("Naam: "+ str(Game1.currentplayer.name), black, -display_height*0.35, "medium")
         if Game1.currentplayer.name:
@@ -1132,6 +1139,9 @@ def gameLoop():
                          Game1.currentplayer.currentboat.move("right")
                      elif event.key == pygame.K_LEFT:
                          Game1.currentplayer.currentboat.move("left")
+                     elif event.key == pygame.K_t:
+                         Game1.currentplayer.cards_in_hand.append(card1)
+                         print(Game1.currentplayer.cards_in_hand)
                      if not setup:
                          if event.key == pygame.K_SPACE:
                              Game1.currentplayer.nextboat()
@@ -1198,7 +1208,7 @@ def gameLoop():
              setup = False
              Game1.setup_counter = 5
 
-
+         Game1.currentplayer.draw_cards(screen)
 
          pygame.display.update()
 
