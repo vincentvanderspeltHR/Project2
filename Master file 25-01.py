@@ -9,11 +9,32 @@ display_height = 1000
 screen = pygame.display.set_mode((display_width, display_height))
 
 if display_width<= 600:
-    display_width == 600
+    display_width = 600
 if display_height <= 600:
-    display_height ==600
+    display_height = 600
 
 pygame.display.set_caption("Menu scherm")
+
+image1 = pygame.image.load("adrenaline rush.jpg")
+image2 = pygame.image.load("Advanced Rifling.jpg")
+image3 = pygame.image.load("Aluminium Hull.jpg")
+image4 = pygame.image.load("Backup.jpg")
+image5 = pygame.image.load("EMP.jpg")
+image6 = pygame.image.load("Extra fuel ll.jpg")
+image7 = pygame.image.load("extra fuel.jpg")
+image8 = pygame.image.load("Far sight.jpg")
+image9 = pygame.image.load("Flak armor.jpg")
+image10 = pygame.image.load("FMJ.jpg")
+image11 = pygame.image.load("Hack intel.jpg")
+image12 = pygame.image.load("Jack Sparrow.jpg")
+image13 = pygame.image.load("Naval Mine.jpg")
+image14 = pygame.image.load("Rally.jpg")
+image15 = pygame.image.load("reinforced hull.jpg")
+image16 = pygame.image.load("Repair.jpg")
+image17 = pygame.image.load("Rifling.jpg")
+image18 = pygame.image.load("sabotage.jpg")
+image19 = pygame.image.load("Smokescreen.jpg")
+image20 = pygame.image.load("Sonar.jpg")
 
 #icon = pygame.image.load(" ")
 #pygame.display.set_icon(icon)
@@ -43,6 +64,12 @@ class Game:
         self.currentplayer = firstplayer
         self.playerlist = [P1, P2]
         self.available_boats = [short_boat1, short_boat2, medium_boat1, medium_boat2, large_boat1, large_boat2]
+        self.setup_counter = 0
+        self.allcards = []
+        self.offense_cards = []
+        self.defense_cards = []
+        self.utility_cards = []
+        self.special_cards = []
 
     def changeplayers(self):
         if self.currentplayer == self.playerlist[0]:
@@ -53,39 +80,78 @@ class Game:
     def nextplayer_ingame(self):
         valid_turn = 0
         for element in self.currentplayer.boatlist:
-            if element.confirm() == True:
+            if element.confirm():
                 valid_turn += 1
         if valid_turn == len(Game1.currentplayer.boatlist):
             for element in self.currentplayer.boatlist:
-                if element.original_stance == "defending" and element.new_stance == "defending":
-                    element.switch_x = element.switch_x + (element.new_x-element.x)
-                element.x = element.new_x
-                element.y = element.new_y
-                element.original_stance = element.new_stance
-                element.movement = element.steps
-                element.attack_amount = element.original_attack_amount
+                element.confirm_stats()
             self.changeplayers()
 
-    def nextplayer(self):
-        for element in self.currentplayer.boatlist:
-            element.confirm()
-        if self.currentplayer == self.playerlist[0]:
-            self.currentplayer = self.playerlist[1]
-        else:
-            self.currentplayer = self.playerlist[0]
+    def nextplayer_setup(self):
+        if self.currentplayer.currentboat.confirm():
+            if self.currentplayer.currentboat.new_x > GameGrid.gridstartx:
+                self.currentplayer.currentboat.confirm_stats()
+                self.currentplayer.nextboat()
+                self.changeplayers()
+                self.setup_counter += 1
 
     def __str__(self):
         return str(self.currentplayer.name)
 
+class Card:
+    def __init__(self, name, image):
+        self.name = name
+        self.image = image
 
 class Player:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
+        self.name = ""
         self.score = 0
         self.boatlist = []
         self.currentboat = 0
         self.attackable_boats = []
         self.targeted_boat = 0
+
+    def show_stats(self, screen):
+        text_to_screen("HP: "+str(self.currentboat.currenthp)+"/"+str(self.currentboat.hp), black, -display_height*0.45, "small", -display_width*0.45)
+        text_to_screen(
+            "Stappen: " + str(self.currentboat.movement) + "/" + str(self.currentboat.steps),
+            black, -display_height * 0.425, "small", -display_width * 0.414)
+        text_to_screen(
+            "Aanval: " + str(self.currentboat.attack_amount) + "/" + str(self.currentboat.original_attack_amount),
+            black, -display_height * 0.4, "small", -display_width * 0.422)
+
+    def show_target_stats(self, screen):
+        if Game1.currentplayer == P1:
+            enemy = P2
+        elif Game1.currentplayer == P2:
+            enemy = P1
+        display_difference = 0.025
+        enemy_boat = 3
+
+        if self.targeted_boat == enemy.boatlist[0]:
+            text_to_screen("HP: " + str(self.targeted_boat.currenthp) + "/" + str(self.targeted_boat.hp), red,
+                           -(display_height * 0.475) + (display_difference * display_height*enemy_boat), "small",
+                           +display_width * 0.40)
+        else:
+            text_to_screen("HP: " + str(self.targeted_boat.currenthp) + "/" + str(self.targeted_boat.hp), red,
+                           -(display_height * 0.475) + (display_difference * display_height*enemy_boat*2), "small",
+                           +display_width * 0.40)
+
+    def show_enemy_stats(self, screen):
+        if Game1.currentplayer == P1:
+            enemy = P2
+        elif Game1.currentplayer == P2:
+            enemy = P1
+        display_difference = 0.025
+        enemy_boat = 0
+
+        for boat in enemy.boatlist:
+            enemy_boat += 1
+            text_to_screen("Schip "+str(enemy_boat), black,
+                           -(display_height * 0.5) + (display_difference*display_height*enemy_boat*3), "small", +display_width * 0.40)
+            text_to_screen("HP: " + str(boat.currenthp) + "/" + str(boat.hp), black,
+                           -(display_height * 0.475)+(display_difference*display_height*enemy_boat*3), "small", +display_width * 0.40)
 
     def selectedboat(self, screen):
         if self.currentboat.new_stance == "attacking":
@@ -94,7 +160,7 @@ class Player:
             pygame.draw.ellipse(screen, (255, 255, 255), (self.currentboat.new_x, self.currentboat.new_y, ((self.currentboat.gamegrid.gridy)*self.currentboat.length - (self.currentboat.gamegrid.gridx/4)), (self.currentboat.gamegrid.gridx)-(self.currentboat.gamegrid.gridx/4)), 4)
 
     def draw_targetedboat(self, screen):
-        if self.currentboat.new_stance == "attacking":
+        if self.targeted_boat.new_stance == "attacking":
             pygame.draw.ellipse(screen, (255, 0, 0), (self.targeted_boat.new_x, self.targeted_boat.new_y, (self.targeted_boat.gamegrid.gridx)-(self.targeted_boat.gamegrid.gridx/4), ((self.targeted_boat.gamegrid.gridy)*self.targeted_boat.length - (self.targeted_boat.gamegrid.gridx/4))), 4)
         else:
             pygame.draw.ellipse(screen, (255, 0, 0), (self.targeted_boat.new_x, self.targeted_boat.new_y, ((self.targeted_boat.gamegrid.gridy)*self.targeted_boat.length - (self.targeted_boat.gamegrid.gridx/4)), (self.targeted_boat.gamegrid.gridx)-(self.targeted_boat.gamegrid.gridx/4)), 4)
@@ -122,11 +188,9 @@ class Player:
             boat.emp_buff -= 1
         else:
             boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
-            print(str(boat.currenthp))
             if Game1.currentplayer.currentboat.damage_buff > 0:
                 Game1.currentplayer.currentboat.damage_buff -= Game1.currentplayer.currentboat.damage_buff
             if boat.currenthp <= 0:
-                print("Boat destroyed.")
                 text_to_screen(str(enemy.name) + ", your boat got destroyed!", black, -display_height*0.45, "small", 0)
                 enemy.boatlist.remove(boat)
                 if enemy.boatlist == []:
@@ -182,12 +246,6 @@ class Grid:
             pygame.draw.rect(screen, black, (self.gridstartx + self.x, self.gridstarty + self.y - (self.y / 10) * perkcards, self.x / 4, self.x / 10),  10)
             perkcards += 1
 
-    def show_stats(self, screen):
-        text_to_screen("HP: "+str(Game1.currentplayer.currentboat.currenthp)+"/"+str(Game1.currentplayer.currentboat.hp), black, -display_height*0.45, "small", -display_width*0.45)
-        text_to_screen(
-            "Steps: " + str(Game1.currentplayer.currentboat.movement) + "/" + str(Game1.currentplayer.currentboat.steps),
-            black, -display_height * 0.42, "small", -display_width * 0.435)
-
 class Boat:
     def __init__(self, x, y, length, steps, gamegrid, HP, currentHP, attacking_range_x, attacking_range_y, defending_range_y):
         self.x = x
@@ -230,7 +288,9 @@ class Boat:
             pygame.draw.ellipse(screen, color, (self.x, self.y, self.defendingboat_width, self.defendingboat_height), 0)
 
     def draw_new(self, screen):
-        if not self.original_stance == self.new_stance and self.new_stance == "defending":
+        if Game1.setup_counter < 5:
+            pygame.draw.ellipse(screen, light_red,(self.new_x, self.new_y, self.attackingboat_width, self.attackingboat_height), 0)
+        elif not self.original_stance == self.new_stance and self.new_stance == "defending":
             pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, self.defendingboat_width, self.defendingboat_height), 0)
         elif not self.original_stance == self.new_stance and self.new_stance == "attacking":
             if not self.movement == self.steps:
@@ -330,6 +390,8 @@ class Boat:
                 if Game1.currentplayer == P2:
                     self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) + self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
         elif self.steps == 1 and self.original_stance == "defending":
+            if self.switch_x > display_width / 2:
+                self.new_x = self.new_x - self.gamegrid.gridx * (self.length - 1)
             self.new_stance = "defending"
             self.movement += 1
 
@@ -489,29 +551,42 @@ class Boat:
                     tiles -= 1
                 if attackable:
                     Game1.currentplayer.attackable_boats.append(boat)
-                print(Game1.currentplayer.attackable_boats)
 
+    def confirm_stats(self):
+        if self.original_stance == "defending" and self.new_stance == "defending":
+            self.switch_x = self.switch_x + (self.new_x - self.x)
+        self.x = self.new_x
+        self.y = self.new_y
+        self.original_stance = self.new_stance
+        self.movement = self.steps
+        self.attack_amount = self.original_attack_amount
 GameGrid = Grid(display_width, display_height)
 
 
 #Posities boten
-positie_short_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6) + GameGrid.gridx*10
+positie_short_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6) -(GameGrid.gridx*1)
 positie_short_boat1_y = GameGrid.gridstarty + (GameGrid.gridy/6)
+positie_short_boat1_y_p2 = GameGrid.gridstarty + (GameGrid.gridy/6) + (GameGrid.gridy*18)
 
-positie_short_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6) + GameGrid.gridx
+positie_short_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6)  -(GameGrid.gridx*1)*2
 positie_short_boat2_y = GameGrid.gridstarty + (GameGrid.gridy/6)
+positie_short_boat2_y_p2 = GameGrid.gridstarty + (GameGrid.gridy/6) + (GameGrid.gridy*18)
 
-positie_medium_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 2*GameGrid.gridx
+positie_medium_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6)  -(GameGrid.gridx*1)*3
 positie_medium_boat1_y = GameGrid.gridstarty + (GameGrid.gridy/6)
+positie_medium_boat1_y_p2 = GameGrid.gridstarty + (GameGrid.gridy/6) + (GameGrid.gridy*17)
 
-positie_medium_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 3*GameGrid.gridx
+positie_medium_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6)  -(GameGrid.gridx*1)*4
 positie_medium_boat2_y = GameGrid.gridstarty + (GameGrid.gridy/6)
+positie_medium_boat2_y_p2 = GameGrid.gridstarty + (GameGrid.gridy/6) + (GameGrid.gridy*17)
 
-positie_large_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 4*GameGrid.gridx
+positie_large_boat1_x = GameGrid.gridstartx + (GameGrid.gridx/6)  -(GameGrid.gridx*1)*5
 positie_large_boat1_y = GameGrid.gridstarty + (GameGrid.gridy/6)
+positie_large_boat1_y_p2 = GameGrid.gridstarty + (GameGrid.gridy/6) + (GameGrid.gridy*16)
 
-positie_large_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6) + 5*GameGrid.gridx
+positie_large_boat2_x = GameGrid.gridstartx + (GameGrid.gridx/6)  -(GameGrid.gridx*1)*6
 positie_large_boat2_y = GameGrid.gridstarty + (GameGrid.gridy/6)
+positie_large_boat2_y_p2 = GameGrid.gridstarty + (GameGrid.gridy/6) + (GameGrid.gridy*16)
 
 #Alle boten
 short_boat1 = Boat(positie_short_boat1_x, positie_short_boat1_y, 2, 3, GameGrid, 2, 2, 2, 2, 3)
@@ -521,11 +596,46 @@ medium_boat2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y, 3, 2, GameGr
 large_boat1 = Boat(positie_large_boat1_x, positie_large_boat1_y, 4, 1, GameGrid, 4, 4, 4, 4, 5)
 large_boat2 = Boat(positie_large_boat2_x, positie_large_boat2_y, 4, 1, GameGrid, 4, 4, 4, 4, 5)
 
+short_boat1_p2 = Boat(positie_short_boat1_x, positie_short_boat1_y_p2, 2, 3, GameGrid, 2, 2, 2, 2, 3)
+short_boat2_p2 = Boat(positie_short_boat2_x, positie_short_boat2_y_p2, 2, 3, GameGrid, 2, 2, 2, 2, 3)
+medium_boat1_p2 = Boat(positie_medium_boat1_x, positie_medium_boat1_y_p2, 3, 2, GameGrid, 3, 3, 3, 3, 4)
+medium_boat2_p2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y_p2, 3, 2, GameGrid, 3, 3, 3, 3, 4)
+large_boat1_p2 = Boat(positie_large_boat1_x, positie_large_boat1_y_p2, 4, 1, GameGrid, 4, 4, 4, 4, 5)
+large_boat2_p2 = Boat(positie_large_boat2_x, positie_large_boat2_y_p2, 4, 1, GameGrid, 4, 4, 4, 4, 5)
 
-P1 = Player("P1")
-P2 = Player("P2")
+P1 = Player()
+P2 = Player()
 
 Game1 = Game(P1, P1, P2)
+
+
+card1 = Card("adrenaline rush",image1)
+card2 = Card("Advanced Rifling",image2)
+card3 = Card("Aluminium Hull",image3)
+card4 = Card("Backup",image4)
+card5 = Card("EMP",image5)
+card6 = Card("Extra fuel ll",image6)
+card7 = Card("extra fuel",image7)
+card8 = Card("Far sight",image8)
+card9 = Card("Flak armor",image9)
+card10 = Card("FMJ",image10,)
+card11 = Card("Hack intel",image11)
+card12 = Card("Jack Sparrow",image12)
+card13 = Card("Naval Mine",image13)
+card14 = Card("Rally",image14)
+card15 = Card("reinforced hull",image15)
+card16 = Card("Repair",image16)
+card17 = Card("Rifling",image17)
+card18 = Card("sabotage",image18)
+card19 = Card("Smokescreen",image19)
+card20 = Card("Sonar",image20)
+
+Game1.allcards = [card1, card2, card3, card4, card5, card6, card7, card8, card9, card10, card11, card12, card13, card14, card15, card16, card17, card18, card19, card20]
+Game1.offense_cards = [card2, card5, card10, card13, card17]
+Game1.defense_cards = [card15, card18, card19, card20]
+Game1.utility_cards = [card1, card4, card6, card7]
+Game1.special_cards = [card3, card8, card9, card11, card12, card16]
+
 
 def text_objects(text, color, size = "small"):
     if size == "small":
@@ -553,13 +663,17 @@ def text_to_button(text, color, buttonx, buttony, buttonwidth, buttonheight, siz
 
 
 def button(text, x, y, width, height, inactive_color, active_color, text_color, action = None):
-    cursor = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-
-    if x+width > cursor[0] > x and y+height > cursor[1] > y:
+    if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
         pygame.draw.rect(screen, active_color, (x, y, width, height))
-        if click[0] == 1 and action != None:
-            do_action(action)
+        if pygame.mouse.get_pressed()[0] == 1 and action != None:
+            while pygame.mouse.get_pressed()[0] == 1:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
+                        if event.button == 1:
+                            do_action(action)
+                            break
+                    else:
+                        break
     else:
         pygame.draw.rect(screen, inactive_color, (x, y, width, height))
 
@@ -571,7 +685,7 @@ def do_action(action):
         pygame.quit()
         quit()
     if action == "high score":
-        pass
+        highScore()
     elif action == "start":
         gameLoop()
     elif action == "main":
@@ -590,34 +704,89 @@ def do_action(action):
         gameRules("kaarten")
     elif action == "termination_screen":
         gameTermination()
-    elif action == "next_player":
+    elif action == "next_player_input":
+        Game1.changeplayers()
+    elif action == "next_player_setup":
+        Game1.nextplayer_setup()
+    elif action == "next_player_ingame":
         Game1.nextplayer_ingame()
+    elif action == "inputname":
+        inputName()
     elif action == "chooseboats":
+        Game1.changeplayers()
         chooseBoats()
     elif action == "shortboat1":
-        Game1.currentplayer.boatlist.append(short_boat1)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.append(short_boat1)
+        else:
+            Game1.currentplayer.boatlist.append(short_boat1_p2)
         Game1.available_boats.remove(short_boat1)
-        Game1.nextplayer()
     elif action == "shortboat2":
-        Game1.currentplayer.boatlist.append(short_boat2)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.append(short_boat2)
+        else:
+            Game1.currentplayer.boatlist.append(short_boat2_p2)
         Game1.available_boats.remove(short_boat2)
-        Game1.nextplayer()
     elif action == "mediumboat1":
-        Game1.currentplayer.boatlist.append(medium_boat1)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.append(medium_boat1)
+        else:
+            Game1.currentplayer.boatlist.append(medium_boat1_p2)
         Game1.available_boats.remove(medium_boat1)
-        Game1.nextplayer()
     elif action == "mediumboat2":
-        Game1.currentplayer.boatlist.append(medium_boat2)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.append(medium_boat2)
+        else:
+            Game1.currentplayer.boatlist.append(medium_boat2_p2)
         Game1.available_boats.remove(medium_boat2)
-        Game1.nextplayer()
     elif action == "largeboat1":
-        Game1.currentplayer.boatlist.append(large_boat1)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.append(large_boat1)
+        else:
+            Game1.currentplayer.boatlist.append(large_boat1_p2)
         Game1.available_boats.remove(large_boat1)
-        Game1.nextplayer()
     elif action == "largeboat2":
-        Game1.currentplayer.boatlist.append(large_boat2)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.append(large_boat2)
+        else:
+            Game1.currentplayer.boatlist.append(large_boat2_p2)
         Game1.available_boats.remove(large_boat2)
-        Game1.nextplayer()
+    elif action == "remove_short_boat1":
+        Game1.available_boats.append(short_boat1)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.remove(short_boat1)
+        else:
+            Game1.currentplayer.boatlist.remove(short_boat1_p2)
+    elif action == "remove_short_boat2":
+        Game1.available_boats.append(short_boat2)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.remove(short_boat2)
+        else:
+            Game1.currentplayer.boatlist.remove(short_boat2_p2)
+    elif action == "remove_medium_boat1":
+        Game1.available_boats.append(medium_boat1)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.remove(medium_boat1)
+        else:
+            Game1.currentplayer.boatlist.remove(medium_boat1_p2)
+    elif action == "remove_medium_boat2":
+        Game1.available_boats.append(medium_boat2)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.remove(medium_boat2)
+        else:
+            Game1.currentplayer.boatlist.remove(medium_boat2_p2)
+    elif action == "remove_large_boat1":
+        Game1.available_boats.append(large_boat1)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.remove(large_boat1)
+        else:
+            Game1.currentplayer.boatlist.remove(large_boat1_p2)
+    elif action == "remove_large_boat2":
+        Game1.available_boats.append(large_boat2)
+        if Game1.currentplayer == P1:
+            Game1.currentplayer.boatlist.remove(large_boat2)
+        else:
+            Game1.currentplayer.boatlist.remove(large_boat2_p2)
 
 
 def gamePause():
@@ -637,6 +806,108 @@ def gamePause():
                 if event.key == pygame.K_p:
                     paused = False
 
+def inputName():
+    gameExit = False
+    while not gameExit:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameExit = True
+            if event.type == pygame. KEYDOWN:
+                if event.key == pygame.K_q:
+                    Game1.currentplayer.name += "q"
+                if event.key == pygame.K_w:
+                    Game1.currentplayer.name += "w"
+                    pygame.display.update()
+                if event.key == pygame.K_e:
+                    Game1.currentplayer.name += "e"
+                    pygame.display.update()
+                if event.key == pygame.K_r:
+                    Game1.currentplayer.name += "r"
+                    pygame.display.update()
+                if event.key == pygame.K_t:
+                    Game1.currentplayer.name += "t"
+                    pygame.display.update()
+                if event.key == pygame.K_y:
+                    Game1.currentplayer.name += "y"
+                    pygame.display.update()
+                if event.key == pygame.K_u:
+                    Game1.currentplayer.name += "u"
+                    pygame.display.update()
+                if event.key == pygame.K_i:
+                    Game1.currentplayer.name += "i"
+                    pygame.display.update()
+                if event.key == pygame.K_o:
+                    Game1.currentplayer.name += "o"
+                    pygame.display.update()
+                if event.key == pygame.K_p:
+                    Game1.currentplayer.name += "p"
+                    pygame.display.update()
+                if event.key == pygame.K_a:
+                    Game1.currentplayer.name += "a"
+                    pygame.display.update()
+                if event.key == pygame.K_s:
+                    Game1.currentplayer.name += "s"
+                    pygame.display.update()
+                if event.key == pygame.K_d:
+                    Game1.currentplayer.name += "d"
+                    pygame.display.update()
+                if event.key == pygame.K_f:
+                    Game1.currentplayer.name += "f"
+                    pygame.display.update()
+                if event.key == pygame.K_g:
+                    Game1.currentplayer.name += "g"
+                    pygame.display.update()
+                if event.key == pygame.K_h:
+                    Game1.currentplayer.name += "h"
+                    pygame.display.update()
+                if event.key == pygame.K_j:
+                    Game1.currentplayer.name += "j"
+                    pygame.display.update()
+                if event.key == pygame.K_k:
+                    Game1.currentplayer.name += "k"
+                    pygame.display.update()
+                if event.key == pygame.K_l:
+                    Game1.currentplayer.name += "l"
+                    pygame.display.update()
+                if event.key == pygame.K_z:
+                    Game1.currentplayer.name += "z"
+                    pygame.display.update()
+                if event.key == pygame.K_x:
+                    Game1.currentplayer.name += "x"
+                    pygame.display.update()
+                if event.key == pygame.K_c:
+                    Game1.currentplayer.name += "c"
+                    pygame.display.update()
+                if event.key == pygame.K_v:
+                    Game1.currentplayer.name += "v"
+                    pygame.display.update()
+                if event.key == pygame.K_b:
+                    Game1.currentplayer.name += "b"
+                    pygame.display.update()
+                if event.key == pygame.K_n:
+                    Game1.currentplayer.name += "n"
+                    pygame.display.update()
+                if event.key == pygame.K_m:
+                    Game1.currentplayer.name += "m"
+                    pygame.display.update()
+                if event.key == pygame.K_SPACE:
+                    Game1.currentplayer.name += " "
+                if event.key == pygame.K_BACKSPACE:
+                    Game1.currentplayer.name = Game1.currentplayer.name[:-1]
+                    pygame.display.update()
+                if event.key == pygame.K_RETURN:
+                    Game1.changeplayers()
+        screen.fill(white)
+        text_to_screen("Naam: "+ str(Game1.currentplayer.name), black, -display_height*0.35, "medium")
+        if Game1.currentplayer == P1:
+            button("Volgende", (display_width) - display_width / 2, (display_height * 0.85), 150, 50, red, light_blue,black, "next_player_input")
+        if Game1.currentplayer == P2:
+            button("Start game", (display_width) - display_width / 6, (display_height * 0.85), 150, 50, red, light_blue,black, "chooseboats")
+        pygame.display.update()
+
+    pygame.quit()
+    quit()
+
 def chooseBoats():
     gameExit = False
     while not gameExit:
@@ -645,31 +916,136 @@ def chooseBoats():
                 gameExit = True
 
         screen.fill(white)
+        # All boat selects
         if len(Game1.available_boats) > 2:
-            if short_boat1 in Game1.available_boats:
-                button("Short boat 1", display_width / 6, display_height / 2, 190, 50, red, light_blue, black, "shortboat1")
-            if short_boat2 in Game1.available_boats:
-                button("Short boat 2", display_width / 6 + display_width / 5, display_height / 2, 190, 50, red, light_blue, black, "shortboat2")
-            if medium_boat1 in Game1.available_boats:
-                button("Medium boat 1", display_width / 6 + 2*display_width / 5, display_height / 2, 190, 50, red, light_blue, black, "mediumboat1")
-            if medium_boat2 in Game1.available_boats:
-                button("Medium boat 2", display_width / 6, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "mediumboat2")
-            if large_boat1 in Game1.available_boats:
-                button("Large boat 1", display_width / 6 + display_width / 5, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "largeboat1")
-            if large_boat2 in Game1.available_boats:
-                button("Large boat 2", display_width / 6 + 2*display_width / 5, display_height / 2 + display_height / 5, 190, 50, red, light_blue, black, "largeboat2")
+            if len(Game1.currentplayer.boatlist) < 2:
+                if Game1.currentplayer == P1 and len(P1.boatlist) <= len(P2.boatlist):
+                    if short_boat1 in Game1.available_boats:
+                        button("Short boat 1", display_width * 0.15, display_height * 0.3, 190, 50, red, light_blue,
+                               black,
+                               "shortboat1")
+                    if short_boat2 in Game1.available_boats:
+                        button("Short boat 2", display_width * 0.85 - 190, display_height * 0.3, 190, 50, red,
+                               light_blue,
+                               black, "shortboat2")
+                    if medium_boat1 in Game1.available_boats:
+                        button("Medium boat 1", display_width * 0.15, display_height * 0.4, 190, 50, red, light_blue,
+                               black,
+                               "mediumboat1")
+                    if medium_boat2 in Game1.available_boats:
+                        button("Medium boat 2", display_width * 0.85 - 190, display_height * 0.4, 190, 50, red,
+                               light_blue,
+                               black, "mediumboat2")
+                    if large_boat1 in Game1.available_boats:
+                        button("Large boat 1", display_width * 0.15, display_height * 0.5, 190, 50, red, light_blue,
+                               black,
+                               "largeboat1")
+                    if large_boat2 in Game1.available_boats:
+                        button("Large boat 2", display_width * 0.85 - 190, display_height * 0.5, 190, 50, red,
+                               light_blue,
+                               black, "largeboat2")
+                if Game1.currentplayer == P2 and len(P2.boatlist) < len(P1.boatlist):
+                    if short_boat1 in Game1.available_boats:
+                        button("Short boat 1", display_width * 0.15, display_height * 0.3, 190, 50, red, light_blue,
+                               black,
+                               "shortboat1")
+                    if short_boat2 in Game1.available_boats:
+                        button("Short boat 2", display_width * 0.85 - 190, display_height * 0.3, 190, 50, red,
+                               light_blue,
+                               black, "shortboat2")
+                    if medium_boat1 in Game1.available_boats:
+                        button("Medium boat 1", display_width * 0.15, display_height * 0.4, 190, 50, red, light_blue,
+                               black,
+                               "mediumboat1")
+                    if medium_boat2 in Game1.available_boats:
+                        button("Medium boat 2", display_width * 0.85 - 190, display_height * 0.4, 190, 50, red,
+                               light_blue,
+                               black, "mediumboat2")
+                    if large_boat1 in Game1.available_boats:
+                        button("Large boat 1", display_width * 0.15, display_height * 0.5, 190, 50, red, light_blue,
+                               black,
+                               "largeboat1")
+                    if large_boat2 in Game1.available_boats:
+                        button("Large boat 2", display_width * 0.85 - 190, display_height * 0.5, 190, 50, red,
+                               light_blue,
+                               black, "largeboat2")
 
-        if len(Game1.available_boats) == 2:
+
+
+                        # All the remove buttons
+            # All first boats removes
+            if len(Game1.currentplayer.boatlist) >= 1 and short_boat1 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, shortboat1", display_width * 0.5 - 250, display_height * 0.75, 500, 50,
+                       green, light_blue,
+                       black, "remove_short_boat1")
+            if len(Game1.currentplayer.boatlist) >= 1 and short_boat2 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, shortboat2", display_width * 0.5 - 250, display_height * 0.75, 500, 50,
+                       green, light_blue,
+                       black, "remove_short_boat2")
+            if len(Game1.currentplayer.boatlist) >= 1 and medium_boat1 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, mediumboat1", display_width * 0.5 - 250, display_height * 0.75, 500, 50,
+                       green, light_blue,
+                       black, "remove_medium_boat1")
+            if len(Game1.currentplayer.boatlist) >= 1 and medium_boat2 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, mediumboat2", display_width * 0.5 - 250, display_height * 0.75, 500, 50,
+                       green, light_blue,
+                       black, "remove_medium_boat2")
+            if len(Game1.currentplayer.boatlist) >= 1 and large_boat1 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, largeboat1", display_width * 0.5 - 250, display_height * 0.75, 500, 50,
+                       green, light_blue,
+                       black, "remove_large_boat1")
+            if len(Game1.currentplayer.boatlist) >= 1 and large_boat2 == Game1.currentplayer.boatlist[0]:
+                button("Remove first boat, largeboat2", display_width * 0.5 - 250, display_height * 0.75, 500, 50,
+                       green, light_blue,
+                       black, "remove_large_boat2")
+
+            # All second boat removes
+            if len(Game1.currentplayer.boatlist) == 2 and short_boat1 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, shortboat1", display_width * 0.5 - 250, display_height * 0.85, 500, 50,
+                       green, light_blue,
+                       black, "remove_short_boat1")
+            if len(Game1.currentplayer.boatlist) == 2 and short_boat2 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, shortboat2", display_width * 0.5 - 250, display_height * 0.85, 500, 50,
+                       green, light_blue,
+                       black, "remove_short_boat2")
+            if len(Game1.currentplayer.boatlist) == 2 and medium_boat1 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, mediumboat1", display_width * 0.5 - 250, display_height * 0.85, 500, 50,
+                       green, light_blue,
+                       black, "remove_medium_boat1")
+            if len(Game1.currentplayer.boatlist) == 2 and medium_boat2 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, mediumboat2", display_width * 0.5 - 250, display_height * 0.85, 500, 50,
+                       green, light_blue,
+                       black, "remove_medium_boat2")
+            if len(Game1.currentplayer.boatlist) == 2 and large_boat1 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, largeboat1", display_width * 0.5 - 250, display_height * 0.85, 500, 50,
+                       green, light_blue,
+                       black, "remove_large_boat1")
+            if len(Game1.currentplayer.boatlist) == 2 and large_boat2 == Game1.currentplayer.boatlist[-1]:
+                button("Remove second boat, largeboat2", display_width * 0.5 - 250, display_height * 0.85, 500, 50,
+                       green, light_blue,
+                       black, "remove_large_boat2")
+
+            if len(Game1.currentplayer.boatlist) != 0:
+                button("Volgende", display_width * 0.825, display_height * 0.1, 190, 60, green, light_blue, black,
+                       "next_player_setup")
+
+        if len(P1.boatlist) == 2 and len(P2.boatlist) == 2:
+            screen.fill(white)
+            text_to_screen("Alle boten zijn gekozen", black, -display_height * 0.35, "medium")
+
             for player in Game1.playerlist:
                 player.currentboat = player.boatlist[0]
-            text_to_screen("Alle boten zijn gekozen", black, -display_height * 0.35, "medium")
-        else:
+
+            button("Start game", (display_width) - display_width / 6, (display_height * 0.85), 150, 50, red,
+                   light_blue, black, "start")
+
+        if len(Game1.available_boats) > 2:
             text_to_screen((str(Game1)) + ", kies een schip.", black, -(display_height * 0.35), "medium")
-        button("Start game", (display_width)-display_width/6, (display_height*0.85), 150, 50, red, light_blue, black, "start")
-        button("Hoofdmenu", (display_width)-display_width/6, (display_height*0.75), 150, 50, red, light_blue,black, "main")
+
+        button("Hoofdmenu", (display_width) - display_width / 6, (display_height * 0.75), 150, 50, red, light_blue,
+               black, "main")
 
         pygame.display.flip()
-
 
     pygame.quit()
     quit()
@@ -684,10 +1060,12 @@ def gameIntro():
 
         screen.fill(white)
         text_to_screen("Battleships", black, -(display_height*0.35), "medium")
-        button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "chooseboats")
+        button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "inputname")
         button("Help", (display_width / 2) - 75, (display_height * 0.45), 150, 50, red, light_blue, black, "rules_main")
         button("High score",  (display_width/2)-75, (display_height*0.55), 150, 50, red, light_blue, black, "high score")
         button("Quit", (display_width/2)-75, (display_height*0.65), 150, 50, red, light_blue,black, "quit")
+
+        #screen.blit(card1.image, [50, 50])
 
         pygame.display.update()
 
@@ -783,6 +1161,7 @@ def gameRules(page):
 
 
 def gameLoop():
+     setup = True
      attacking = False
      gameExit = False
      while not gameExit:
@@ -793,57 +1172,76 @@ def gameLoop():
                  if event.key == pygame.K_p:
                      gamePause()
                  if not attacking:
-                     if event.key == pygame.K_SPACE:
-                         Game1.currentplayer.nextboat()
-                     elif event.key == pygame.K_c:
-                         Game1.currentplayer.currentboat.change_stance()
-                     elif event.key == pygame.K_RIGHT:
+                     if event.key == pygame.K_RIGHT:
                          Game1.currentplayer.currentboat.move("right")
                      elif event.key == pygame.K_LEFT:
                          Game1.currentplayer.currentboat.move("left")
-                     elif event.key == pygame.K_UP:
-                         Game1.currentplayer.currentboat.move("up")
-                     elif event.key == pygame.K_DOWN:
-                         Game1.currentplayer.currentboat.move("down")
-                     elif event.key == pygame.K_a:
-                         if Game1.currentplayer.currentboat.attack_amount > 0:
-                             Game1.currentplayer.currentboat.attack_check()
-                             if len(Game1.currentplayer.attackable_boats) > 0:
-                                 attacking = True
-                                 Game1.currentplayer.targeted_boat = Game1.currentplayer.attackable_boats[0]
-                     elif event.key == pygame.K_q:
-                         print("x: "+str(Game1.currentplayer.currentboat.x))
-                         print("new_x: "+str(Game1.currentplayer.currentboat.new_x))
-                         print("switch_x: "+str(Game1.currentplayer.currentboat.switch_x))
+                     if not setup:
+                         if event.key == pygame.K_SPACE:
+                             Game1.currentplayer.nextboat()
+                         elif event.key == pygame.K_c:
+                             Game1.currentplayer.currentboat.change_stance()
+                         elif event.key == pygame.K_DOWN:
+                             Game1.currentplayer.currentboat.move("down")
+                         elif event.key == pygame.K_UP:
+                             Game1.currentplayer.currentboat.move("up")
+                         elif event.key == pygame.K_a:
+                             if Game1.currentplayer.currentboat.attack_amount > 0:
+                                 Game1.currentplayer.currentboat.attack_check()
+                                 if len(Game1.currentplayer.attackable_boats) > 0:
+                                     attacking = True
+                                     Game1.currentplayer.targeted_boat = Game1.currentplayer.attackable_boats[0]
                  elif attacking:
                      if event.key == pygame.K_SPACE:
                          Game1.currentplayer.next_attackable_boat()
                      elif event.key == pygame.K_RETURN:
                          Game1.currentplayer.attack(Game1.currentplayer.targeted_boat)
                          attacking = False
+                     elif event.key == pygame.K_BACKSPACE:
+                         attacking = False
 
          screen.fill(white)
          GameGrid.draw(screen)
-         GameGrid.show_stats(screen)
-         Game1.currentplayer.currentboat.draw_range(screen)
+         if not setup:
+             Game1.currentplayer.currentboat.draw_range(screen)
+         Game1.currentplayer.show_stats(screen)
+         Game1.currentplayer.show_enemy_stats(screen)
          for player in Game1.playerlist:
              for boat in player.boatlist:
                  boat.draw(screen)
 
-         for element in Game1.currentplayer.boatlist:
-             element.draw_new(screen)
+         if not setup:
+             for element in Game1.currentplayer.boatlist:
+                 element.draw_new(screen)
 
-         if attacking:
+         if setup:
+             Game1.currentplayer.currentboat.movement = Game1.currentplayer.currentboat.steps
+             Game1.currentplayer.currentboat.draw_new(screen)
+
+         elif attacking:
+            Game1.currentplayer.show_target_stats(screen)
             Game1.currentplayer.draw_targetedboat(screen)
 
          Game1.currentplayer.selectedboat(screen)
 
          button("Game beëindigen", (display_width/2)-150, (display_height*0.1), 300, 50, red, light_blue, black, "termination_screen")
          if Game1.currentplayer == P1:
-            button("Volgende", display_width * 0.825, display_height * 0.83, 190, 60, green, light_blue, black, "next_player")
-         if Game1.currentplayer == P2:
-            button("Volgende", 0, display_height * 0.83, 190, 60, green, light_blue, black, "next_player")
+            if setup:
+                button("Volgende", display_width * 0.825, display_height * 0.83, 190, 60, green, light_blue, black,
+                       "next_player_setup")
+            else:
+                button("Volgende", display_width * 0.825, display_height * 0.83, 190, 60, green, light_blue, black, "next_player_ingame")
+         elif Game1.currentplayer == P2:
+            if setup:
+                button("Volgende", 0, display_height * 0.83, 190, 60, green, light_blue, black, "next_player_setup")
+            else:
+                button("Volgende", 0, display_height * 0.83, 190, 60, green, light_blue, black, "next_player_ingame")
+
          button("Hoofdmenu", display_width * 0.825, display_height * 0.9, 190, 60, green, light_blue, black, "main")
+
+         if Game1.setup_counter == 4:
+             setup = False
+             Game1.setup_counter = 5
 
          pygame.display.update()
 
@@ -851,6 +1249,28 @@ def gameLoop():
      pygame.quit()
      quit()
 
+
+def highScore():
+    gameExit = False
+    while not gameExit:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameExit = True
+            screen.fill(white)
+            text_to_screen("High scores", black, -400)
+            if Game1.currentplayer.name:
+                text_to_screen("1. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, -300)
+                text_to_screen("2. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, -200)
+                text_to_screen("3. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, -100)
+                text_to_screen("4. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black)
+                text_to_screen("5. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, +100)
+            else:
+                text_to_screen("Er zijn nog geen spelers.", black)
+            button("Hoofdmenu", (display_width) - display_width / 6, (display_height * 0.93), 150, 50, red, light_blue, black, "main")
+            pygame.display.update()
+
+    pygame.quit()
+    quit()
 
 def gameTermination():
     gameExit = False

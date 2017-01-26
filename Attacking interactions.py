@@ -112,7 +112,7 @@ class Player:
                     if event.key == pygame.K_RETURN:
                         attacking = False
 
-        self.attack(self.targetedboat)
+        self.attack(self.targeted_boat)
 
     def attack(self, boat):
         if Game1.currentplayer == P1:
