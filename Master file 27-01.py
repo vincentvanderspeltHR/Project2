@@ -56,6 +56,8 @@ headingfont = pygame.font.SysFont("centurygothic", 20)
 smallfont = pygame.font.SysFont("centurygothic", 25)
 medfont = pygame.font.SysFont("centurygothic", 50)
 largefont = pygame.font.SysFont("centurygothic", 85)
+statsfont = pygame.font.SysFont("centurygothic", 13)
+
 game_name = medfont.render("Battleships", True, black)
 
 
@@ -137,16 +139,23 @@ class Player:
         elif Game1.currentplayer == P2:
             enemy = P1
         display_difference = 0.025
-        enemy_boat = 3
 
-        if self.targeted_boat == enemy.boatlist[0]:
+        position = (enemy.boatlist.index(Game1.currentplayer.targeted_boat)+1)
+        if position < 3:
+            text_to_screen("Schip " + str(position), red,
+                           -(display_height * 0.5) + (display_difference * display_height * position * 3), "small",
+                           +display_width * 0.35)
             text_to_screen("HP: " + str(self.targeted_boat.currenthp) + "/" + str(self.targeted_boat.hp), red,
-                           -(display_height * 0.475) + (display_difference * display_height*enemy_boat), "small",
-                           +display_width * 0.40)
+                           -(display_height * 0.475) + (display_difference * display_height * position * 3),
+                           "small", +display_width * 0.35)
         else:
+            text_to_screen("Schip " + str(position), red,
+                           -(display_height * 0.5) + (display_difference * display_height * (position-2) * 3), "small",
+                           +display_width * 0.45)
             text_to_screen("HP: " + str(self.targeted_boat.currenthp) + "/" + str(self.targeted_boat.hp), red,
-                           -(display_height * 0.475) + (display_difference * display_height*enemy_boat*2), "small",
-                           +display_width * 0.40)
+                           -(display_height * 0.475) + (display_difference * display_height * (position-2) * 3),
+                           "small", +display_width * 0.45)
+
 
     def show_enemy_stats(self, screen):
         if Game1.currentplayer == P1:
@@ -158,10 +167,19 @@ class Player:
 
         for boat in enemy.boatlist:
             enemy_boat += 1
-            text_to_screen("Schip "+str(enemy_boat), black,
-                           -(display_height * 0.5) + (display_difference*display_height*enemy_boat*3), "small", +display_width * 0.40)
-            text_to_screen("HP: " + str(boat.currenthp) + "/" + str(boat.hp), black,
-                           -(display_height * 0.475)+(display_difference*display_height*enemy_boat*3), "small", +display_width * 0.40)
+            if not boat == Game1.currentplayer.targeted_boat:
+                if enemy_boat < 3:
+                    text_to_screen("Schip "+str(enemy_boat), black,
+                                   -(display_height * 0.5) + (display_difference*display_height*enemy_boat*3), "stats", +display_width * 0.35)
+                    text_to_screen("HP: " + str(boat.currenthp) + "/" + str(boat.hp), black,
+                                   -(display_height * 0.475)+(display_difference*display_height*enemy_boat*3), "stats", +display_width * 0.35)
+                else:
+                    text_to_screen("Schip " + str(enemy_boat), black,
+                                   -(display_height * 0.5) + (display_difference * display_height * (enemy_boat-2) * 3),
+                                   "stats", +display_width * 0.45)
+                    text_to_screen("HP: " + str(boat.currenthp) + "/" + str(boat.hp), black,
+                                   -(display_height * 0.475) + (display_difference * display_height * (enemy_boat-2) * 3),
+                                   "stats", +display_width * 0.45)
 
     def selectedboat(self, screen):
         if self.currentboat.new_stance == "attacking":
@@ -188,10 +206,13 @@ class Player:
 
 
     def next_attackable_boat(self):
-        if Game1.currentplayer.targeted_boat == Game1.currentplayer.attackable_boats[0]:
-            Game1.currentplayer.targeted_boat = Game1.currentplayer.attackable_boats[-1]
-        else:
-            Game1.currentplayer.targeted_boat = Game1.currentplayer.attackable_boats[0]
+        boats = len(Game1.currentplayer.attackable_boats)
+        position = Game1.currentplayer.attackable_boats.index(Game1.currentplayer.targeted_boat)
+        if boats > 1:
+            if position + 1 == boats:
+                Game1.currentplayer.targeted_boat = Game1.currentplayer.attackable_boats[0]
+            else:
+                Game1.currentplayer.targeted_boat = Game1.currentplayer.attackable_boats[position + 1]
 
     def attack(self, boat):
         if Game1.currentplayer == P1:
@@ -221,11 +242,27 @@ class Player:
         Game1.currentplayer.targeted_boat = 0
 
     def draw_cards(self, screen):
-        drawn_cards = 0
         for card in self.cards_in_hand:
-            image = pygame.transform.scale(card.image,(int((display_width*0.8)/6), int(display_height*0.15)))
-            screen.blit(image, [0+int((display_width*0.8)/6)*drawn_cards, GameGrid.gridstarty * 1.7 + GameGrid.y])
-            drawn_cards += 1
+            if int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1) + int((display_width*0.8)/6) > pygame.mouse.get_pos()[0] > int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1) and GameGrid.gridstarty * 1.7 + GameGrid.y + int(display_height*0.15) > pygame.mouse.get_pos()[1] > GameGrid.gridstarty * 1.7 + GameGrid.y:
+               screen.blit(card.image, [int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1), GameGrid.gridstarty * 1.7 + GameGrid.y-379+int(display_height*0.02)])
+            else:
+                image = pygame.transform.scale(card.image,(int((display_width*0.8)/6), int(display_height*0.15)))
+                screen.blit(image, [int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1), GameGrid.gridstarty * 1.7 + GameGrid.y])
+
+        # if x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
+        #     pygame.draw.rect(screen, active_color, (x, y, width, height))
+        #     if pygame.mouse.get_pressed()[0] == 1 and action != None:
+        #         while pygame.mouse.get_pressed()[0] == 1:
+        #             for event in pygame.event.get():
+        #                 if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[
+        #                     0] > x and y + height > pygame.mouse.get_pos()[1] > y:
+        #                     if event.button == 1:
+        #                         do_action(action)
+        #                         break
+        #                 else:
+        #                     break
+        # else:
+        #     pygame.draw.rect(screen, inactive_color, (x, y, width, height))
 
 class Grid:
     def __init__(self, resolution_x, resolution_y):
@@ -706,6 +743,8 @@ def text_objects(text, color, size = "small"):
         textSurface = largefont.render(text, True, color)
     if size == "rules":
         textSurface = rulesfont.render(text, True, color)
+    if size == "stats":
+        textSurface = headingfont.render(text, True, color)
 
     return textSurface, textSurface.get_rect()
 
