@@ -705,16 +705,19 @@ for card in Game1.allcards:
                 card.amount -= 1
         elif card.type == "defense":
             Game1.defense_cards.append(card)
-            Game1.normal_deck.append(card)
-            card.amount -= 1
+            while card.amount > 0:
+                Game1.normal_deck.append(card)
+                card.amount -= 1
         elif card.type == "utility":
             Game1.utility_cards.append(card)
-            Game1.normal_deck.append(card)
-            card.amount -= 1
+            while card.amount > 0:
+                Game1.normal_deck.append(card)
+                card.amount -= 1
         elif card.type == "special":
             Game1.special_cards.append(card)
-            Game1.special_deck.append(card)
-            card.amount -= 1
+            while card.amount > 0:
+                Game1.special_deck.append(card)
+                card.amount -= 1
 
 
 
