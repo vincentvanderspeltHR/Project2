@@ -72,6 +72,8 @@ class Game:
         self.defense_cards = []
         self.utility_cards = []
         self.special_cards = []
+        self.special_deck = []
+        self.normal_deck = []
         self.message_show = pygame.time.get_ticks()
         self.message_cooldown = 2500
 
@@ -111,8 +113,42 @@ class Card:
     def __init__(self, name, image, type, amount):
         self.name = name
         self.image = image
+        self.mini_image = pygame.transform.scale(self.image,(int((display_width*0.8)/6), int(display_height*0.15)))
         self.type = type
         self.amount = amount
+
+    def draw_card(self, screen):
+        if int((display_width*0.8)/6)*Game1.currentplayer.hand_length + int((display_width*0.8)/6) > pygame.mouse.get_pos()[0] > int((display_width*0.8)/6)*Game1.currentplayer.hand_length and GameGrid.gridstarty * 1.7 + GameGrid.y + int(display_height*0.15) > pygame.mouse.get_pos()[1] > GameGrid.gridstarty * 1.7 + GameGrid.y:
+            screen.blit(self.image, [int((display_width * 0.8) / 6) * Game1.currentplayer.hand_length,
+                                     GameGrid.gridstarty * 1.7 + GameGrid.y - 379 + int(display_height * 0.02)])
+            if pygame.mouse.get_pressed()[0] == 1:
+                print("performing card")
+                card.perform(self)
+
+        else:
+            screen.blit(pygame.transform.scale(self.image,(int((display_width*0.8)/6), int(display_height*0.15))), [int((display_width*0.8)/6)*Game1.currentplayer.hand_length, GameGrid.gridstarty * 1.7 + GameGrid.y])
+
+    def perform(self, card):
+        print(self)
+        if card.name == "Advanced Rifling":
+            Game1.currentplayer.currentboat.range_buff += 2
+        elif card.name == "FMJ":
+            Game1.currentplayer.currentboatdamage_buff += 1
+        elif card.name == "reinforced hull":
+            Game1.currentplayer.currentboat.currenthp += 1
+            Game1.currentplayer.currentboat.hp += 1
+        elif card.name == "Extra Fuel":
+            Game1.currentplayer.currentboat.movement +=1
+        elif card.name == "Extra Fuel 2":
+            print("adding 2 movement")
+            Game1.currentplayer.currentboat.movement += 2
+        elif card.name == "Aluminium Hull":
+            Game1.currentplayer.currentboat.movement_multiplier = 2
+        elif card.name == "Far Sight":
+            Game1.currentplayer.currentboat.range_buff += 2
+        else:
+            pass
+        Game1.currentplayer.cards_in_hand.remove(card)
 
 class Player:
     def __init__(self):
@@ -123,6 +159,7 @@ class Player:
         self.attackable_boats = []
         self.targeted_boat = 0
         self.cards_in_hand = []
+        self.hand_length = 0
 
     def show_stats(self, screen):
         text_to_screen("HP: "+str(self.currentboat.currenthp)+"/"+str(self.currentboat.hp), black, -display_height*0.45, "small", -display_width*0.45)
@@ -241,28 +278,13 @@ class Player:
         Game1.currentplayer.attackable_boats = []
         Game1.currentplayer.targeted_boat = 0
 
-    def draw_cards(self, screen):
-        for card in self.cards_in_hand:
-            if int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1) + int((display_width*0.8)/6) > pygame.mouse.get_pos()[0] > int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1) and GameGrid.gridstarty * 1.7 + GameGrid.y + int(display_height*0.15) > pygame.mouse.get_pos()[1] > GameGrid.gridstarty * 1.7 + GameGrid.y:
-               screen.blit(card.image, [int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1), GameGrid.gridstarty * 1.7 + GameGrid.y-379+int(display_height*0.02)])
-            else:
-                image = pygame.transform.scale(card.image,(int((display_width*0.8)/6), int(display_height*0.15)))
-                screen.blit(image, [int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1), GameGrid.gridstarty * 1.7 + GameGrid.y])
-
-        # if x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
-        #     pygame.draw.rect(screen, active_color, (x, y, width, height))
-        #     if pygame.mouse.get_pressed()[0] == 1 and action != None:
-        #         while pygame.mouse.get_pressed()[0] == 1:
-        #             for event in pygame.event.get():
-        #                 if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[
-        #                     0] > x and y + height > pygame.mouse.get_pos()[1] > y:
-        #                     if event.button == 1:
-        #                         do_action(action)
-        #                         break
-        #                 else:
-        #                     break
-        # else:
-        #     pygame.draw.rect(screen, inactive_color, (x, y, width, height))
+    def draw_from_deck(self, deck, draw_amount):
+        if len(Game1.currentplayer.cards_in_hand) < 6:
+            while draw_amount > 0:
+                draw_random = random.randint(0, len(deck)-1)
+                Game1.currentplayer.cards_in_hand.append(deck[draw_random])
+                Game1.normal_deck.remove(deck[draw_random])
+                draw_amount -= 1
 
 class Grid:
     def __init__(self, resolution_x, resolution_y):
@@ -727,12 +749,24 @@ Game1.allcards = [card_adrenaline_rush, card_advanced_rifling, card_aluminium_hu
 for card in Game1.allcards:
         if card.type == "offense":
             Game1.offense_cards.append(card)
+            while card.amount > 0:
+                Game1.normal_deck.append(card)
+                card.amount -= 1
         elif card.type == "defense":
             Game1.defense_cards.append(card)
+            while card.amount > 0:
+                Game1.normal_deck.append(card)
+                card.amount -= 1
         elif card.type == "utility":
             Game1.utility_cards.append(card)
+            while card.amount > 0:
+                Game1.normal_deck.append(card)
+                card.amount -= 1
         elif card.type == "special":
             Game1.special_cards.append(card)
+            while card.amount > 0:
+                Game1.special_deck.append(card)
+                card.amount -= 1
 
 def text_objects(text, color, size = "small"):
     if size == "small":
@@ -1229,8 +1263,8 @@ def gameLoop():
                      elif event.key == pygame.K_LEFT:
                          Game1.currentplayer.currentboat.move("left")
                      elif event.key == pygame.K_t:
-                         Game1.currentplayer.cards_in_hand.append(card_sonar)
-                         print(Game1.currentplayer.cards_in_hand)
+                         Game1.currentplayer.cards_in_hand.append(card_extra_fuel_2)
+                         print(card_extra_fuel_2)
                      if not setup:
                          if event.key == pygame.K_SPACE:
                              Game1.currentplayer.nextboat()
@@ -1303,7 +1337,10 @@ def gameLoop():
              button("Highscore", (display_width / 2) - 75, (display_height * 0.45), 150, 50, red, light_blue,
                     black, "high score")
 
-         Game1.currentplayer.draw_cards(screen)
+         Game1.currentplayer.hand_length = 0
+         for card in Game1.currentplayer.cards_in_hand:
+            card.draw_card(screen)
+            Game1.currentplayer.hand_length += 1
 
          pygame.display.update()
 
