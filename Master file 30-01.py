@@ -82,12 +82,19 @@ class Game:
             self.currentplayer = self.playerlist[0]
 
     def nextplayer_ingame(self):
+
+        print(self.currentplayer.currentboat.x)
+        print(self.currentplayer.currentboat.new_x)
         valid_turn = 0
-            if element.confirm():
+        for boat in Game1.currentplayer.boatlist:
+            if boat.confirm():
                 valid_turn += 1
         if valid_turn == len(Game1.currentplayer.boatlist):
             for element in self.currentplayer.boatlist:
                 element.confirm_stats()
+
+            print(self.currentplayer.currentboat.x)
+            print(self.currentplayer.currentboat.new_x)
             self.changeplayers()
         else:
             if Game1.setup_counter == 9:
@@ -144,7 +151,6 @@ class Card:
                                     Game1.currentplayer.cards_in_hand.append(self)
                                 Game1.currentplayer.pick_cards.remove(self)
                                 while len(Game1.currentplayer.pick_cards) > 0:
-                                    print(Game1.currentplayer.pick_cards[0])
                                     Game1.special_deck.append(Game1.currentplayer.pick_cards[0])
                                     Game1.currentplayer.pick_cards.remove(Game1.currentplayer.pick_cards[0])
                                 break
@@ -642,45 +648,49 @@ class Boat:
                 game_error("Verdedigende schepen kunnen niet bewegen!")
 
     def confirm(self):
+        boot = 0
         for player in Game1.playerlist:
             for boat in player.boatlist:
-                print("boat")
-                tiles = self.steps - 1
-                while tiles >= 0:
-                    if not boat.x == self.x:
-                        if self.new_stance == "attacking":
-                            if boat.new_stance == "attacking":
-                                if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (
-                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:
-                                    print("x collision")
-                                    if boat.new_y - (
-                                        self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (
-                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:  # or boat.new_y-(self.gamegrid.gridy/6) < self.y+self.attackingboat_height < boat.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*boat.length:
-                                        print("y collision")
-                                        return False
-                            elif boat.new_stance == "defending":
-                                if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (
-                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx * boat.length:
-                                    if boat.new_y - (
-                                        self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (
-                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy:  # or boat.new_y - (self.gamegrid.gridx / 6) < self.new_y+self.attackingboat_height < boat.new_y - (self.gamegrid.gridy / 6) + self.gamegrid.gridy:
-                                        return False
-                        elif self.new_stance == "defending":
-                            if boat.new_stance == "attacking":
-                                if boat.new_x - (
-                                    self.gamegrid.gridx / 6) < self.new_x + self.gamegrid.gridx * tiles < boat.new_x - (
-                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:  # or boat.new_x-(self.gamegrid.gridx/6) < self.new_x+self.gamegrid.gridx*self.length < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
-                                    if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (
-                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:
-                                        return False
-                            elif boat.new_stance == "defending":
-                                if boat.new_x - (
-                                    self.gamegrid.gridx / 6) < self.new_x + self.gamegrid.gridx * tiles < boat.new_x - (
-                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:  # or boat.new_x-(self.gamegrid.gridx/6) < self.new_x+self.gamegrid.gridx*self.length < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
-                                    if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (
-                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy:
-                                        return False
-                    tiles -= 1
+                boot += 1
+                tiles = self.length - 1
+                if not boat == self:
+                    while tiles >= 0:
+                            if self.new_stance == "attacking":
+                                if boat.new_stance == "attacking":
+                                    if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (self.gamegrid.gridx / 6) + self.gamegrid.gridx:
+                                        if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:
+                                            if Game1.setup_counter == 9:
+                                                game_error("Er zijn overlappende schepen!")
+                                            return False
+                                elif boat.new_stance == "defending":
+                                    if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (
+                                        self.gamegrid.gridx / 6) + self.gamegrid.gridx * boat.length:
+                                        if boat.new_y - (
+                                            self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (
+                                            self.gamegrid.gridy / 6) + self.gamegrid.gridy:
+                                            if Game1.setup_counter == 9:
+                                                game_error("Er zijn overlappende schepen!")
+                                            return False
+                            elif self.new_stance == "defending":
+                                if boat.new_stance == "attacking":
+                                    if boat.new_x - (
+                                        self.gamegrid.gridx / 6) < self.new_x + self.gamegrid.gridx * tiles < boat.new_x - (
+                                        self.gamegrid.gridx / 6) + self.gamegrid.gridx:
+                                        if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (
+                                            self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:
+                                            if Game1.setup_counter == 9:
+                                                game_error("Er zijn overlappende schepen!")
+                                            return False
+                                elif boat.new_stance == "defending":
+                                    if boat.new_x - (
+                                        self.gamegrid.gridx / 6) < self.new_x + self.gamegrid.gridx * tiles < boat.new_x - (
+                                        self.gamegrid.gridx / 6) + self.gamegrid.gridx:
+                                        if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (
+                                            self.gamegrid.gridy / 6) + self.gamegrid.gridy:
+                                            if Game1.setup_counter == 9:
+                                                game_error("Er zijn overlappende schepen!")
+                                            return False
+                            tiles -= 1
 
         return True
 
