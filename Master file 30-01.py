@@ -83,6 +83,7 @@ class Game:
 
     def nextplayer_ingame(self):
         valid_turn = 0
+        for element in Game1.currentplayer.boatlist:
             if element.confirm():
                 valid_turn += 1
         if valid_turn == len(Game1.currentplayer.boatlist):
@@ -105,6 +106,7 @@ class Game:
 
     def __str__(self):
         return str(self.currentplayer.name)
+
 
 class Card:
     def __init__(self, name, image, type, amount):
