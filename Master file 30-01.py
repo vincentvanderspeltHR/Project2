@@ -83,7 +83,6 @@ class Game:
 
     def nextplayer_ingame(self):
         valid_turn = 0
-        for element in self.currentplayer.boatlist:
             if element.confirm():
                 valid_turn += 1
         if valid_turn == len(Game1.currentplayer.boatlist):
@@ -645,43 +644,41 @@ class Boat:
     def confirm(self):
         for player in Game1.playerlist:
             for boat in player.boatlist:
-                tiles = self.length - 1
+                print("boat")
+                tiles = self.steps - 1
                 while tiles >= 0:
                     if not boat.x == self.x:
                         if self.new_stance == "attacking":
                             if boat.new_stance == "attacking":
-                                if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (self.gamegrid.gridx / 6) + self.gamegrid.gridx:
-                                    if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:
-                                        if Game1.setup_counter == 9:
-                                            game_error("Er zijn overlappende schepen!")
+                                if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (
+                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:
+                                    print("x collision")
+                                    if boat.new_y - (
+                                        self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (
+                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:  # or boat.new_y-(self.gamegrid.gridy/6) < self.y+self.attackingboat_height < boat.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*boat.length:
+                                        print("y collision")
                                         return False
                             elif boat.new_stance == "defending":
                                 if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (
                                     self.gamegrid.gridx / 6) + self.gamegrid.gridx * boat.length:
                                     if boat.new_y - (
                                         self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (
-                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy:
-                                        if Game1.setup_counter == 9:
-                                            game_error("Er zijn overlappende schepen!")
+                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy:  # or boat.new_y - (self.gamegrid.gridx / 6) < self.new_y+self.attackingboat_height < boat.new_y - (self.gamegrid.gridy / 6) + self.gamegrid.gridy:
                                         return False
                         elif self.new_stance == "defending":
                             if boat.new_stance == "attacking":
                                 if boat.new_x - (
                                     self.gamegrid.gridx / 6) < self.new_x + self.gamegrid.gridx * tiles < boat.new_x - (
-                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:
+                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:  # or boat.new_x-(self.gamegrid.gridx/6) < self.new_x+self.gamegrid.gridx*self.length < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
                                     if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (
                                         self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:
-                                        if Game1.setup_counter == 9:
-                                            game_error("Er zijn overlappende schepen!")
                                         return False
                             elif boat.new_stance == "defending":
                                 if boat.new_x - (
                                     self.gamegrid.gridx / 6) < self.new_x + self.gamegrid.gridx * tiles < boat.new_x - (
-                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:
+                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:  # or boat.new_x-(self.gamegrid.gridx/6) < self.new_x+self.gamegrid.gridx*self.length < boat.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx:
                                     if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (
                                         self.gamegrid.gridy / 6) + self.gamegrid.gridy:
-                                        if Game1.setup_counter == 9:
-                                            game_error("Er zijn overlappende schepen!")
                                         return False
                     tiles -= 1
 
