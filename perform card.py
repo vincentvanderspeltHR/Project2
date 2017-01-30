@@ -113,23 +113,21 @@ class Card:
 
 
     def perform(self):
-        if self.Card.name == "Advanced Rifling":
-            Boat.range.buff += 2
-        if self.Card.name == "FMJ":
-            Boat.damage_buff += 1
-        if self.Card.name == "reinforced hull":
-            Boat.currenthp += 1
-            Boat.hp += 1
-        if self.Card.name == "Smokescreen":
-            Boat.currenthp = Boat.currenthp - Boat.attack_amount
-        if self.Card.name == "Extra Fuel":
-            Boat.movement +=1
-        if self.Card.name == "Extra Fuel 2":
-            Boat.movement += 2
-        if self.Card.name == "Aluminium Hull":
-            Boat.movement_multiplier = 2
-        if self.Card.name == "Far Sight":
-            Boat.range_buff += 2
+        if self.name == "Advanced Rifling":
+            Game1.currentplayer.currentboat.range_buff += 2
+        if self.name == "FMJ":
+            Game1.currentplayer.currentboatdamage_buff += 1
+        if self.name == "reinforced hull":
+            Game1.currentplayer.currentboat.currenthp += 1
+            Game1.currentplayer.currentboat.hp += 1
+        if self.name == "Extra Fuel":
+            Game1.currentplayer.currentboat.movement +=1
+        if self.name == "Extra Fuel 2":
+            Game1.currentplayer.currentboat.movement += 2
+        if self.name == "Aluminium Hull":
+            Game1.currentplayer.currentboat.movement_multiplier = 2
+        if self.name == "Far Sight":
+            Game1.currentplayer.currentboat.range_buff += 2
 
 
 class Player:

@@ -28,14 +28,12 @@ image9 = pygame.image.load("Flak armor.jpg")
 image10 = pygame.image.load("FMJ.jpg")
 image11 = pygame.image.load("Hack intel.jpg")
 image12 = pygame.image.load("Jack Sparrow.jpg")
-image13 = pygame.image.load("Naval Mine.jpg")
 image14 = pygame.image.load("Rally.jpg")
 image15 = pygame.image.load("reinforced hull.jpg")
 image16 = pygame.image.load("Repair.jpg")
 image17 = pygame.image.load("Rifling.jpg")
 image18 = pygame.image.load("sabotage.jpg")
 image19 = pygame.image.load("Smokescreen.jpg")
-image20 = pygame.image.load("Sonar.jpg")
 
 #icon = pygame.image.load(" ")
 #pygame.display.set_icon(icon)
@@ -72,6 +70,8 @@ class Game:
         self.defense_cards = []
         self.utility_cards = []
         self.special_cards = []
+        self.special_deck = []
+        self.normal_deck = []
         self.message_show = pygame.time.get_ticks()
         self.message_cooldown = 2500
 
@@ -111,8 +111,96 @@ class Card:
     def __init__(self, name, image, type, amount):
         self.name = name
         self.image = image
+        self.mini_image = pygame.transform.scale(self.image,(int((display_width*0.8)/6), int(display_height*0.15)))
         self.type = type
         self.amount = amount
+
+    def draw_card(self, screen):
+        if int((display_width*0.8)/6)*Game1.currentplayer.hand_length + int((display_width*0.8)/6) > pygame.mouse.get_pos()[0] > int((display_width*0.8)/6)*Game1.currentplayer.hand_length and GameGrid.gridstarty * 1.7 + GameGrid.y + int(display_height*0.15) > pygame.mouse.get_pos()[1] > GameGrid.gridstarty * 1.7 + GameGrid.y:
+            screen.blit(self.image, [int((display_width * 0.8) / 6) * Game1.currentplayer.hand_length,
+                                     GameGrid.gridstarty * 1.7 + GameGrid.y - 379 + int(display_height * 0.02)])
+            if pygame.mouse.get_pressed()[0] == 1:
+                while pygame.mouse.get_pressed()[0] == 1:
+                    for event in pygame.event.get():
+                        if event.type == pygame.MOUSEBUTTONUP and int((display_width*0.8)/6)*Game1.currentplayer.hand_length + int((display_width*0.8)/6) > pygame.mouse.get_pos()[0] > int((display_width*0.8)/6)*Game1.currentplayer.hand_length and GameGrid.gridstarty * 1.7 + GameGrid.y + int(display_height*0.15) > pygame.mouse.get_pos()[1] > GameGrid.gridstarty * 1.7 + GameGrid.y:
+                            if event.button == 1:
+                                self.perform()
+                                break
+                        else:
+                            break
+        else:
+            screen.blit(pygame.transform.scale(self.image,(int((display_width*0.8)/6), int(display_height*0.15))), [int((display_width*0.8)/6)*Game1.currentplayer.hand_length, GameGrid.gridstarty * 1.7 + GameGrid.y])
+
+    def draw_pick_card(self, screen):
+        screen.blit(self.image, [int(display_width/8)*3*(Game1.currentplayer.pick_card_length), int(display_height/2 -198)])
+        if int((display_width/8)*3*(Game1.currentplayer.pick_card_length))+261 > pygame.mouse.get_pos()[0] > int(display_width/8)*3*(Game1.currentplayer.pick_card_length) and int(display_height/2 -198)+397 > pygame.mouse.get_pos()[1] > int(display_height/2 -198):
+            if pygame.mouse.get_pressed()[0] == 1:
+                while pygame.mouse.get_pressed()[0] == 1:
+                    for event in pygame.event.get():
+                        if event.type == pygame.MOUSEBUTTONUP and int((display_width/8)*3*(Game1.currentplayer.pick_card_length)+261) > pygame.mouse.get_pos()[0] > int((display_width/8)*3*(Game1.currentplayer.pick_card_length)) and int(display_height/2 -198)+397 > pygame.mouse.get_pos()[1] > int(display_height/2 -198):
+                            if event.button == 1:
+                                if len(Game1.currentplayer.cards_in_hand) >= 6:
+                                    game_error("Je hebt al 6 kaarten!")
+                                else:
+                                    Game1.currentplayer.cards_in_hand.append(self)
+                                Game1.currentplayer.pick_cards.remove(self)
+                                while len(Game1.currentplayer.pick_cards) > 0:
+                                    print(Game1.currentplayer.pick_cards[0])
+                                    Game1.special_deck.append(Game1.currentplayer.pick_cards[0])
+                                    Game1.currentplayer.pick_cards.remove(Game1.currentplayer.pick_cards[0])
+                                break
+                        else:
+                            break
+
+    def perform(self):
+        if self.name == "Advanced Rifling":
+            Game1.currentplayer.currentboat.range_buff += 2
+            Game1.currentplayer.currentboat.horizontal_attackingrange += Game1.currentplayer.currentboat.range_buff
+            Game1.currentplayer.currentboat.vertical_attackingrange += Game1.currentplayer.currentboat.range_buff
+            Game1.currentplayer.currentboat.vertical_defendingrange += Game1.currentplayer.currentboat.range_buff
+        elif self.name == "Rifling":
+            Game1.currentplayer.currentboat.range_buff += 1
+        elif self.name == "FMJ":
+            Game1.currentplayer.currentboat.damage_buff += 1
+        elif self.name == "Reinforced Hull":
+            Game1.currentplayer.currentboat.currenthp += 1
+            Game1.currentplayer.currentboat.hp += 1
+        elif self.name == "Extra Fuel":
+            Game1.currentplayer.currentboat.movement +=1
+        elif self.name == "Extra Fuel 2":
+            Game1.currentplayer.currentboat.movement += 2
+        elif self.name == "Aluminium Hull":
+            Game1.currentplayer.currentboat.movement_multiplier += 1
+        elif self.name == "Far Sight":
+            Game1.currentplayer.currentboat.horizontal_attackingrange += 2
+            Game1.currentplayer.currentboat.vertical_attackingrange += 2
+            Game1.currentplayer.currentboat.vertical_defendingrange += 2
+        elif self.name == "Adrenaline Rush":
+            Game1.currentplayer.currentboat.movement = Game1.currentplayer.currentboat.steps
+        elif self.name == "Backup":
+            Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
+        elif self.name == "Rally":
+            for boat in Game1.currentplayer.boatlist:
+                boat.movement += 1
+        elif self.name == "Repair":
+            Game1.currentplayer.currentboat.currenthp = Game1.currentplayer.currentboat.hp
+        elif self.name == "EMP":
+            Game1.currentplayer.emp_buff += 1
+        elif self.name == "Hack Intel":
+            if len(Game1.special_deck) == 0:
+                game_error("Er zijn geen special kaarten meer over!")
+            if len(Game1.special_deck) >= 3:
+                draw_amount = 3
+            else:
+                draw_amount = len(Game1.special_deck)
+            while draw_amount > 0:
+                draw_random = random.randint(0, len(Game1.special_deck) - 1)
+                Game1.currentplayer.pick_cards.append(Game1.special_deck[draw_random])
+                Game1.special_deck.remove(Game1.special_deck[draw_random])
+                draw_amount -= 1
+        else:
+            pass
+        Game1.currentplayer.cards_in_hand.remove(self)
 
 class Player:
     def __init__(self):
@@ -123,6 +211,11 @@ class Player:
         self.attackable_boats = []
         self.targeted_boat = 0
         self.cards_in_hand = []
+        self.pick_cards = []
+        self.pick_card_length = 0
+        self.hand_length = 0
+        self.destroyed_boats = []
+        self.emp_buff = 0
 
     def show_stats(self, screen):
         text_to_screen("HP: "+str(self.currentboat.currenthp)+"/"+str(self.currentboat.hp), black, -display_height*0.45, "small", -display_width*0.45)
@@ -155,7 +248,6 @@ class Player:
             text_to_screen("HP: " + str(self.targeted_boat.currenthp) + "/" + str(self.targeted_boat.hp), red,
                            -(display_height * 0.475) + (display_difference * display_height * (position-2) * 3),
                            "small", +display_width * 0.45)
-
 
     def show_enemy_stats(self, screen):
         if Game1.currentplayer == P1:
@@ -220,49 +312,35 @@ class Player:
         elif Game1.currentplayer == P2:
             enemy = P1
 
-        if boat.emp_buff > 0:
-            boat.emp_buff -= 1
-            game_error("Aanval geblokkeerd door de EMP buff!")
-        else:
-            boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
-            if Game1.currentplayer.currentboat.damage_buff > 0:
-                Game1.currentplayer.currentboat.damage_buff -= Game1.currentplayer.currentboat.damage_buff
-                game_error("Damage buff gebruikt!")
-            if boat.currenthp <= 0:
-                game_error("Schip van "+str(enemy.name)+" gezonken!")
-                enemy.boatlist.remove(boat)
-                if enemy.boatlist == []:
-                    Game1.currentplayer.score += 1
-                else:
-                    enemy.currentboat = enemy.boatlist[0]
+        boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
+        if Game1.currentplayer.currentboat.damage_buff > 0:
+            Game1.currentplayer.currentboat.damage_buff -= Game1.currentplayer.currentboat.damage_buff
+            game_error("Damage buff gebruikt!")
+        if Game1.currentplayer.emp_buff > 0:
+            game_error("Schip uitgeschakeld met EMP!")
+            Game1.currentplayer.targeted_boat.EMP = True
+        if boat.currenthp <= 0:
+            game_error("Schip van "+str(enemy.name)+" gezonken!")
+            enemy.boatlist.remove(boat)
+            enemy.destroyed_boats.append(boat)
+            if enemy.boatlist == []:
+                Game1.currentplayer.score += 1
+            else:
+                enemy.currentboat = enemy.boatlist[0]
         self.targeted_boat = 0
         self.currentboat.attack_amount = 0
+        self.currentboat.range_buff = 0
 
         Game1.currentplayer.attackable_boats = []
         Game1.currentplayer.targeted_boat = 0
 
-    def draw_cards(self, screen):
-        for card in self.cards_in_hand:
-            if int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1) + int((display_width*0.8)/6) > pygame.mouse.get_pos()[0] > int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1) and GameGrid.gridstarty * 1.7 + GameGrid.y + int(display_height*0.15) > pygame.mouse.get_pos()[1] > GameGrid.gridstarty * 1.7 + GameGrid.y:
-               screen.blit(card.image, [int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1), GameGrid.gridstarty * 1.7 + GameGrid.y-379+int(display_height*0.02)])
-            else:
-                image = pygame.transform.scale(card.image,(int((display_width*0.8)/6), int(display_height*0.15)))
-                screen.blit(image, [int((display_width*0.8)/6)*(len(Game1.currentplayer.cards_in_hand)-1), GameGrid.gridstarty * 1.7 + GameGrid.y])
-
-        # if x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
-        #     pygame.draw.rect(screen, active_color, (x, y, width, height))
-        #     if pygame.mouse.get_pressed()[0] == 1 and action != None:
-        #         while pygame.mouse.get_pressed()[0] == 1:
-        #             for event in pygame.event.get():
-        #                 if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[
-        #                     0] > x and y + height > pygame.mouse.get_pos()[1] > y:
-        #                     if event.button == 1:
-        #                         do_action(action)
-        #                         break
-        #                 else:
-        #                     break
-        # else:
-        #     pygame.draw.rect(screen, inactive_color, (x, y, width, height))
+    def draw_from_deck(self, deck, draw_amount):
+        while draw_amount > 0:
+            if len(Game1.currentplayer.cards_in_hand) < 6:
+                draw_random = random.randint(0, len(deck)-1)
+                Game1.currentplayer.cards_in_hand.append(deck[draw_random])
+                Game1.normal_deck.remove(deck[draw_random])
+            draw_amount -= 1
 
 class Grid:
     def __init__(self, resolution_x, resolution_y):
@@ -328,23 +406,23 @@ class Boat:
         self.new_stance = "attacking"
         self.hp = HP
         self.currenthp = currentHP
-        self.horizontal_attackingrange = attacking_range_x
-        self.vertical_attackingrange = attacking_range_y
-        self.horizontal_defendingrange = 0
-        self.vertical_defendingrange = defending_range_y
         self.range_buff = 0
+        self.horizontal_attackingrange = attacking_range_x + self.range_buff
+        self.vertical_attackingrange = attacking_range_y + self.range_buff
+        self.horizontal_defendingrange = 0
+        self.vertical_defendingrange = defending_range_y + self.range_buff
         self.damage_buff = 0
-        self.emp_buff = 0
         self.flakarmor_buff = 0
         self.movement_multiplier = 1
-        self.movement = self.steps*self.movement_multiplier
+        self.movement = self.steps * self.movement_multiplier
         self.original_attack_amount = 1
         self.attack_amount = 1
+        self.EMP = False
 
-    def draw(self, screen):
-        color = black
+    def draw(self, screen, color):
+        color = color
         if self.x == Game1.currentplayer.currentboat.x and self.y == Game1.currentplayer.currentboat.y:
-            color = grey
+            color = green
         if self.original_stance == "attacking":
             pygame.draw.ellipse(screen, color, (self.x, self.y, self.attackingboat_width, self.attackingboat_height), 0)
         elif self.original_stance == "defending":
@@ -434,129 +512,135 @@ class Boat:
                     break
 
     def change_stance(self):
-        if self.original_stance == "defending" and self.movement == self.steps:
-            if self.steps > 1:
-                self.movement -= 1
-        if self.movement > 0:
-            if self.new_stance == "defending":
-                if self.switch_x > display_width/2:
-                    self.new_x = self.new_x + self.gamegrid.gridx*(self.length - 1)
-                self.new_stance = "attacking"
-                if Game1.currentplayer == P2:
-                    self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) - self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
-                if self.steps == 1 and self.original_stance == "defending":
-                    self.movement -= 1
-            else:
-                if self.switch_x > display_width/2:
-                    self.new_x = self.new_x - self.gamegrid.gridx*(self.length - 1)
-                self.new_stance = "defending"
-                if Game1.currentplayer == P2:
-                    self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) + self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
-        elif self.steps == 1 and self.original_stance == "defending":
-            if self.switch_x > display_width / 2:
-                self.new_x = self.new_x - self.gamegrid.gridx * (self.length - 1)
-            self.new_stance = "defending"
-            self.movement += 1
+        if self.EMP == True:
+            game_error("Schip is uitgeschakeld met EMP!")
         else:
-            game_error("Niet genoeg stappen over om van positie te wisselen!")
+            if self.original_stance == "defending" and self.movement == self.steps:
+                if self.steps > 1:
+                    self.movement -= 1
+            if self.movement > 0:
+                if self.new_stance == "defending":
+                    if self.switch_x > display_width/2:
+                        self.new_x = self.new_x + self.gamegrid.gridx*(self.length - 1)
+                    self.new_stance = "attacking"
+                    if Game1.currentplayer == P2:
+                        self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) - self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
+                    if self.steps == 1 and self.original_stance == "defending":
+                        self.movement -= 1
+                else:
+                    if self.switch_x > display_width/2:
+                        self.new_x = self.new_x - self.gamegrid.gridx*(self.length - 1)
+                    self.new_stance = "defending"
+                    if Game1.currentplayer == P2:
+                        self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) + self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
+            elif self.steps == 1 and self.original_stance == "defending":
+                if self.switch_x > display_width / 2:
+                    self.new_x = self.new_x - self.gamegrid.gridx * (self.length - 1)
+                self.new_stance = "defending"
+                self.movement += 1
+            else:
+                game_error("Niet genoeg stappen over om van positie te wisselen!")
 
 
     def move(self, direction):
-        if self.new_stance == "attacking":
-            if direction == "left":
-                if self.original_stance == "defending" and self.switch_x > display_width/2:
-                    if (self.new_x - self.gamegrid.gridx) < self.switch_x:
-                        if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
-                            if self.movement > 0:
-                                self.new_x -= self.gamegrid.gridx
-                                self.movement -= 1
+        if self.EMP == True:
+            game_error("Schip is uitgeschakeld met EMP!")
+        else:
+            if self.new_stance == "attacking":
+                if direction == "left":
+                    if self.original_stance == "defending" and self.switch_x > display_width/2:
+                        if (self.new_x - self.gamegrid.gridx) < self.switch_x:
+                            if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
+                                if self.movement > 0:
+                                    self.new_x -= self.gamegrid.gridx
+                                    self.movement -= 1
+                            else:
+                                game_error("Niet genoeg stappen over om te bewegen!")
                         else:
-                            game_error("Niet genoeg stappen over om te bewegen!")
+                            self.movement += 1
+                            self.new_x -= self.gamegrid.gridx
                     else:
-                        self.movement += 1
-                        self.new_x -= self.gamegrid.gridx
-                else:
-                    if (self.new_x - self.gamegrid.gridx) < self.x:
-                        if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
-                            if self.movement > 0:
-                                self.new_x -= self.gamegrid.gridx
-                                self.movement -= 1
+                        if (self.new_x - self.gamegrid.gridx) < self.x:
+                            if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
+                                if self.movement > 0:
+                                    self.new_x -= self.gamegrid.gridx
+                                    self.movement -= 1
+                            else:
+                                game_error("Niet genoeg stappen over om te bewegen!")
                         else:
-                            game_error("Niet genoeg stappen over om te bewegen!")
-                    else:
-                        self.movement += 1
-                        self.new_x -= self.gamegrid.gridx
-                    self.switch_x = self.new_x
-            elif direction == "right":
-                if self.original_stance == "defending" and self.switch_x > display_width/2:
-                    if (self.new_x + self.gamegrid.gridx) > self.switch_x:
-                        if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
-                            if self.movement > 0:
-                                self.new_x += self.gamegrid.gridx
-                                self.movement -= 1
+                            self.movement += 1
+                            self.new_x -= self.gamegrid.gridx
+                        self.switch_x = self.new_x
+                elif direction == "right":
+                    if self.original_stance == "defending" and self.switch_x > display_width/2:
+                        if (self.new_x + self.gamegrid.gridx) > self.switch_x:
+                            if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
+                                if self.movement > 0:
+                                    self.new_x += self.gamegrid.gridx
+                                    self.movement -= 1
+                            else:
+                                game_error("Niet genoeg stappen over om te bewegen!")
                         else:
-                            game_error("Niet genoeg stappen over om te bewegen!")
+                            self.movement += 1
+                            self.new_x += self.gamegrid.gridx
                     else:
-                        self.movement += 1
-                        self.new_x += self.gamegrid.gridx
-                else:
-                    if (self.new_x + self.gamegrid.gridx) > self.x:
-                        if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
-                            if self.movement > 0:
-                                self.new_x += self.gamegrid.gridx
-                                self.movement -= 1
+                        if (self.new_x + self.gamegrid.gridx) > self.x:
+                            if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
+                                if self.movement > 0:
+                                    self.new_x += self.gamegrid.gridx
+                                    self.movement -= 1
+                            else:
+                                game_error("Niet genoeg stappen over om te bewegen!")
                         else:
-                            game_error("Niet genoeg stappen over om te bewegen!")
-                    else:
-                        self.movement += 1
-                        self.new_x += self.gamegrid.gridx
-                    self.switch_x = self.new_x
-            if direction == "up":
-                if Game1.currentplayer == P2 and self.original_stance == "defending":
-                    if (self.new_y - self.gamegrid.gridy) < self.y-(self.gamegrid.gridy*(self.length-1)):
+                            self.movement += 1
+                            self.new_x += self.gamegrid.gridx
+                        self.switch_x = self.new_x
+                if direction == "up":
+                    if Game1.currentplayer == P2 and self.original_stance == "defending":
+                        if (self.new_y - self.gamegrid.gridy) < self.y-(self.gamegrid.gridy*(self.length-1)):
+                            if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
+                                if self.movement > 0:
+                                    self.new_y -= self.gamegrid.gridy
+                                    self.movement -= 1
+                            else:
+                                game_error("Niet genoeg stappen over om te bewegen!")
+                        else:
+                            self.movement += 1
+                            self.new_y -= self.gamegrid.gridy
+                    elif (self.new_y - self.gamegrid.gridy) < self.y:
                         if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
                             if self.movement > 0:
                                 self.new_y -= self.gamegrid.gridy
                                 self.movement -= 1
-                        else:
-                            game_error("Niet genoeg stappen over om te bewegen!")
+                            else:
+                                game_error("Niet genoeg stappen over om te bewegen!")
                     else:
                         self.movement += 1
                         self.new_y -= self.gamegrid.gridy
-                elif (self.new_y - self.gamegrid.gridy) < self.y:
-                    if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
-                        if self.movement > 0:
-                            self.new_y -= self.gamegrid.gridy
-                            self.movement -= 1
+                if direction == "down":
+                    if Game1.currentplayer == P2 and self.original_stance == "defending":
+                        if (self.new_y + self.gamegrid.gridy) > self.y-(self.gamegrid.gridy*(self.length-1)):
+                            if self.new_y + self.attackingboat_height + self.gamegrid.gridy < self.gamegrid.gridstarty + self.gamegrid.y:
+                                if self.movement > 0:
+                                    self.new_y += self.gamegrid.gridy
+                                    self.movement -= 1
+                            else:
+                                game_error("Niet genoeg stappen over om te bewegen!")
                         else:
-                            game_error("Niet genoeg stappen over om te bewegen!")
-                else:
-                    self.movement += 1
-                    self.new_y -= self.gamegrid.gridy
-            if direction == "down":
-                if Game1.currentplayer == P2 and self.original_stance == "defending":
-                    if (self.new_y + self.gamegrid.gridy) > self.y-(self.gamegrid.gridy*(self.length-1)):
-                        if self.new_y + self.attackingboat_height + self.gamegrid.gridy < self.gamegrid.gridstarty + self.gamegrid.y:
+                            self.movement += 1
+                            self.new_y += self.gamegrid.gridy
+                    elif (self.new_y + self.gamegrid.gridy) > self.y:
+                        if self.new_y + self.attackingboat_height + self.gamegrid.gridy < self.gamegrid.gridstarty+self.gamegrid.y:
                             if self.movement > 0:
                                 self.new_y += self.gamegrid.gridy
                                 self.movement -= 1
-                        else:
-                            game_error("Niet genoeg stappen over om te bewegen!")
+                            else:
+                                game_error("Niet genoeg stappen over om te bewegen!")
                     else:
                         self.movement += 1
                         self.new_y += self.gamegrid.gridy
-                elif (self.new_y + self.gamegrid.gridy) > self.y:
-                    if self.new_y + self.attackingboat_height + self.gamegrid.gridy < self.gamegrid.gridstarty+self.gamegrid.y:
-                        if self.movement > 0:
-                            self.new_y += self.gamegrid.gridy
-                            self.movement -= 1
-                        else:
-                            game_error("Niet genoeg stappen over om te bewegen!")
-                else:
-                    self.movement += 1
-                    self.new_y += self.gamegrid.gridy
-        else:
-            game_error("Verdedigende schepen kunnen niet bewegen!")
+            else:
+                game_error("Verdedigende schepen kunnen niet bewegen!")
 
     def confirm(self):
         for player in Game1.playerlist:
@@ -604,45 +688,48 @@ class Boat:
         return True
 
     def attack_check(self):
-        if self.confirm() == True:
-            if Game1.currentplayer == P1:
-                enemy = P2
-            elif Game1.currentplayer == P2:
-                enemy = P1
+        if self.EMP == True:
+            game_error("Schip is uitgeschakeld met EMP!")
+        else:
+            if self.confirm() == True:
+                if Game1.currentplayer == P1:
+                    enemy = P2
+                elif Game1.currentplayer == P2:
+                    enemy = P1
 
-            for boat in enemy.boatlist:
-                tiles = boat.length - 1
-                attackable = False
-                while tiles >= 0:
-                    if self.new_stance == "attacking":
-                        if boat.original_stance == "attacking":
-                            if self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx*(self.horizontal_attackingrange+1) > boat.x > self.new_x-(self.gamegrid.gridx/6)-self.gamegrid.gridx*self.horizontal_attackingrange:
-                                if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*self.length > boat.y + self.gamegrid.gridy * tiles > self.new_y-(self.gamegrid.gridy/6):
-                                    attackable = True
-                            if self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx> boat.x > self.new_x-(self.gamegrid.gridx/6):
-                                if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*(self.length+self.vertical_attackingrange) > boat.y + self.gamegrid.gridy * tiles > self.new_y-(self.gamegrid.gridy/6)-self.gamegrid.gridy*self.vertical_attackingrange:
-                                    attackable = True
-                        elif boat.original_stance == "defending":
-                            if self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx*(self.horizontal_attackingrange+1) > boat.x + self.gamegrid.gridy * tiles > self.new_x-(self.gamegrid.gridx/6)-self.gamegrid.gridx*self.horizontal_attackingrange:
-                                if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*self.length > boat.y > self.new_y-(self.gamegrid.gridy/6):
-                                    attackable = True
-                            if self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx> boat.x + self.gamegrid.gridy * tiles  > self.new_x-(self.gamegrid.gridx/6):
-                                if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*(self.length+self.vertical_attackingrange) > boat.y> self.new_y-(self.gamegrid.gridy/6)-self.gamegrid.gridy*self.vertical_attackingrange:
-                                    attackable = True
-                    elif self.new_stance == "defending":
-                        if boat.original_stance == "attacking":
-                            if self.new_x-(self.gamegrid.gridx/6)+(self.gamegrid.gridx*self.length)> boat.x > self.new_x-(self.gamegrid.gridx/6):
-                                if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*(self.vertical_defendingrange+1) > boat.y + self.gamegrid.gridy * tiles > self.new_y-(self.gamegrid.gridy/6)-self.gamegrid.gridy*self.vertical_defendingrange:
-                                    attackable = True
-                        elif boat.original_stance == "defending":
-                            if self.new_x-(self.gamegrid.gridx/6)> boat.x + self.gamegrid.gridy * tiles  > self.new_x-(self.gamegrid.gridx/6)+(self.gamegrid.gridx*self.length):
-                                if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*(self.vertical_defendingrange+1) > boat.y> self.new_y-(self.gamegrid.gridy/6)-self.gamegrid.gridy*self.vertical_defendingrange:
-                                    attackable = True
-                    tiles -= 1
-                if attackable:
-                    Game1.currentplayer.attackable_boats.append(boat)
-            if len(Game1.currentplayer.attackable_boats) == 0:
-                game_error("Er zijn geen boten in de buurt!")
+                for boat in enemy.boatlist:
+                    tiles = boat.length - 1
+                    attackable = False
+                    while tiles >= 0:
+                        if self.new_stance == "attacking":
+                            if boat.original_stance == "attacking":
+                                if self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx*(self.horizontal_attackingrange+1) > boat.x > self.new_x-(self.gamegrid.gridx/6)-self.gamegrid.gridx*self.horizontal_attackingrange:
+                                    if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*self.length > boat.y + self.gamegrid.gridy * tiles > self.new_y-(self.gamegrid.gridy/6):
+                                        attackable = True
+                                if self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx> boat.x > self.new_x-(self.gamegrid.gridx/6):
+                                    if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*(self.length+self.vertical_attackingrange) > boat.y + self.gamegrid.gridy * tiles > self.new_y-(self.gamegrid.gridy/6)-self.gamegrid.gridy*self.vertical_attackingrange:
+                                        attackable = True
+                            elif boat.original_stance == "defending":
+                                if self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx*(self.horizontal_attackingrange+1) > boat.x + self.gamegrid.gridy * tiles > self.new_x-(self.gamegrid.gridx/6)-self.gamegrid.gridx*self.horizontal_attackingrange:
+                                    if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*self.length > boat.y > self.new_y-(self.gamegrid.gridy/6):
+                                        attackable = True
+                                if self.new_x-(self.gamegrid.gridx/6)+self.gamegrid.gridx> boat.x + self.gamegrid.gridy * tiles  > self.new_x-(self.gamegrid.gridx/6):
+                                    if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*(self.length+self.vertical_attackingrange) > boat.y> self.new_y-(self.gamegrid.gridy/6)-self.gamegrid.gridy*self.vertical_attackingrange:
+                                        attackable = True
+                        elif self.new_stance == "defending":
+                            if boat.original_stance == "attacking":
+                                if self.new_x-(self.gamegrid.gridx/6)+(self.gamegrid.gridx*self.length)> boat.x > self.new_x-(self.gamegrid.gridx/6):
+                                    if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*(self.vertical_defendingrange+1) > boat.y + self.gamegrid.gridy * tiles > self.new_y-(self.gamegrid.gridy/6)-self.gamegrid.gridy*self.vertical_defendingrange:
+                                        attackable = True
+                            elif boat.original_stance == "defending":
+                                if self.new_x-(self.gamegrid.gridx/6)> boat.x + self.gamegrid.gridy * tiles  > self.new_x-(self.gamegrid.gridx/6)+(self.gamegrid.gridx*self.length):
+                                    if self.new_y-(self.gamegrid.gridy/6)+self.gamegrid.gridy*(self.vertical_defendingrange+1) > boat.y> self.new_y-(self.gamegrid.gridy/6)-self.gamegrid.gridy*self.vertical_defendingrange:
+                                        attackable = True
+                        tiles -= 1
+                    if attackable:
+                        Game1.currentplayer.attackable_boats.append(boat)
+                if len(Game1.currentplayer.attackable_boats) == 0:
+                    game_error("Er zijn geen boten in de buurt!")
 
     def confirm_stats(self):
         if self.original_stance == "defending" and self.new_stance == "defending":
@@ -652,6 +739,11 @@ class Boat:
         self.original_stance = self.new_stance
         self.movement = self.steps
         self.attack_amount = self.original_attack_amount
+        self.EMP = False
+        self.horizontal_attackingrange -= self.range_buff
+        self.vertical_attackingrange -= self.range_buff
+        self.vertical_defendingrange -= self.range_buff
+        self.range_buff = 0
 
 GameGrid = Grid(display_width, display_height)
 
@@ -710,29 +802,38 @@ card_emp = Card("EMP",image5, "offense", 4)
 card_extra_fuel_2 = Card("Extra Fuel 2",image6, "utility", 6)
 card_extra_fuel = Card("Extra Fuel",image7, "utility", 4)
 card_far_sight = Card("Far Sight",image8, "special", 1)
-card_flak_armor = Card("Flak Armor",image9, "special", 2)
 card_fmj = Card("FMJ",image10, "offense", 2)
 card_hack_intel = Card("Hack Intel",image11, "special", 1)
 card_jack_sparrow = Card("Jack Sparrow",image12, "special", 1)
-card_naval_mine = Card("Naval Mine",image13, "offense", 6)
 card_rally = Card("Rally",image14, "utility", 1)
 card_reinforced_hull = Card("Reinforced Hull",image15, "defense", 2)
 card_repair = Card("Repair",image16, "special", 2)
 card_rifling = Card("Rifling",image17, "offense", 2)
 card_sabotage = Card("Sabotage",image18, "defense", 2)
 card_smokescreen = Card("Smokescreen",image19, "defense", 2)
-card_sonar = Card("Sonar",image20, "defense", 4)
 
-Game1.allcards = [card_adrenaline_rush, card_advanced_rifling, card_aluminium_hull, card_backup, card_emp, card_extra_fuel_2, card_extra_fuel, card_far_sight, card_flak_armor, card_fmj, card_hack_intel, card_jack_sparrow, card_naval_mine, card_rally, card_reinforced_hull, card_repair, card_rifling, card_sabotage, card_smokescreen, card_sonar]
+Game1.allcards = [card_adrenaline_rush, card_advanced_rifling, card_aluminium_hull, card_backup, card_emp, card_extra_fuel_2, card_extra_fuel, card_far_sight, card_fmj, card_hack_intel, card_jack_sparrow, card_rally, card_reinforced_hull, card_repair, card_rifling, card_sabotage, card_smokescreen]
 for card in Game1.allcards:
         if card.type == "offense":
             Game1.offense_cards.append(card)
+            while card.amount > 0:
+                Game1.normal_deck.append(card)
+                card.amount -= 1
         elif card.type == "defense":
             Game1.defense_cards.append(card)
+            while card.amount > 0:
+                Game1.normal_deck.append(card)
+                card.amount -= 1
         elif card.type == "utility":
             Game1.utility_cards.append(card)
+            while card.amount > 0:
+                Game1.normal_deck.append(card)
+                card.amount -= 1
         elif card.type == "special":
             Game1.special_cards.append(card)
+            while card.amount > 0:
+                Game1.special_deck.append(card)
+                card.amount -= 1
 
 def text_objects(text, color, size = "small"):
     if size == "small":
@@ -1229,8 +1330,7 @@ def gameLoop():
                      elif event.key == pygame.K_LEFT:
                          Game1.currentplayer.currentboat.move("left")
                      elif event.key == pygame.K_t:
-                         Game1.currentplayer.cards_in_hand.append(card_sonar)
-                         print(Game1.currentplayer.cards_in_hand)
+                         Game1.currentplayer.cards_in_hand.append(card_hack_intel)
                      if not setup:
                          if event.key == pygame.K_SPACE:
                              Game1.currentplayer.nextboat()
@@ -1267,7 +1367,9 @@ def gameLoop():
 
          for player in Game1.playerlist:
              for boat in player.boatlist:
-                 boat.draw(screen)
+                 boat.draw(screen, black)
+             for boat in player.destroyed_boats:
+                 boat.draw(screen, grey)
 
          if not setup:
              for element in Game1.currentplayer.boatlist:
@@ -1303,7 +1405,15 @@ def gameLoop():
              button("Highscore", (display_width / 2) - 75, (display_height * 0.45), 150, 50, red, light_blue,
                     black, "high score")
 
-         Game1.currentplayer.draw_cards(screen)
+         Game1.currentplayer.hand_length = 0
+         for card in Game1.currentplayer.cards_in_hand:
+            card.draw_card(screen)
+            Game1.currentplayer.hand_length += 1
+
+         Game1.currentplayer.pick_card_length = 0
+         for card in Game1.currentplayer.pick_cards:
+             card.draw_pick_card(screen)
+             Game1.currentplayer.pick_card_length += 1
 
          pygame.display.update()
 
