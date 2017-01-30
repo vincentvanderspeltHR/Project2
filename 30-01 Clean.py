@@ -1,5 +1,6 @@
 import pygame
 import random
+import Database
 
 pygame.init()
 
@@ -1063,6 +1064,9 @@ def inputName():
 
 def chooseBoats():
     gameExit = False
+    P1.score = Database.check_name(P1.name)
+    P2.score = Database.check_name(P2.name)
+
     while not gameExit:
         if P1.name == "set" and P2.name == "up":
             P1.boatlist = [short_boat1, short_boat2, medium_boat1, medium_boat2]
@@ -1396,22 +1400,17 @@ def highScore():
             if event.type == pygame.QUIT:
                 gameExit = True
             screen.fill(white)
-            text_to_screen(screen, "Highscores", black, -display_height * 0.4)
+            text_to_screen("Highscores", black, -display_height*0.4)
             if Game1.currentplayer.name:
-                text_to_screen(screen, "1. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black,
-                               -display_height * 0.3)
-                text_to_screen(screen, "2. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black,
-                               -display_height * 0.2)
-                text_to_screen(screen, "3. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black,
-                               -display_height * 0.1)
-                text_to_screen(screen, "4. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black)
-                text_to_screen(screen, "5. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black,
-                               +display_height * 0.1)
+                text_to_screen("1. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, -display_height*0.3)
+                text_to_screen("2. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, -display_height*0.2)
+                text_to_screen("3. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, -display_height*0.1)
+                text_to_screen("4. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black)
+                text_to_screen("5. " + Game1.currentplayer.name + " " + str(Game1.currentplayer.score), black, +display_height*0.1)
             else:
-                text_to_screen(screen, "Er zijn nog geen spelers", black)
+                text_to_screen("Er zijn nog geen spelers", black)
             button("Hoofdmenu", display_width * 0.25, display_height * 0.75, 190, 60, green, light_blue, black, "main")
-            button("Quit game", display_width * 0.75 - 190, display_height * 0.75, 190, 60, green, light_blue, black,
-                   "quit")
+            button("Quit game", display_width * 0.75-190, display_height * 0.75, 190, 60, green, light_blue, black, "quit")
             pygame.display.update()
 
     pygame.quit()
