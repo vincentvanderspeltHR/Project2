@@ -1,5 +1,4 @@
 import pygame
-import time
 import random
 
 pygame.init()
@@ -34,9 +33,8 @@ image16 = pygame.image.load("Repair.jpg")
 image17 = pygame.image.load("Rifling.jpg")
 image18 = pygame.image.load("sabotage.jpg")
 image19 = pygame.image.load("Smokescreen.jpg")
+cardback_original = pygame.image.load("back1.jpg")
 
-#icon = pygame.image.load(" ")
-#pygame.display.set_icon(icon)
 
 white = (255,255,255)
 black = (0,0,0)
@@ -72,6 +70,7 @@ class Game:
         self.special_cards = []
         self.special_deck = []
         self.normal_deck = []
+        self.discard_pile = []
         self.message_show = pygame.time.get_ticks()
         self.message_cooldown = 2500
 
@@ -82,9 +81,7 @@ class Game:
             self.currentplayer = self.playerlist[0]
 
     def nextplayer_ingame(self):
-
         print(self.currentplayer.currentboat.x)
-        print(self.currentplayer.currentboat.new_x)
         valid_turn = 0
         for boat in Game1.currentplayer.boatlist:
             if boat.confirm():
@@ -92,9 +89,7 @@ class Game:
         if valid_turn == len(Game1.currentplayer.boatlist):
             for element in self.currentplayer.boatlist:
                 element.confirm_stats()
-
-            print(self.currentplayer.currentboat.x)
-            print(self.currentplayer.currentboat.new_x)
+            Game1.currentplayer.attack_amount = 2
             self.changeplayers()
         else:
             if Game1.setup_counter == 9:
@@ -130,8 +125,12 @@ class Card:
                     for event in pygame.event.get():
                         if event.type == pygame.MOUSEBUTTONUP and int((display_width*0.8)/6)*Game1.currentplayer.hand_length + int((display_width*0.8)/6) > pygame.mouse.get_pos()[0] > int((display_width*0.8)/6)*Game1.currentplayer.hand_length and GameGrid.gridstarty * 1.7 + GameGrid.y + int(display_height*0.15) > pygame.mouse.get_pos()[1] > GameGrid.gridstarty * 1.7 + GameGrid.y:
                             if event.button == 1:
-                                self.perform()
-                                break
+                                if Game1.currentplayer.attack_amount >= 2:
+                                    self.perform()
+                                    break
+                                else:
+                                    game_error("Je mag geen kaarten spelen na het aanvallen!")
+                                    break
                         else:
                             break
         else:
@@ -175,7 +174,7 @@ class Card:
         elif self.name == "Extra Fuel 2":
             Game1.currentplayer.currentboat.movement += 2
         elif self.name == "Aluminium Hull":
-            Game1.currentplayer.currentboat.movement_multiplier += 1
+            Game1.currentplayer.currentboat.steps = Game1.currentplayer.currentboat.steps*2
         elif self.name == "Far Sight":
             Game1.currentplayer.currentboat.horizontal_attackingrange += 2
             Game1.currentplayer.currentboat.vertical_attackingrange += 2
@@ -203,9 +202,13 @@ class Card:
                 Game1.currentplayer.pick_cards.append(Game1.special_deck[draw_random])
                 Game1.special_deck.remove(Game1.special_deck[draw_random])
                 draw_amount -= 1
+        elif self.name == "Sabotage":
+            Game1.currentplayer.sabotage_buff += 1
+            Game1.currentplayer.trap_cards.append(self)
         else:
             pass
         Game1.currentplayer.cards_in_hand.remove(self)
+        Game1.discard_pile.append(self)
 
 class Player:
     def __init__(self):
@@ -217,10 +220,13 @@ class Player:
         self.targeted_boat = 0
         self.cards_in_hand = []
         self.pick_cards = []
+        self.trap_cards = []
         self.pick_card_length = 0
         self.hand_length = 0
         self.destroyed_boats = []
         self.emp_buff = 0
+        self.attack_amount = 2
+        self.sabotage_buff = 0
 
     def show_stats(self, screen):
         text_to_screen("HP: "+str(self.currentboat.currenthp)+"/"+str(self.currentboat.hp), black, -display_height*0.45, "small", -display_width*0.45)
@@ -230,6 +236,7 @@ class Player:
         text_to_screen(
             "Aanval: " + str(self.currentboat.attack_amount) + "/" + str(self.currentboat.original_attack_amount),
             black, -display_height * 0.4, "small", -display_width * 0.422)
+        text_to_screen("Totale aanvallen: "+str(Game1.currentplayer.attack_amount)+"/2", black, -display_height*0.375, "rules", -display_width*0.415)
 
     def show_target_stats(self, screen):
         if Game1.currentplayer == P1:
@@ -317,7 +324,14 @@ class Player:
         elif Game1.currentplayer == P2:
             enemy = P1
 
-        boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
+        if enemy.sabotage_buff > 0:
+            Game1.currentplayer.currentboat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
+            game_error("Schade op jezelf gedaan vanwege de sabotage kaart!")
+            enemy.sabotage_buff -= 1
+            enemy.trap_cards.remove(card_sabotage)
+            Game1.discard_pile.append(card_sabotage)
+        else:
+            boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
         if Game1.currentplayer.currentboat.damage_buff > 0:
             Game1.currentplayer.currentboat.damage_buff -= Game1.currentplayer.currentboat.damage_buff
             game_error("Damage buff gebruikt!")
@@ -334,18 +348,29 @@ class Player:
                 enemy.currentboat = enemy.boatlist[0]
         self.targeted_boat = 0
         self.currentboat.attack_amount = 0
+        Game1.currentplayer.attack_amount -= 1
         self.currentboat.range_buff = 0
 
         Game1.currentplayer.attackable_boats = []
         Game1.currentplayer.targeted_boat = 0
 
     def draw_from_deck(self, deck, draw_amount):
-        while draw_amount > 0:
-            if len(Game1.currentplayer.cards_in_hand) < 6:
-                draw_random = random.randint(0, len(deck)-1)
-                Game1.currentplayer.cards_in_hand.append(deck[draw_random])
-                Game1.normal_deck.remove(deck[draw_random])
-            draw_amount -= 1
+            while draw_amount > 0:
+                if len(deck) > 0:
+                    if len(Game1.currentplayer.cards_in_hand) < 6:
+                        draw_random = random.randint(0, len(deck)-1)
+                        Game1.currentplayer.cards_in_hand.append(deck[draw_random])
+                        deck.remove(deck[draw_random])
+                    else:
+                        Game1.discard_pile.append(deck[draw_random])
+                        deck.remove(deck[draw_random])
+                    draw_amount -= 1
+                else:
+                    if deck == Game1.normal_deck:
+                        deck = Game1.discard_pile
+                    else:
+                        game_error("Er zijn geen kaarten meer over!")
+                        break
 
 class Grid:
     def __init__(self, resolution_x, resolution_y):
@@ -358,6 +383,32 @@ class Grid:
         self.gridx = self.x/20
         self.gridy = self.y/20
 
+    def draw_trapcards(self, screen):
+        for card in P1.trap_cards:
+            cardback = pygame.transform.scale(cardback_original, [int(GameGrid.x / 7), int(GameGrid.gridstarty * 0.75)])
+            position = P1.trap_cards.index(card)
+            display_trapcard = pygame.transform.scale(card.image,
+                                                      [int(GameGrid.x / 7), int(GameGrid.gridstarty * 0.75)])
+            if Game1.currentplayer == P1:
+                screen.blit(display_trapcard, [int(GameGrid.gridstartx + (GameGrid.x / 7 * position)),
+                                               int(GameGrid.gridstarty - GameGrid.gridstarty * 0.75 - 4)])
+            else:
+                screen.blit(cardback, [int(GameGrid.gridstartx + (GameGrid.x / 7 * position)),
+                                       int(GameGrid.gridstarty - GameGrid.gridstarty * 0.75 - 4)])
+
+        for card in P2.trap_cards:
+            cardback = pygame.transform.scale(cardback_original, [int(GameGrid.x / 7), int(GameGrid.gridstarty * 0.75)])
+            position = P2.trap_cards.index(card)
+            display_trapcard = pygame.transform.scale(card.image,
+                                                      [int(GameGrid.x / 7), int(GameGrid.gridstarty * 0.75)])
+            if Game1.currentplayer == P2:
+                screen.blit(display_trapcard, [int(GameGrid.gridstartx + (GameGrid.x / 7 * position)),
+                                               int(GameGrid.gridstarty + GameGrid.y + 4)])
+            else:
+                screen.blit(cardback,
+                            [int(GameGrid.gridstartx + (GameGrid.x / 7 * position)),
+                             int(GameGrid.gridstarty + GameGrid.y + 4)])
+
     def draw(self, screen):
         pygame.draw.rect(screen, (blue), (self.gridstartx, self.gridstarty, self.x, self.y), 0)
         gridlines = 0
@@ -368,10 +419,10 @@ class Grid:
         while not gridlines > 20:
             pygame.draw.line(screen, (0, 0, 0), (((self.resolution_x-self.x)/2)+self.gridx*gridlines, ((self.resolution_y-self.y)/2)), (((self.resolution_x-self.x)/2)+self.gridx*gridlines, ((self.resolution_y-self.y)/2)+self.y), 2)
             gridlines += 1
-        pygame.draw.rect(screen, black, (self.gridstartx - (display_width*0.135-5)-8, self.gridstarty, display_width*0.135, self.y / 3), 8)
-        pygame.draw.rect(screen, black,(self.gridstartx - (display_width*0.135-5)-8, self.y + self.gridstarty - (self.y / 3), display_width*0.135, self.y / 3), 8)
-        pygame.draw.rect(screen, black, (
-        self.gridstartx + self.x+4, self.gridstarty + (self.y / 10) * 4, self.gridstartx, (self.y / 10) * 2), 8)
+        # pygame.draw.rect(screen, black, (self.gridstartx - (display_width*0.135-5)-8, self.gridstarty, display_width*0.135, self.y / 3), 8)
+        # pygame.draw.rect(screen, black,(self.gridstartx - (display_width*0.135-5)-8, self.y + self.gridstarty - (self.y / 3), display_width*0.135, self.y / 3), 8)
+        # pygame.draw.rect(screen, black, (
+        # self.gridstartx + self.x+4, self.gridstarty + (self.y / 10) * 4, self.gridstartx, (self.y / 10) * 2), 8)
         trapcards = 0
         while not trapcards > 6:
             pygame.draw.rect(screen, black, (self.gridstartx + (self.x / 7 * trapcards), self.gridstarty - self.gridstarty * 0.75 -4, self.x / 7,self.gridstarty * 0.75), 8)
@@ -384,13 +435,18 @@ class Grid:
         pygame.draw.rect(screen, black, (self.gridstartx, self.gridstarty +self.y +4, self.x, self.gridstarty * 0.75), 8)
         perkcards = 0
         while not perkcards > 3:
-            pygame.draw.rect(screen, black, (self.gridstartx + self.x+4, self.gridstarty + (self.y / 10) * perkcards, self.x / 4, self.y / 10), 8)
+            pygame.draw.rect(screen, black, (self.gridstartx + self.x+4, self.gridstarty + (self.y / 8.2) * perkcards, self.x / 4, self.y / 8.2), 8)
             perkcards += 1
         perkcards = 1
         while not perkcards > 4:
-            pygame.draw.rect(screen, black, (self.gridstartx + self.x+4, self.gridstarty + self.y - (self.y / 10) * perkcards, self.x / 4, self.y / 10),  8)
+            pygame.draw.rect(screen, black, (self.gridstartx + self.x+4, self.gridstarty + self.y - (self.y / 8.2) * perkcards, self.x / 4, self.y / 8.2),  8)
             perkcards += 1
         pygame.draw.rect(screen, black, (self.gridstartx -4, self.gridstarty-4, self.x+8, self.y+8), 8)
+        # if Game1.setup_counter == 9:
+        #     if not len(Game1.normal_deck) <= 0:
+        #         screen.blit(cardback_normal, [self.gridstartx + self.x+4, self.gridstarty + (self.y / 10) * 4])
+        #     if not len(Game1.special_deck) <= 0:
+        #
 
 class Boat:
     def __init__(self, x, y, length, steps, gamegrid, HP, currentHP, attacking_range_x, attacking_range_y, defending_range_y):
@@ -418,11 +474,11 @@ class Boat:
         self.vertical_defendingrange = defending_range_y + self.range_buff
         self.damage_buff = 0
         self.flakarmor_buff = 0
-        self.movement_multiplier = 1
-        self.movement = self.steps * self.movement_multiplier
+        self.movement = self.steps
         self.original_attack_amount = 1
         self.attack_amount = 1
         self.EMP = False
+        self.special_card = 0
 
     def draw(self, screen, color):
         color = color
@@ -600,7 +656,7 @@ class Boat:
                             self.movement += 1
                             self.new_x += self.gamegrid.gridx
                         self.switch_x = self.new_x
-                if direction == "up":
+                elif direction == "up":
                     if Game1.currentplayer == P2 and self.original_stance == "defending":
                         if (self.new_y - self.gamegrid.gridy) < self.y-(self.gamegrid.gridy*(self.length-1)):
                             if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
@@ -622,7 +678,7 @@ class Boat:
                     else:
                         self.movement += 1
                         self.new_y -= self.gamegrid.gridy
-                if direction == "down":
+                elif direction == "down":
                     if Game1.currentplayer == P2 and self.original_stance == "defending":
                         if (self.new_y + self.gamegrid.gridy) > self.y-(self.gamegrid.gridy*(self.length-1)):
                             if self.new_y + self.attackingboat_height + self.gamegrid.gridy < self.gamegrid.gridstarty + self.gamegrid.y:
@@ -644,6 +700,20 @@ class Boat:
                     else:
                         self.movement += 1
                         self.new_y += self.gamegrid.gridy
+                if self.special_card == 0:
+                    if not self.y == self.new_y:
+                        if Game1.currentplayer == P1:
+                            if self.new_y + self.gamegrid.gridy*self.length > self.gamegrid.gridstarty+self.gamegrid.y:
+                                self.special_card += 1
+                                Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
+                                if len(Game1.special_deck) > 0:
+                                    game_error("Speciale kaart getrokken!")
+                        else:
+                            if self.new_y - self.gamegrid.gridy < self.gamegrid.gridstarty:
+                                self.special_card += 1
+                                Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
+                                if len(Game1.special_deck) > 0:
+                                    game_error("Speciale kaart getrokken!")
             else:
                 game_error("Verdedigende schepen kunnen niet bewegen!")
 
@@ -819,7 +889,7 @@ card_rifling = Card("Rifling",image17, "offense", 2)
 card_sabotage = Card("Sabotage",image18, "defense", 2)
 card_smokescreen = Card("Smokescreen",image19, "defense", 2)
 
-Game1.allcards = [card_adrenaline_rush, card_advanced_rifling, card_aluminium_hull, card_backup, card_emp, card_extra_fuel_2, card_extra_fuel, card_far_sight, card_fmj, card_hack_intel, card_jack_sparrow, card_rally, card_reinforced_hull, card_repair, card_rifling, card_sabotage, card_smokescreen]
+Game1.allcards = [card_adrenaline_rush, card_advanced_rifling, card_aluminium_hull, card_backup, card_emp, card_extra_fuel_2, card_extra_fuel, card_far_sight, card_fmj, card_hack_intel, card_rally, card_reinforced_hull, card_repair, card_rifling]
 for card in Game1.allcards:
         if card.type == "offense":
             Game1.offense_cards.append(card)
@@ -1232,66 +1302,71 @@ def gameRules(page):
                 gameExit = True
         screen.fill(white)
         if page == "main":
-            text_to_screen("Welkom in het regelboek", black, 0)
-            text_to_screen("Navigeer met de knoppen hier rechts", black, +50, "rules")
+            text_to_screen("Welkom in het regelboek", black, 0, "small", -100)
+            text_to_screen("Navigeer met de knoppen hier rechts", black, +50, "rules", -100)
 
         elif page == "voorbereiding":
-            text_to_screen("Welkom op pagina voorbereiding", black, -100, "small")
-            text_to_screen("Iedere speler begint met twee schepen", black, -50, "rules")
-            text_to_screen("en 2 kaarten van de basis stapel.", black, -25, "rules")
-            text_to_screen("De spelers plaatsen hun schepen tegen",black, 0, "rules")
-            text_to_screen(" zijn/haar eigen haven aan in de aanvalspositie", black, +25, "rules")
-            text_to_screen("de speler mag zelf bepalen waar de schepen staan,", black, +50, "rules")
-            text_to_screen("zolang ze maar tegen zijn/haar eigen haven staat.", black, +75, "rules")
+            text_to_screen("Welkom op pagina voorbereiding", black, -100, "small", -100)
+            text_to_screen("Iedere speler begint met twee schepen", black, -50, "rules", -100)
+            text_to_screen("en 2 kaarten van de basis stapel. De spelers", black, -25, "rules", -100)
+            text_to_screen("plaatsen hun schepen tegen zijn/haar eigen haven",black, 0, "rules", -100)
+            text_to_screen("aan in de aanvalspositie. De speler mag zelf", black, +25, "rules", -100)
+            text_to_screen("bepalen waar de schepen staan, zolang ze maar", black, +50, "rules", -100)
+            text_to_screen("tegen zijn/haar eigen haven staat.", black, +75, "rules", -100)
 
         elif page == "spelverloop":
-            text_to_screen("Welkom op pagina spelverloop", black, -150)
-            text_to_screen("Aan het begin van een speler zijn/haar beurt" , black, -100, "rules")
-            text_to_screen("trekt de speler één kaart van de normale stapel.", black, -75, "rules")
-            text_to_screen("Kaarten mogen alleen gebruikt worden voor het aanvallen.", black, -50, "rules")
-            text_to_screen("De speler die aan de beurt is mag zijn schepen verplaatsen,", black, -25, "rules")
-            text_to_screen("wanneer een schip van de tegenstander binnen het aanvals", black, 0, "rules")
-            text_to_screen("bereik staat van de speler die aan de beurt is staat, mag", black, +25, "rules")
-            text_to_screen("de speler die aan de beurt is zijn tegenstanders schip aanvallen.", black, +50, "rules")
-            text_to_screen("Er mag per beurt maximaal 2 keer aangevallen worden", black, +75, "rules")
-            text_to_screen("en elk schip mag maar maximaal 1 keer per beurt aanvallen.", black, +100, "rules")
+            text_to_screen("Welkom op pagina spelverloop", black, -150, "small", -100)
+            text_to_screen("Aan het begin van een speler zijn/haar beurt", black, -100, "rules", -100)
+            text_to_screen("trekt de speler één kaart van de normale stapel.", black, -75, "rules", -100)
+            text_to_screen("Kaarten mogen alleen gebruikt worden voor het aanvallen.", black, -50, "rules", -100)
+            text_to_screen("De speler die aan de beurt is mag zijn schepen verplaatsen,", black, -25, "rules", -100)
+            text_to_screen("wanneer een schip van de tegenstander binnen het aanvals", black, 0, "rules", -100)
+            text_to_screen("bereik staat van de speler die aan de beurt is staat, mag", black, +25, "rules", -100)
+            text_to_screen("de speler die aan de beurt is zijn tegenstanders schip aanvallen.", black, +50, "rules", -100)
+            text_to_screen("Er mag per beurt maximaal 2 keer aangevallen worden", black, +75, "rules", -100)
+            text_to_screen("en elk schip mag maar maximaal 1 keer per beurt aanvallen.", black, +100, "rules", -100)
+            text_to_screen("Met 'a' kun je gaan aanvallen met je geselecteerde boot.", black, +125, "rules", -100)
+            text_to_screen("Tijdens het aanvallen kun je eventueel wisselen tussen aan", black, +150, "rules", -100)
+            text_to_screen("te vallen schepen met spatie. Met de enter knop val je aan.", black, +175, "rules", -100)
+            text_to_screen("met de backspace knop stop je met aanvallen.", black, +200, "rules", -100)
 
 
         elif page == "boten":
-            text_to_screen("Welkom op pagina boten", black, -150)
-            text_to_screen("☻Er zijn verschillende schepen in dit spel", black, -100, "rules")
-            text_to_screen("met elk andere lengtes.", black, -75, "rules")
-            text_to_screen("☻Als een schip vernietigt wordt, zal dit schip op het veld", black, -50, "rules")
-            text_to_screen("blijven liggen als obstakel waar", black, -25, "rules")
-            text_to_screen("niet doorheen gegaan kan worden.", black, 0, "rules")
-            text_to_screen("☻Wanneer een speler al zijn schepen kwijt is,", black, +25, "rules")
-            text_to_screen("verliest deze speler.", black, +50, "rules")
-            text_to_screen("De winnaar is de speler die als laatste", black, +75, "rules")
-            text_to_screen("met een niet vernietigt schip overblijft.", black, +100, "rules")
+            text_to_screen("Welkom op pagina boten", black, -150, "small", -100)
+            text_to_screen("Er zijn verschillende schepen in dit spel", black, -100, "rules", -100)
+            text_to_screen("met elk andere lengtes. Als een schip vernietigt", black, -75, "rules", -100)
+            text_to_screen("wordt, zal dit schip op het veld blijven liggen", black, -50, "rules", -100)
+            text_to_screen("als obstakel waar niet doorheen gegaan kan", black, -25, "rules", -100)
+            text_to_screen("worden. Wanneer een speler al zijn schepen kwijt,", black, 0, "rules", -100)
+            text_to_screen("is verliest deze speler. De winnaar is de speler", black, +25, "rules", -100)
+            text_to_screen("die als laatste met een niet vernietigt schip", black, +50, "rules", -100)
+            text_to_screen("overblijft.", black, +75, "rules", -100)
 
 
         elif page == "bewegen & posities":
-            text_to_screen("Welkom op pagina bewegen & posities", black, -225)
-            text_to_screen("☻Wanneer een speler aan de beurt is mag de speler", black, -175, "rules")
-            text_to_screen("al zijn/haar schepen verplaatsen volgens het aantal", black, -150, "rules")
-            text_to_screen("stappen dat het schip kan zetten.", black, -125, "rules")
-            text_to_screen("☻Ook kun je de positie van je schepen veranderen,", black, -100, "rules")
-            text_to_screen("wanneer je dit doet telt dat als 1 stap:", black, -75, "rules")
-            text_to_screen("    ☺Wanneer een schip in zijn aanvalspositie staat heeft", black, -50, "rules")
-            text_to_screen("    het schip zijn standaard aanval bereik. ", black, -25, "rules")
-            text_to_screen("    ☺Wanneer een schip in zijn verdedigingspositite staat", black, 0, "rules")
-            text_to_screen("    mag deze niet verplaatst worden.", black, +25, "rules")
-            text_to_screen("    (Hulpkaarten hebben nog wel effect)", black, +50, "rules")
-            text_to_screen("☻Spelers mogen 2 keer per beurt aanvallen.", black, +75, "rules")
-            text_to_screen("Aanvallen kan alleen wanneer een schip van de", black, +100, "rules")
-            text_to_screen("tegenstander in het bereik.", black, +125, "rules")
-            text_to_screen("staat van een van jouw schepen.", black, +150, "rules")
-            text_to_screen("Per schip mag je maar één keer aanvallen.", black, +175, "rules")
+            text_to_screen("Welkom op pagina bewegen & posities", black, -225, "small", -100)
+            text_to_screen("Wanneer een speler aan de beurt is mag de speler", black, -175, "rules", -100)
+            text_to_screen("al zijn/haar schepen verplaatsen volgens het aantal", black, -150, "rules", -100)
+            text_to_screen("stappen dat het schip kan zetten. Ook kun je de", black, -125, "rules", -100)
+            text_to_screen("positie van je schepen veranderen, wanneer je dit", black, -100, "rules", -100)
+            text_to_screen("doet telt dat als 1 stap. Wanneer een schip in zijn", black, -75, "rules", -100)
+            text_to_screen("aanvalspositie staat heeft het schip zijn standaard", black, -50, "rules", -100)
+            text_to_screen("aanval bereik. Wanneer een schip in zijn verdedigingspositie", black, -25, "rules", -100)
+            text_to_screen("staat mag deze niet verplaatst worden (Hulpkaarten hebben nog", black, 0, "rules", -100)
+            text_to_screen("wel effect). Spelers mogen 2 keer per beurt aanvallen.", black, +25, "rules", -100)
+            text_to_screen("Aanvallen kan alleen wanneer een schip van de tegenstander", black, +50, "rules", -100)
+            text_to_screen("in het bereik staat van een van jouw schepen. Met de", black, +75, "rules", -100)
+            text_to_screen("pijltjestoetsen kan je een boot bewegen. Je kunt", black, +100, "rules", -100)
+            text_to_screen("je geselecteerde boot veranderen met spatie.", black, +125, "rules", -100)
 
 
         elif page == "kaarten":
-            text_to_screen("Welkom op pagina kaarten", black)
-            text_to_screen("Pagina nog niet gevonden.", black, +50, "rules")
+            text_to_screen("Welkom op pagina kaarten", black, -125, "small", -100)
+            text_to_screen("Er zijn 3 verschillende stapels kaarten in het spel: de basisstapel, speciale stapel", black, -75, "rules", -100)
+            text_to_screen("en de weggooistapel. In de basisstapel zitten alle offensieve, defensieve en hulpkaarten.", black, -50, "rules", -100)
+            text_to_screen("In de speciale stapel zitten zoals de naam al zegt alle speciale kaarten. Speciale kaarten", black, -25, "rules", -100)
+            text_to_screen("zijn meestal pernamente buffs. Alle kaarten die al zijn gebruikt gaan naar de weggooistapel.", black, 0, "rules", -100)
+            text_to_screen("Al deze kaarten komen weer terug in het spel zodra de normale stapel leeg is.", black, 25, "rules", -100)
 
         if not page == "voorbereiding":
             button("Voorbereiding", display_width*0.75, display_height*0.2, 250, 60, red, light_blue, black, "rules_voorbereiding")
@@ -1337,7 +1412,7 @@ def gameLoop():
                      elif event.key == pygame.K_LEFT:
                          Game1.currentplayer.currentboat.move("left")
                      elif event.key == pygame.K_t:
-                         Game1.currentplayer.cards_in_hand.append(card_hack_intel)
+                         Game1.currentplayer.cards_in_hand.append(card_sabotage)
                      if not setup:
                          if event.key == pygame.K_SPACE:
                              Game1.currentplayer.nextboat()
@@ -1348,7 +1423,7 @@ def gameLoop():
                          elif event.key == pygame.K_UP:
                              Game1.currentplayer.currentboat.move("up")
                          elif event.key == pygame.K_a:
-                             if Game1.currentplayer.currentboat.attack_amount > 0:
+                             if Game1.currentplayer.currentboat.attack_amount > 0 and Game1.currentplayer.attack_amount > 0:
                                  Game1.currentplayer.currentboat.attack_check()
                                  if len(Game1.currentplayer.attackable_boats) > 0:
                                      attacking = True
@@ -1360,6 +1435,7 @@ def gameLoop():
                          Game1.currentplayer.attack(Game1.currentplayer.targeted_boat)
                          attacking = False
                      elif event.key == pygame.K_BACKSPACE:
+                         Game1.currentplayer.targeted_boat = 0
                          attacking = False
 
          screen.fill(white, (0, display_height*0.06, display_width, display_height))
@@ -1391,6 +1467,11 @@ def gameLoop():
             Game1.currentplayer.show_target_stats(screen)
             Game1.currentplayer.draw_targetedboat(screen)
 
+         GameGrid.draw_trapcards(screen)
+
+
+
+
          Game1.currentplayer.selectedboat(screen)
 
          if not gameOver:
@@ -1406,6 +1487,10 @@ def gameLoop():
          if Game1.setup_counter == 8:
              setup = False
              Game1.setup_counter = 9
+             Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
+             Game1.nextplayer_ingame()
+             Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
+             Game1.nextplayer_ingame()
 
          if P1.boatlist == [] or P2.boatlist == []:
              gameOver = True
