@@ -35,6 +35,22 @@ image18 = pygame.image.load("sabotage.jpg")
 image19 = pygame.image.load("Smokescreen.jpg")
 cardback_original = pygame.image.load("back1.jpg")
 
+settingsCogwheel = pygame.image.load("outline_gearwheel-512.png")
+settingsCogwheel_height = int(display_height/20)
+settingsCogwheel_width = int(display_width/20)
+settingsCogwheel = pygame.transform.scale(settingsCogwheel, [settingsCogwheel_width, settingsCogwheel_height])
+
+sound_on = pygame.image.load("sound_on.png")
+sound_on_height = int(display_height/20)
+sound_on_width = int(display_width/20)
+sound_on = pygame.transform.scale(sound_on, [sound_on_width, sound_on_height])
+
+sound_off = pygame.image.load("sound_off.png")
+sound_off_height = int(display_height/20)
+sound_off_width = int(display_width/20)
+sound_off = pygame.transform.scale(sound_off, [sound_off_width, sound_off_height])
+
+sound = True
 
 white = (255,255,255)
 black = (0,0,0)
@@ -950,6 +966,48 @@ def text_to_button(text, color, buttonx, buttony, buttonwidth, buttonheight, siz
     screen.blit(textSurf, textRect)
 
 
+def settings(screen, x=display_width-settingsCogwheel_width, y=0, width=settingsCogwheel_width, height=settingsCogwheel_height):
+    screen.blit(settingsCogwheel, [x, y])
+    if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
+        if pygame.mouse.get_pressed()[0] == 1:
+            while pygame.mouse.get_pressed()[0] == 1:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
+                        if event.button == 1:
+                            do_action("settings")
+                            break
+                    else:
+                        break
+
+
+def sound_on_function(screen, x=display_width/2-(sound_on_width/2), y=display_height/2-(sound_on_height/2), width=sound_on_width, height=sound_on_height):
+    screen.blit(sound_on, [x, y])
+    if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
+        if pygame.mouse.get_pressed()[0] == 1:
+            while pygame.mouse.get_pressed()[0] == 1:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
+                        if event.button == 1:
+                            do_action("sound_on")
+                            break
+                    else:
+                        break
+
+
+def sound_off_function(screen, x=display_width/2-(sound_off_width/2), y=display_height/2-(sound_off_height/2), width=sound_off_width, height=sound_off_height):
+    screen.blit(sound_off, [x, y])
+    if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
+        if pygame.mouse.get_pressed()[0] == 1:
+            while pygame.mouse.get_pressed()[0] == 1:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
+                        if event.button == 1:
+                            do_action("sound_off")
+                            break
+                    else:
+                        break
+
+
 def button(text, x, y, width, height, inactive_color, active_color, text_color, action = None):
     if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
         pygame.draw.rect(screen, active_color, (x, y, width, height))
@@ -1049,6 +1107,26 @@ def do_action(action):
     elif action == "remove_boat":
         Game1.available_boats.append(Game1.currentplayer.boatlist[-1])
         Game1.currentplayer.boatlist.pop()
+    elif action == "settings":
+        settings_pause = True
+
+        screen.fill(white)
+        text_to_screen("Settings", black, -display_height * 0.1, "medium")
+
+        pygame.display.update()
+
+        while settings_pause:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        settings_pause = False
+    elif action == "sound_on":
+        sound = True
+    elif action == "sound_off":
+        sound = False
 
 
 
