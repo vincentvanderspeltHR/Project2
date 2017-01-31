@@ -43,10 +43,14 @@ def download_highscore():
 
 # Downloads the top score from database
 def download_top_score():
-    result = interact_with_database("SELECT * FROM Highscore ORDER BY Score")
+    result = interact_with_database("SELECT * FROM Highscore ORDER BY Score")[0][1][2][3][4][5][6][7][8][9]
     return result
 
 # Check if player already has a score
 def check_name(name):
-    score = interact_with_database("SELECT score FROM highscore where naam = '{}'".format(name))
+    score = interact_with_database("SELECT Score FROM Highscore WHERE Naam = '{}'".format(name))
     return score
+
+def get_name(name):
+    name = interact_with_database("SELECT Naam FROM Highscore WHERE Naam = '{}'".format(name))
+    return name
