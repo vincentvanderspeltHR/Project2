@@ -38,12 +38,14 @@ image19 = pygame.image.load("Smokescreen.jpg")
 #icon = pygame.image.load(" ")
 #pygame.display.set_icon(icon)
 
-pygame.mixer.music.load("Star_Wars_Imperial_March_Theme_8_Bit_Remix_Cover_V.wav")
+pygame.mixer.music.load("Better Hand.ogg")
 card_draw_sound = pygame.mixer.Sound("draw_card_3.ogg")
 attack_sound = pygame.mixer.Sound("62.wav")
 play_card_sound = pygame.mixer.Sound("Battlecry_1.ogg")
 buff_card_sound = pygame.mixer.Sound("1030.wav")
 game_error_sound = pygame.mixer.Sound("439.wav")
+ship_movement = pygame.mixer.Sound("movement_ship.wav")
+button_click = pygame.mixer.Sound("button_click.ogg")
 
 white = (255,255,255)
 black = (0,0,0)
@@ -624,6 +626,7 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_y -= self.gamegrid.gridy
                                     self.movement -= 1
+                                    pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                         else:
@@ -634,6 +637,7 @@ class Boat:
                             if self.movement > 0:
                                 self.new_y -= self.gamegrid.gridy
                                 self.movement -= 1
+                                pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                     else:
@@ -646,6 +650,7 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_y += self.gamegrid.gridy
                                     self.movement -= 1
+                                    pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                         else:
@@ -656,6 +661,7 @@ class Boat:
                             if self.movement > 0:
                                 self.new_y += self.gamegrid.gridy
                                 self.movement -= 1
+                                pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                     else:
@@ -879,7 +885,6 @@ def game_error(text):
     textSurf, textRect = text_objects(text, red, "small")
     textRect.center = (int(display_width / 2), int(display_height / 2)-display_height*0.48)
     screen.blit(textSurf, textRect)
-    pygame.mixer.Sound.play(game_error_sound)
 
 def text_to_screen(text, color, y_displace = 0, size = "small", x_displace = 0):
     textSurf, textRect = text_objects(text, color, size)
@@ -902,6 +907,7 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
                     if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
                         if event.button == 1:
                             do_action(action)
+                            pygame.mixer.Sound.play(button_click)
                             break
                     else:
                         break
@@ -1310,8 +1316,19 @@ def gameRules(page):
 
 
         elif page == "kaarten":
-            text_to_screen("Welkom op pagina kaarten", black)
-            text_to_screen("Pagina nog niet gevonden.", black, +50, "rules")
+            text_to_screen("stappen dat het schip kan zetten.", black, -125, "rules")
+            text_to_screen("☻Ook kun je de positie van je schepen veranderen,", black, -100, "rules")
+            text_to_screen("wanneer je dit doet telt dat als 1 stap:", black, -75, "rules")
+            text_to_screen("    ☺Wanneer een schip in zijn aanvalspositie staat heeft", black, -50, "rules")
+            text_to_screen("    het schip zijn standaard aanval bereik. ", black, -25, "rules")
+            text_to_screen("    ☺Wanneer een schip in zijn verdedigingspositite staat", black, 0, "rules")
+            text_to_screen("    mag deze niet verplaatst worden.", black, +25, "rules")
+            text_to_screen("    (Hulpkaarten hebben nog wel effect)", black, +50, "rules")
+            text_to_screen("☻Spelers mogen 2 keer per beurt aanvallen.", black, +75, "rules")
+            text_to_screen("Aanvallen kan alleen wanneer een schip van de", black, +100, "rules")
+            text_to_screen("tegenstander in het bereik.", black, +125, "rules")
+            text_to_screen("staat van een van jouw schepen.", black, +150, "rules")
+            text_to_screen("Per schip mag je maar één keer aanvallen.", black, +175, "rules")
 
         if not page == "voorbereiding":
             button("Voorbereiding", display_width*0.75, display_height*0.2, 250, 60, red, light_blue, black, "rules_voorbereiding")

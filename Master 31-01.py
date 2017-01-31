@@ -36,6 +36,16 @@ image18 = pygame.image.load("sabotage.jpg")
 image19 = pygame.image.load("Smokescreen.jpg")
 cardback_original = pygame.image.load("back1.jpg")
 
+sound = True
+
+pygame.mixer.music.load("Star_Wars_Imperial_March_Theme_8_Bit_Remix_Cover_V.wav")
+card_draw_sound = pygame.mixer.Sound("draw_card_3.ogg")
+attack_sound = pygame.mixer.Sound("62.wav")
+play_card_sound = pygame.mixer.Sound("Battlecry_1.ogg")
+buff_card_sound = pygame.mixer.Sound("1030.wav")
+game_error_sound = pygame.mixer.Sound("439.wav")
+ship_movement = pygame.mixer.Sound("movement_ship.wav")
+button_click = pygame.mixer.Sound("button_click.ogg")
 
 white = (255,255,255)
 black = (0,0,0)
@@ -164,37 +174,63 @@ class Card:
             Game1.currentplayer.currentboat.horizontal_attackingrange += Game1.currentplayer.currentboat.range_buff
             Game1.currentplayer.currentboat.vertical_attackingrange += Game1.currentplayer.currentboat.range_buff
             Game1.currentplayer.currentboat.vertical_defendingrange += Game1.currentplayer.currentboat.range_buff
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Rifling":
             Game1.currentplayer.currentboat.range_buff += 1
             Game1.currentplayer.currentboat.horizontal_attackingrange += Game1.currentplayer.currentboat.range_buff
             Game1.currentplayer.currentboat.vertical_attackingrange += Game1.currentplayer.currentboat.range_buff
             Game1.currentplayer.currentboat.vertical_defendingrange += Game1.currentplayer.currentboat.range_buff
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "FMJ":
             Game1.currentplayer.currentboat.damage_buff += 1
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Reinforced Hull":
             Game1.currentplayer.currentboat.currenthp += 1
             Game1.currentplayer.currentboat.hp += 1
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Extra Fuel":
             Game1.currentplayer.currentboat.movement +=1
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Extra Fuel 2":
             Game1.currentplayer.currentboat.movement += 2
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Aluminium Hull":
             Game1.currentplayer.currentboat.steps = Game1.currentplayer.currentboat.steps*2
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Far Sight":
             Game1.currentplayer.currentboat.horizontal_attackingrange += 2
             Game1.currentplayer.currentboat.vertical_attackingrange += 2
             Game1.currentplayer.currentboat.vertical_defendingrange += 2
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Adrenaline Rush":
             Game1.currentplayer.currentboat.movement = Game1.currentplayer.currentboat.steps
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Backup":
             Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Rally":
             for boat in Game1.currentplayer.boatlist:
                 boat.movement += 1
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Repair":
             Game1.currentplayer.currentboat.currenthp = Game1.currentplayer.currentboat.hp
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "EMP":
             Game1.currentplayer.emp_buff += 1
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Hack Intel":
             if len(Game1.special_deck) == 0:
                 game_error("Er zijn geen special kaarten meer over!")
@@ -207,13 +243,18 @@ class Card:
                 Game1.currentplayer.pick_cards.append(Game1.special_deck[draw_random])
                 Game1.special_deck.remove(Game1.special_deck[draw_random])
                 draw_amount -= 1
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Sabotage":
             Game1.currentplayer.sabotage_buff += 1
             Game1.currentplayer.trap_cards.append(self)
+            if sound is True:
+                pygame.mixer.Sound.play(play_card_sound)
         else:
             pass
         Game1.currentplayer.cards_in_hand.remove(self)
         Game1.discard_pile.append(self)
+
 
 class Player:
     def __init__(self):
@@ -370,6 +411,8 @@ class Player:
                     if len(Game1.currentplayer.cards_in_hand) < 6:
                         Game1.currentplayer.cards_in_hand.append(deck[draw_random])
                         deck.remove(deck[draw_random])
+                        if sound is True:
+                            pygame.mixer.Sound.play(card_draw_sound)
                     else:
                         Game1.discard_pile.append(deck[draw_random])
                         deck.remove(deck[draw_random])
@@ -624,6 +667,8 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_x -= self.gamegrid.gridx
                                     self.movement -= 1
+                                    if sound is True:
+                                        pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                         else:
@@ -635,6 +680,8 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_x -= self.gamegrid.gridx
                                     self.movement -= 1
+                                    if sound is True:
+                                        pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                         else:
@@ -648,6 +695,8 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_x += self.gamegrid.gridx
                                     self.movement -= 1
+                                    if sound is True:
+                                        pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                         else:
@@ -659,6 +708,8 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_x += self.gamegrid.gridx
                                     self.movement -= 1
+                                    if sound is True:
+                                        pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                         else:
@@ -672,6 +723,8 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_y -= self.gamegrid.gridy
                                     self.movement -= 1
+                                    if sound is True:
+                                        pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                         else:
@@ -682,6 +735,8 @@ class Boat:
                             if self.movement > 0:
                                 self.new_y -= self.gamegrid.gridy
                                 self.movement -= 1
+                                if sound is True:
+                                    pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                     else:
@@ -694,6 +749,8 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_y += self.gamegrid.gridy
                                     self.movement -= 1
+                                    if sound is True:
+                                        pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                         else:
@@ -704,6 +761,8 @@ class Boat:
                             if self.movement > 0:
                                 self.new_y += self.gamegrid.gridy
                                 self.movement -= 1
+                                if sound is True:
+                                    pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
                     else:
@@ -964,6 +1023,8 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
                     if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
                         if event.button == 1:
                             do_action(action)
+                            if sound is True:
+                                pygame.mixer.Sound.play(button_click)
                             break
                     else:
                         break
@@ -1560,6 +1621,8 @@ def gameLoop():
                          Game1.currentplayer.next_attackable_boat()
                      elif event.key == pygame.K_RETURN:
                          Game1.currentplayer.attack(Game1.currentplayer.targeted_boat)
+                         if sound is True:
+                             pygame.mixer.Sound.play(attack_sound)
                          attacking = False
                      elif event.key == pygame.K_BACKSPACE:
                          Game1.currentplayer.targeted_boat = 0
