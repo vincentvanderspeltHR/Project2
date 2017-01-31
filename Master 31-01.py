@@ -45,6 +45,7 @@ green = (0,255,0)
 blue = (0, 50, 200)
 yellow = (255, 255, 0)
 grey = (128, 128, 128)
+brown = (165, 42, 42)
 
 
 rulesfont = pygame.font.SysFont("centurygothic", 15)
@@ -81,7 +82,6 @@ class Game:
             self.currentplayer = self.playerlist[0]
 
     def nextplayer_ingame(self):
-        print(self.currentplayer.currentboat.x)
         valid_turn = 0
         for boat in Game1.currentplayer.boatlist:
             if boat.confirm():
@@ -164,6 +164,9 @@ class Card:
             Game1.currentplayer.currentboat.vertical_defendingrange += Game1.currentplayer.currentboat.range_buff
         elif self.name == "Rifling":
             Game1.currentplayer.currentboat.range_buff += 1
+            Game1.currentplayer.currentboat.horizontal_attackingrange += Game1.currentplayer.currentboat.range_buff
+            Game1.currentplayer.currentboat.vertical_attackingrange += Game1.currentplayer.currentboat.range_buff
+            Game1.currentplayer.currentboat.vertical_defendingrange += Game1.currentplayer.currentboat.range_buff
         elif self.name == "FMJ":
             Game1.currentplayer.currentboat.damage_buff += 1
         elif self.name == "Reinforced Hull":
@@ -1392,7 +1395,6 @@ def gameLoop():
      gameExit = False
      gameOver = False
      while not gameExit:
-
          now = pygame.time.get_ticks()
          if now - Game1.message_show >= Game1.message_cooldown:
              Game1.message_show = now
@@ -1448,11 +1450,15 @@ def gameLoop():
              Game1.currentplayer.show_stats(screen)
              Game1.currentplayer.show_enemy_stats(screen)
 
-         for player in Game1.playerlist:
-             for boat in player.boatlist:
-                 boat.draw(screen, black)
-             for boat in player.destroyed_boats:
-                 boat.draw(screen, grey)
+
+         for boat in P1.boatlist:
+             boat.draw(screen, black)
+         for boat in P2.boatlist:
+             boat.draw(screen, brown)
+         for boat in P1.destroyed_boats:
+             boat.draw(screen, grey)
+         for boat in P2.destroyed_boats:
+             boat.draw(screen, grey)
 
          if not setup:
              for element in Game1.currentplayer.boatlist:
@@ -1468,9 +1474,6 @@ def gameLoop():
             Game1.currentplayer.draw_targetedboat(screen)
 
          GameGrid.draw_trapcards(screen)
-
-
-
 
          Game1.currentplayer.selectedboat(screen)
 
