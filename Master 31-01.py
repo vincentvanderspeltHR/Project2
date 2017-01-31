@@ -121,12 +121,13 @@ class Game:
         return str(self.currentplayer.name)
 
 class Card:
-    def __init__(self, name, image, type, amount):
+    def __init__(self, name, image, type, amount, class_name):
         self.name = name
         self.image = image
         self.mini_image = pygame.transform.scale(self.image,(int((display_width*0.8)/6), int(display_height*0.15)))
         self.type = type
         self.amount = amount
+        self.class_name= class_name
 
     def draw_card(self, screen):
         if int((display_width*0.8)/6)*Game1.currentplayer.hand_length + int((display_width*0.8)/6) > pygame.mouse.get_pos()[0] > int((display_width*0.8)/6)*Game1.currentplayer.hand_length and GameGrid.gridstarty * 1.7 + GameGrid.y + int(display_height*0.15) > pygame.mouse.get_pos()[1] > GameGrid.gridstarty * 1.7 + GameGrid.y:
@@ -257,7 +258,7 @@ class Card:
 
 
 class Player:
-    def __init__(self):
+    def __init__(self, class_name):
         self.name = ""
         self.score = 0
         self.boatlist = []
@@ -273,6 +274,7 @@ class Player:
         self.emp_buff = 0
         self.attack_amount = 2
         self.sabotage_buff = 0
+        self.class_name = class_name
 
     def show_stats(self, screen):
         text_to_screen("HP: "+str(self.currentboat.currenthp)+"/"+str(self.currentboat.hp), black, -display_height*0.45, "small", -display_width*0.45)
@@ -501,7 +503,7 @@ class Grid:
         #
 
 class Boat:
-    def __init__(self, x, y, length, steps, gamegrid, HP, currentHP, attacking_range_x, attacking_range_y, defending_range_y):
+    def __init__(self, x, y, length, steps, gamegrid, HP, currentHP, attacking_range_x, attacking_range_y, defending_range_y, class_name):
         self.x = x
         self.y = y
         self.new_x = x
@@ -531,6 +533,7 @@ class Boat:
         self.attack_amount = 1
         self.EMP = False
         self.special_card = 0
+        self.class_name = class_name
 
     def draw(self, screen, color):
         color = color
@@ -919,43 +922,43 @@ positie_large_boat2_y = GameGrid.gridstarty + (GameGrid.gridy/6)
 positie_large_boat2_y_p2 = GameGrid.gridstarty + (GameGrid.gridy/6) + (GameGrid.gridy*16)
 
 #Alle boten
-short_boat1 = Boat(positie_short_boat1_x, positie_short_boat1_y, 2, 3, GameGrid, 2, 2, 2, 2, 3)
-short_boat2 = Boat(positie_short_boat2_x, positie_short_boat2_y, 2, 3, GameGrid, 2, 2, 2, 2, 3)
-medium_boat1 = Boat(positie_medium_boat1_x, positie_medium_boat1_y, 3, 2, GameGrid, 3, 3, 3, 3, 4)
-medium_boat2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y, 3, 2, GameGrid, 3, 3, 3, 3, 4)
-large_boat1 = Boat(positie_large_boat1_x, positie_large_boat1_y, 4, 1, GameGrid, 4, 4, 4, 4, 5)
-large_boat2 = Boat(positie_large_boat2_x, positie_large_boat2_y, 4, 1, GameGrid, 4, 4, 4, 4, 5)
+short_boat1 = Boat(positie_short_boat1_x, positie_short_boat1_y, 2, 3, GameGrid, 2, 2, 2, 2, 3, "short_boat1")
+short_boat2 = Boat(positie_short_boat2_x, positie_short_boat2_y, 2, 3, GameGrid, 2, 2, 2, 2, 3, "short_boat2")
+medium_boat1 = Boat(positie_medium_boat1_x, positie_medium_boat1_y, 3, 2, GameGrid, 3, 3, 3, 3, 4, "medium_boat1")
+medium_boat2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y, 3, 2, GameGrid, 3, 3, 3, 3, 4, "medium_boat2")
+large_boat1 = Boat(positie_large_boat1_x, positie_large_boat1_y, 4, 1, GameGrid, 4, 4, 4, 4, 5, "large_boat1")
+large_boat2 = Boat(positie_large_boat2_x, positie_large_boat2_y, 4, 1, GameGrid, 4, 4, 4, 4, 5, "large_boat2")
 
-short_boat1_p2 = Boat(positie_short_boat1_x, positie_short_boat1_y_p2, 2, 3, GameGrid, 2, 2, 2, 2, 3)
-short_boat2_p2 = Boat(positie_short_boat2_x, positie_short_boat2_y_p2, 2, 3, GameGrid, 2, 2, 2, 2, 3)
-medium_boat1_p2 = Boat(positie_medium_boat1_x, positie_medium_boat1_y_p2, 3, 2, GameGrid, 3, 3, 3, 3, 4)
-medium_boat2_p2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y_p2, 3, 2, GameGrid, 3, 3, 3, 3, 4)
-large_boat1_p2 = Boat(positie_large_boat1_x, positie_large_boat1_y_p2, 4, 1, GameGrid, 4, 4, 4, 4, 5)
-large_boat2_p2 = Boat(positie_large_boat2_x, positie_large_boat2_y_p2, 4, 1, GameGrid, 4, 4, 4, 4, 5)
+short_boat1_p2 = Boat(positie_short_boat1_x, positie_short_boat1_y_p2, 2, 3, GameGrid, 2, 2, 2, 2, 3, "short_boat1_p2")
+short_boat2_p2 = Boat(positie_short_boat2_x, positie_short_boat2_y_p2, 2, 3, GameGrid, 2, 2, 2, 2, 3, "short_boat2_p2")
+medium_boat1_p2 = Boat(positie_medium_boat1_x, positie_medium_boat1_y_p2, 3, 2, GameGrid, 3, 3, 3, 3, 4, "medium_boat1_p2")
+medium_boat2_p2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y_p2, 3, 2, GameGrid, 3, 3, 3, 3, 4, "medium_boat2_p2")
+large_boat1_p2 = Boat(positie_large_boat1_x, positie_large_boat1_y_p2, 4, 1, GameGrid, 4, 4, 4, 4, 5, "large_boat1_p2")
+large_boat2_p2 = Boat(positie_large_boat2_x, positie_large_boat2_y_p2, 4, 1, GameGrid, 4, 4, 4, 4, 5, "large_boat2_p2")
 
-P1 = Player()
-P2 = Player()
+P1 = Player('P1')
+P2 = Player('P2')
 
 Game1 = Game(P1, P1, P2)
 
 
-card_adrenaline_rush = Card("Adrenaline Rush",image1, "utility", 4)
-card_advanced_rifling = Card("Advanced Rifling",image2, "offense", 2)
-card_aluminium_hull = Card("Aluminium Hull",image3, "special", 1)
-card_backup = Card("Backup",image4, "utility", 2)
-card_emp = Card("EMP",image5, "offense", 4)
-card_extra_fuel_2 = Card("Extra Fuel 2",image6, "utility", 6)
-card_extra_fuel = Card("Extra Fuel",image7, "utility", 4)
-card_far_sight = Card("Far Sight",image8, "special", 1)
-card_fmj = Card("FMJ",image10, "offense", 2)
-card_hack_intel = Card("Hack Intel",image11, "special", 1)
-card_jack_sparrow = Card("Jack Sparrow",image12, "special", 1)
-card_rally = Card("Rally",image14, "utility", 1)
-card_reinforced_hull = Card("Reinforced Hull",image15, "defense", 2)
-card_repair = Card("Repair",image16, "special", 2)
-card_rifling = Card("Rifling",image17, "offense", 2)
-card_sabotage = Card("Sabotage",image18, "defense", 2)
-card_smokescreen = Card("Smokescreen",image19, "defense", 2)
+card_adrenaline_rush = Card("Adrenaline Rush",image1, "utility", 4, "card_adrenaline_rush")
+card_advanced_rifling = Card("Advanced Rifling",image2, "offense", 2, "card_advanced_rifling")
+card_aluminium_hull = Card("Aluminium Hull",image3, "special", 1, "card_aluminium_hull")
+card_backup = Card("Backup",image4, "utility", 2, "card_backup")
+card_emp = Card("EMP",image5, "offense", 4, "card_emp")
+card_extra_fuel_2 = Card("Extra Fuel 2",image6, "utility", 6, "card_extra_fuel_2")
+card_extra_fuel = Card("Extra Fuel",image7, "utility", 4, "card_extra_fuel")
+card_far_sight = Card("Far Sight",image8, "special", 1, "card_far_sight")
+card_fmj = Card("FMJ",image10, "offense", 2, "card_fmj")
+card_hack_intel = Card("Hack Intel",image11, "special", 1, "card_hack_intel")
+card_jack_sparrow = Card("Jack Sparrow",image12, "special", 1, "card_jack_sparrow")
+card_rally = Card("Rally",image14, "utility", 1, "card_rally")
+card_reinforced_hull = Card("Reinforced Hull",image15, "defense", 2, "card_reinforced_hull")
+card_repair = Card("Repair",image16, "special", 2, "card_repair")
+card_rifling = Card("Rifling",image17, "offense", 2, "card_rifling")
+card_sabotage = Card("Sabotage",image18, "defense", 2, "card_sabotage")
+card_smokescreen = Card("Smokescreen",image19, "defense", 2, "card_smokescreen")
 
 Game1.allcards = [card_adrenaline_rush, card_advanced_rifling, card_aluminium_hull, card_backup, card_emp, card_extra_fuel_2, card_extra_fuel, card_far_sight, card_fmj, card_hack_intel, card_rally, card_reinforced_hull, card_repair, card_rifling]
 for card in Game1.allcards:
@@ -1035,7 +1038,7 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
 
 def save():
     database.clear_save()
-    database.save_game(Game1.currentplayer , Game1.playerlist , Game1.available_boats , Game1.setup_counter , Game1.special_deck , Game1.normal_deck , Game1.discard_pile)
+    database.save_game(Game1.currentplayer.class_name , Game1.available_boats , Game1.setup_counter , Game1.special_deck , Game1.normal_deck , Game1.discard_pile)
     for player in Game1.playerlist:
         database.save_player(player.name , player.score , player.boatlist , player.currentboat , player.cards_in_hand , player.pick_cards , player.trap_cards , player.destroyed_boats , player.emp_buff , player.attack_amount , player.sabotage_buff)
         for boat in player.boatlist:
