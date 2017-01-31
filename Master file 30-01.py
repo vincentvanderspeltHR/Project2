@@ -33,9 +33,7 @@ image16 = pygame.image.load("Repair.jpg")
 image17 = pygame.image.load("Rifling.jpg")
 image18 = pygame.image.load("sabotage.jpg")
 image19 = pygame.image.load("Smokescreen.jpg")
-cardback = pygame.image.load("back1.jpg")
-cardback_normal = pygame.transform.rotate(cardback, -90)
-cardback_normal = pygame.transform.scale(cardback, [int((display_width-(display_width*0.6))/2), int((display_height*0.6)/10)*2])
+cardback_original = pygame.image.load("back1.jpg")
 
 
 white = (255,255,255)
@@ -72,6 +70,7 @@ class Game:
         self.special_cards = []
         self.special_deck = []
         self.normal_deck = []
+        self.discard_pile = []
         self.message_show = pygame.time.get_ticks()
         self.message_cooldown = 2500
 
@@ -82,20 +81,15 @@ class Game:
             self.currentplayer = self.playerlist[0]
 
     def nextplayer_ingame(self):
-
         print(self.currentplayer.currentboat.x)
         valid_turn = 0
-<<<<<<< HEAD
-        for element in Game1.currentplayer.boatlist:
-            if element.confirm():
-=======
         for boat in Game1.currentplayer.boatlist:
             if boat.confirm():
->>>>>>> origin/master
                 valid_turn += 1
         if valid_turn == len(Game1.currentplayer.boatlist):
             for element in self.currentplayer.boatlist:
                 element.confirm_stats()
+            Game1.currentplayer.attack_amount = 2
             self.changeplayers()
         else:
             if Game1.setup_counter == 9:
@@ -114,7 +108,6 @@ class Game:
     def __str__(self):
         return str(self.currentplayer.name)
 
-
 class Card:
     def __init__(self, name, image, type, amount):
         self.name = name
@@ -132,8 +125,12 @@ class Card:
                     for event in pygame.event.get():
                         if event.type == pygame.MOUSEBUTTONUP and int((display_width*0.8)/6)*Game1.currentplayer.hand_length + int((display_width*0.8)/6) > pygame.mouse.get_pos()[0] > int((display_width*0.8)/6)*Game1.currentplayer.hand_length and GameGrid.gridstarty * 1.7 + GameGrid.y + int(display_height*0.15) > pygame.mouse.get_pos()[1] > GameGrid.gridstarty * 1.7 + GameGrid.y:
                             if event.button == 1:
-                                self.perform()
-                                break
+                                if Game1.currentplayer.attack_amount >= 2:
+                                    self.perform()
+                                    break
+                                else:
+                                    game_error("Je mag geen kaarten spelen na het aanvallen!")
+                                    break
                         else:
                             break
         else:
@@ -205,9 +202,13 @@ class Card:
                 Game1.currentplayer.pick_cards.append(Game1.special_deck[draw_random])
                 Game1.special_deck.remove(Game1.special_deck[draw_random])
                 draw_amount -= 1
+        elif self.name == "Sabotage":
+            Game1.currentplayer.sabotage_buff += 1
+            Game1.currentplayer.trap_cards.append(self)
         else:
             pass
         Game1.currentplayer.cards_in_hand.remove(self)
+        Game1.discard_pile.append(self)
 
 class Player:
     def __init__(self):
@@ -219,10 +220,13 @@ class Player:
         self.targeted_boat = 0
         self.cards_in_hand = []
         self.pick_cards = []
+        self.trap_cards = []
         self.pick_card_length = 0
         self.hand_length = 0
         self.destroyed_boats = []
         self.emp_buff = 0
+        self.attack_amount = 2
+        self.sabotage_buff = 0
 
     def show_stats(self, screen):
         text_to_screen("HP: "+str(self.currentboat.currenthp)+"/"+str(self.currentboat.hp), black, -display_height*0.45, "small", -display_width*0.45)
@@ -232,6 +236,7 @@ class Player:
         text_to_screen(
             "Aanval: " + str(self.currentboat.attack_amount) + "/" + str(self.currentboat.original_attack_amount),
             black, -display_height * 0.4, "small", -display_width * 0.422)
+        text_to_screen("Totale aanvallen: "+str(Game1.currentplayer.attack_amount)+"/2", black, -display_height*0.375, "rules", -display_width*0.415)
 
     def show_target_stats(self, screen):
         if Game1.currentplayer == P1:
@@ -319,7 +324,14 @@ class Player:
         elif Game1.currentplayer == P2:
             enemy = P1
 
-        boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
+        if enemy.sabotage_buff > 0:
+            Game1.currentplayer.currentboat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
+            game_error("Schade op jezelf gedaan vanwege de sabotage kaart!")
+            enemy.sabotage_buff -= 1
+            enemy.trap_cards.remove(card_sabotage)
+            Game1.discard_pile.append(card_sabotage)
+        else:
+            boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
         if Game1.currentplayer.currentboat.damage_buff > 0:
             Game1.currentplayer.currentboat.damage_buff -= Game1.currentplayer.currentboat.damage_buff
             game_error("Damage buff gebruikt!")
@@ -336,18 +348,29 @@ class Player:
                 enemy.currentboat = enemy.boatlist[0]
         self.targeted_boat = 0
         self.currentboat.attack_amount = 0
+        Game1.currentplayer.attack_amount -= 1
         self.currentboat.range_buff = 0
 
         Game1.currentplayer.attackable_boats = []
         Game1.currentplayer.targeted_boat = 0
 
     def draw_from_deck(self, deck, draw_amount):
-        while draw_amount > 0:
-            if len(Game1.currentplayer.cards_in_hand) < 6:
-                draw_random = random.randint(0, len(deck)-1)
-                Game1.currentplayer.cards_in_hand.append(deck[draw_random])
-                Game1.normal_deck.remove(deck[draw_random])
-            draw_amount -= 1
+            while draw_amount > 0:
+                if len(deck) > 0:
+                    if len(Game1.currentplayer.cards_in_hand) < 6:
+                        draw_random = random.randint(0, len(deck)-1)
+                        Game1.currentplayer.cards_in_hand.append(deck[draw_random])
+                        deck.remove(deck[draw_random])
+                    else:
+                        Game1.discard_pile.append(deck[draw_random])
+                        deck.remove(deck[draw_random])
+                    draw_amount -= 1
+                else:
+                    if deck == Game1.normal_deck:
+                        deck = Game1.discard_pile
+                    else:
+                        game_error("Er zijn geen kaarten meer over!")
+                        break
 
 class Grid:
     def __init__(self, resolution_x, resolution_y):
@@ -359,6 +382,32 @@ class Grid:
         self.gridstarty = ((self.resolution_y-self.y)/2)
         self.gridx = self.x/20
         self.gridy = self.y/20
+
+    def draw_trapcards(self, screen):
+        for card in P1.trap_cards:
+            cardback = pygame.transform.scale(cardback_original, [int(GameGrid.x / 7), int(GameGrid.gridstarty * 0.75)])
+            position = P1.trap_cards.index(card)
+            display_trapcard = pygame.transform.scale(card.image,
+                                                      [int(GameGrid.x / 7), int(GameGrid.gridstarty * 0.75)])
+            if Game1.currentplayer == P1:
+                screen.blit(display_trapcard, [int(GameGrid.gridstartx + (GameGrid.x / 7 * position)),
+                                               int(GameGrid.gridstarty - GameGrid.gridstarty * 0.75 - 4)])
+            else:
+                screen.blit(cardback, [int(GameGrid.gridstartx + (GameGrid.x / 7 * position)),
+                                       int(GameGrid.gridstarty - GameGrid.gridstarty * 0.75 - 4)])
+
+        for card in P2.trap_cards:
+            cardback = pygame.transform.scale(cardback_original, [int(GameGrid.x / 7), int(GameGrid.gridstarty * 0.75)])
+            position = P2.trap_cards.index(card)
+            display_trapcard = pygame.transform.scale(card.image,
+                                                      [int(GameGrid.x / 7), int(GameGrid.gridstarty * 0.75)])
+            if Game1.currentplayer == P2:
+                screen.blit(display_trapcard, [int(GameGrid.gridstartx + (GameGrid.x / 7 * position)),
+                                               int(GameGrid.gridstarty + GameGrid.y + 4)])
+            else:
+                screen.blit(cardback,
+                            [int(GameGrid.gridstartx + (GameGrid.x / 7 * position)),
+                             int(GameGrid.gridstarty + GameGrid.y + 4)])
 
     def draw(self, screen):
         pygame.draw.rect(screen, (blue), (self.gridstartx, self.gridstarty, self.x, self.y), 0)
@@ -429,6 +478,7 @@ class Boat:
         self.original_attack_amount = 1
         self.attack_amount = 1
         self.EMP = False
+        self.special_card = 0
 
     def draw(self, screen, color):
         color = color
@@ -606,7 +656,7 @@ class Boat:
                             self.movement += 1
                             self.new_x += self.gamegrid.gridx
                         self.switch_x = self.new_x
-                if direction == "up":
+                elif direction == "up":
                     if Game1.currentplayer == P2 and self.original_stance == "defending":
                         if (self.new_y - self.gamegrid.gridy) < self.y-(self.gamegrid.gridy*(self.length-1)):
                             if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
@@ -628,7 +678,7 @@ class Boat:
                     else:
                         self.movement += 1
                         self.new_y -= self.gamegrid.gridy
-                if direction == "down":
+                elif direction == "down":
                     if Game1.currentplayer == P2 and self.original_stance == "defending":
                         if (self.new_y + self.gamegrid.gridy) > self.y-(self.gamegrid.gridy*(self.length-1)):
                             if self.new_y + self.attackingboat_height + self.gamegrid.gridy < self.gamegrid.gridstarty + self.gamegrid.y:
@@ -650,6 +700,20 @@ class Boat:
                     else:
                         self.movement += 1
                         self.new_y += self.gamegrid.gridy
+                if self.special_card == 0:
+                    if not self.y == self.new_y:
+                        if Game1.currentplayer == P1:
+                            if self.new_y + self.gamegrid.gridy*self.length > self.gamegrid.gridstarty+self.gamegrid.y:
+                                self.special_card += 1
+                                Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
+                                if len(Game1.special_deck) > 0:
+                                    game_error("Speciale kaart getrokken!")
+                        else:
+                            if self.new_y - self.gamegrid.gridy < self.gamegrid.gridstarty:
+                                self.special_card += 1
+                                Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
+                                if len(Game1.special_deck) > 0:
+                                    game_error("Speciale kaart getrokken!")
             else:
                 game_error("Verdedigende schepen kunnen niet bewegen!")
 
@@ -1343,7 +1407,7 @@ def gameLoop():
                      elif event.key == pygame.K_LEFT:
                          Game1.currentplayer.currentboat.move("left")
                      elif event.key == pygame.K_t:
-                         Game1.currentplayer.cards_in_hand.append(card_hack_intel)
+                         Game1.currentplayer.cards_in_hand.append(card_sabotage)
                      if not setup:
                          if event.key == pygame.K_SPACE:
                              Game1.currentplayer.nextboat()
@@ -1354,7 +1418,7 @@ def gameLoop():
                          elif event.key == pygame.K_UP:
                              Game1.currentplayer.currentboat.move("up")
                          elif event.key == pygame.K_a:
-                             if Game1.currentplayer.currentboat.attack_amount > 0:
+                             if Game1.currentplayer.currentboat.attack_amount > 0 and Game1.currentplayer.attack_amount > 0:
                                  Game1.currentplayer.currentboat.attack_check()
                                  if len(Game1.currentplayer.attackable_boats) > 0:
                                      attacking = True
@@ -1366,6 +1430,7 @@ def gameLoop():
                          Game1.currentplayer.attack(Game1.currentplayer.targeted_boat)
                          attacking = False
                      elif event.key == pygame.K_BACKSPACE:
+                         Game1.currentplayer.targeted_boat = 0
                          attacking = False
 
          screen.fill(white, (0, display_height*0.06, display_width, display_height))
@@ -1397,6 +1462,11 @@ def gameLoop():
             Game1.currentplayer.show_target_stats(screen)
             Game1.currentplayer.draw_targetedboat(screen)
 
+         GameGrid.draw_trapcards(screen)
+
+
+
+
          Game1.currentplayer.selectedboat(screen)
 
          if not gameOver:
@@ -1412,6 +1482,10 @@ def gameLoop():
          if Game1.setup_counter == 8:
              setup = False
              Game1.setup_counter = 9
+             Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
+             Game1.nextplayer_ingame()
+             Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
+             Game1.nextplayer_ingame()
 
          if P1.boatlist == [] or P2.boatlist == []:
              gameOver = True
