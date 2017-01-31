@@ -38,7 +38,7 @@ image19 = pygame.image.load("Smokescreen.jpg")
 #icon = pygame.image.load(" ")
 #pygame.display.set_icon(icon)
 
-pygame.mixer.music.load("Better Hand.ogg")
+pygame.mixer.music.load("Star_Wars_Imperial_March_Theme_8_Bit_Remix_Cover_V.wav")
 card_draw_sound = pygame.mixer.Sound("draw_card_3.ogg")
 attack_sound = pygame.mixer.Sound("62.wav")
 play_card_sound = pygame.mixer.Sound("Battlecry_1.ogg")
