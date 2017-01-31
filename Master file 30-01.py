@@ -1,5 +1,4 @@
 import pygame
-import time
 import random
 
 pygame.init()
@@ -34,9 +33,10 @@ image16 = pygame.image.load("Repair.jpg")
 image17 = pygame.image.load("Rifling.jpg")
 image18 = pygame.image.load("sabotage.jpg")
 image19 = pygame.image.load("Smokescreen.jpg")
+cardback = pygame.image.load("back1.jpg")
+cardback_normal = pygame.transform.rotate(cardback, -90)
+cardback_normal = pygame.transform.scale(cardback, [int((display_width-(display_width*0.6))/2), int((display_height*0.6)/10)*2])
 
-#icon = pygame.image.load(" ")
-#pygame.display.set_icon(icon)
 
 white = (255,255,255)
 black = (0,0,0)
@@ -84,7 +84,6 @@ class Game:
     def nextplayer_ingame(self):
 
         print(self.currentplayer.currentboat.x)
-        print(self.currentplayer.currentboat.new_x)
         valid_turn = 0
         for boat in Game1.currentplayer.boatlist:
             if boat.confirm():
@@ -92,9 +91,6 @@ class Game:
         if valid_turn == len(Game1.currentplayer.boatlist):
             for element in self.currentplayer.boatlist:
                 element.confirm_stats()
-
-            print(self.currentplayer.currentboat.x)
-            print(self.currentplayer.currentboat.new_x)
             self.changeplayers()
         else:
             if Game1.setup_counter == 9:
@@ -175,7 +171,7 @@ class Card:
         elif self.name == "Extra Fuel 2":
             Game1.currentplayer.currentboat.movement += 2
         elif self.name == "Aluminium Hull":
-            Game1.currentplayer.currentboat.movement_multiplier += 1
+            Game1.currentplayer.currentboat.steps = Game1.currentplayer.currentboat.steps*2
         elif self.name == "Far Sight":
             Game1.currentplayer.currentboat.horizontal_attackingrange += 2
             Game1.currentplayer.currentboat.vertical_attackingrange += 2
@@ -368,10 +364,10 @@ class Grid:
         while not gridlines > 20:
             pygame.draw.line(screen, (0, 0, 0), (((self.resolution_x-self.x)/2)+self.gridx*gridlines, ((self.resolution_y-self.y)/2)), (((self.resolution_x-self.x)/2)+self.gridx*gridlines, ((self.resolution_y-self.y)/2)+self.y), 2)
             gridlines += 1
-        pygame.draw.rect(screen, black, (self.gridstartx - (display_width*0.135-5)-8, self.gridstarty, display_width*0.135, self.y / 3), 8)
-        pygame.draw.rect(screen, black,(self.gridstartx - (display_width*0.135-5)-8, self.y + self.gridstarty - (self.y / 3), display_width*0.135, self.y / 3), 8)
-        pygame.draw.rect(screen, black, (
-        self.gridstartx + self.x+4, self.gridstarty + (self.y / 10) * 4, self.gridstartx, (self.y / 10) * 2), 8)
+        # pygame.draw.rect(screen, black, (self.gridstartx - (display_width*0.135-5)-8, self.gridstarty, display_width*0.135, self.y / 3), 8)
+        # pygame.draw.rect(screen, black,(self.gridstartx - (display_width*0.135-5)-8, self.y + self.gridstarty - (self.y / 3), display_width*0.135, self.y / 3), 8)
+        # pygame.draw.rect(screen, black, (
+        # self.gridstartx + self.x+4, self.gridstarty + (self.y / 10) * 4, self.gridstartx, (self.y / 10) * 2), 8)
         trapcards = 0
         while not trapcards > 6:
             pygame.draw.rect(screen, black, (self.gridstartx + (self.x / 7 * trapcards), self.gridstarty - self.gridstarty * 0.75 -4, self.x / 7,self.gridstarty * 0.75), 8)
@@ -384,13 +380,18 @@ class Grid:
         pygame.draw.rect(screen, black, (self.gridstartx, self.gridstarty +self.y +4, self.x, self.gridstarty * 0.75), 8)
         perkcards = 0
         while not perkcards > 3:
-            pygame.draw.rect(screen, black, (self.gridstartx + self.x+4, self.gridstarty + (self.y / 10) * perkcards, self.x / 4, self.y / 10), 8)
+            pygame.draw.rect(screen, black, (self.gridstartx + self.x+4, self.gridstarty + (self.y / 8.2) * perkcards, self.x / 4, self.y / 8.2), 8)
             perkcards += 1
         perkcards = 1
         while not perkcards > 4:
-            pygame.draw.rect(screen, black, (self.gridstartx + self.x+4, self.gridstarty + self.y - (self.y / 10) * perkcards, self.x / 4, self.y / 10),  8)
+            pygame.draw.rect(screen, black, (self.gridstartx + self.x+4, self.gridstarty + self.y - (self.y / 8.2) * perkcards, self.x / 4, self.y / 8.2),  8)
             perkcards += 1
         pygame.draw.rect(screen, black, (self.gridstartx -4, self.gridstarty-4, self.x+8, self.y+8), 8)
+        # if Game1.setup_counter == 9:
+        #     if not len(Game1.normal_deck) <= 0:
+        #         screen.blit(cardback_normal, [self.gridstartx + self.x+4, self.gridstarty + (self.y / 10) * 4])
+        #     if not len(Game1.special_deck) <= 0:
+        #
 
 class Boat:
     def __init__(self, x, y, length, steps, gamegrid, HP, currentHP, attacking_range_x, attacking_range_y, defending_range_y):
@@ -418,8 +419,7 @@ class Boat:
         self.vertical_defendingrange = defending_range_y + self.range_buff
         self.damage_buff = 0
         self.flakarmor_buff = 0
-        self.movement_multiplier = 1
-        self.movement = self.steps * self.movement_multiplier
+        self.movement = self.steps
         self.original_attack_amount = 1
         self.attack_amount = 1
         self.EMP = False
@@ -819,7 +819,7 @@ card_rifling = Card("Rifling",image17, "offense", 2)
 card_sabotage = Card("Sabotage",image18, "defense", 2)
 card_smokescreen = Card("Smokescreen",image19, "defense", 2)
 
-Game1.allcards = [card_adrenaline_rush, card_advanced_rifling, card_aluminium_hull, card_backup, card_emp, card_extra_fuel_2, card_extra_fuel, card_far_sight, card_fmj, card_hack_intel, card_jack_sparrow, card_rally, card_reinforced_hull, card_repair, card_rifling, card_sabotage, card_smokescreen]
+Game1.allcards = [card_adrenaline_rush, card_advanced_rifling, card_aluminium_hull, card_backup, card_emp, card_extra_fuel_2, card_extra_fuel, card_far_sight, card_fmj, card_hack_intel, card_rally, card_reinforced_hull, card_repair, card_rifling]
 for card in Game1.allcards:
         if card.type == "offense":
             Game1.offense_cards.append(card)
