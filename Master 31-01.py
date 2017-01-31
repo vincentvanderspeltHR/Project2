@@ -1,5 +1,8 @@
 import pygame
 import random
+import ctypes
+
+# pygame.mixer.music.load("soundtrack" + str(Game1.soundtrack) + ".wav")
 
 pygame.init()
 
@@ -10,6 +13,8 @@ if display_width<= 1000:
     display_width = 1000
 if display_height <= 800:
     display_height = 800
+
+user32 = ctypes.windll.user32
 
 screen = pygame.display.set_mode((display_width, display_height))
 
@@ -50,7 +55,16 @@ sound_off_height = int(display_height/20)
 sound_off_width = int(display_width/20)
 sound_off = pygame.transform.scale(sound_off, [sound_off_width, sound_off_height])
 
-sound = True
+
+# _2 =
+
+card_draw_sound = pygame.mixer.Sound("draw_card_3.ogg")
+attack_sound = pygame.mixer.Sound("62.wav")
+play_card_sound = pygame.mixer.Sound("Battlecry_1.ogg")
+buff_card_sound = pygame.mixer.Sound("1030.wav")
+game_error_sound = pygame.mixer.Sound("439.wav")
+ship_movement = pygame.mixer.Sound("movement_ship.wav")
+button_click = pygame.mixer.Sound("button_click.ogg")
 
 white = (255,255,255)
 black = (0,0,0)
@@ -90,6 +104,8 @@ class Game:
         self.discard_pile = []
         self.message_show = pygame.time.get_ticks()
         self.message_cooldown = 2500
+        self.sound = True
+        self.soundtrack = 1
 
     def changeplayers(self):
         if self.currentplayer == self.playerlist[0]:
@@ -124,6 +140,7 @@ class Game:
 
     def __str__(self):
         return str(self.currentplayer.name)
+
 
 class Card:
     def __init__(self, name, image, type, amount):
@@ -190,7 +207,7 @@ class Card:
             Game1.currentplayer.currentboat.currenthp += 1
             Game1.currentplayer.currentboat.hp += 1
         elif self.name == "Extra Fuel":
-            Game1.currentplayer.currentboat.movement +=1
+            Game1.currentplayer.currentboat.movement += 1
         elif self.name == "Extra Fuel 2":
             Game1.currentplayer.currentboat.movement += 2
         elif self.name == "Aluminium Hull":
@@ -229,6 +246,9 @@ class Card:
             pass
         Game1.currentplayer.cards_in_hand.remove(self)
         Game1.discard_pile.append(self)
+        if Game1.sound is True:
+            pygame.mixer.Sound.play(play_card_sound)
+
 
 class Player:
     def __init__(self):
@@ -339,6 +359,9 @@ class Player:
                 Game1.currentplayer.targeted_boat = Game1.currentplayer.attackable_boats[position + 1]
 
     def attack(self, boat):
+        if Game1.sound is True:
+            pygame.mixer.Sound.play(attack_sound)
+
         if Game1.currentplayer == P1:
             enemy = P2
         elif Game1.currentplayer == P2:
@@ -377,10 +400,12 @@ class Player:
     def draw_from_deck(self, deck, draw_amount):
             while draw_amount > 0:
                 if len(deck) > 0:
+                    draw_random = random.randint(0, len(deck)-1)
                     if len(Game1.currentplayer.cards_in_hand) < 6:
-                        draw_random = random.randint(0, len(deck)-1)
                         Game1.currentplayer.cards_in_hand.append(deck[draw_random])
                         deck.remove(deck[draw_random])
+                        if Game1.sound is True:
+                            pygame.mixer.Sound.play(card_draw_sound)
                     else:
                         Game1.discard_pile.append(deck[draw_random])
                         deck.remove(deck[draw_random])
@@ -391,6 +416,7 @@ class Player:
                     else:
                         game_error("Er zijn geen kaarten meer over!")
                         break
+
 
 class Grid:
     def __init__(self, resolution_x, resolution_y):
@@ -734,6 +760,8 @@ class Boat:
                                 Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
                                 if len(Game1.special_deck) > 0:
                                     game_error("Speciale kaart getrokken!")
+                if Game1.sound is True:
+                    pygame.mixer.Sound.play(ship_movement)
             else:
                 game_error("Verdedigende schepen kunnen niet bewegen!")
 
@@ -932,6 +960,7 @@ for card in Game1.allcards:
                 Game1.special_deck.append(card)
                 card.amount -= 1
 
+
 def text_objects(text, color, size = "small"):
     if size == "small":
         textSurface = smallfont.render(text, True, color)
@@ -980,7 +1009,7 @@ def settings(screen, x=display_width-settingsCogwheel_width, y=0, width=settings
                         break
 
 
-def sound_on_function(screen, x=display_width/2-(sound_on_width/2), y=display_height/2-(sound_on_height/2), width=sound_on_width, height=sound_on_height):
+def sound_on_function(screen, x=display_width/2-(sound_on_width/2) + (display_width * 0.1), y=display_height/2-(sound_on_height/2), width=sound_on_width, height=sound_on_height):
     screen.blit(sound_on, [x, y])
     if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
         if pygame.mouse.get_pressed()[0] == 1:
@@ -994,7 +1023,7 @@ def sound_on_function(screen, x=display_width/2-(sound_on_width/2), y=display_he
                         break
 
 
-def sound_off_function(screen, x=display_width/2-(sound_off_width/2), y=display_height/2-(sound_off_height/2), width=sound_off_width, height=sound_off_height):
+def sound_off_function(screen, x=display_width/2-(sound_off_width/2) + (display_width * 0.1), y=display_height/2-(sound_off_height/2), width=sound_off_width, height=sound_off_height):
     screen.blit(sound_off, [x, y])
     if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
         if pygame.mouse.get_pressed()[0] == 1:
@@ -1017,6 +1046,8 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
                     if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
                         if event.button == 1:
                             do_action(action)
+                            if Game1.sound is True:
+                                pygame.mixer.Sound.play(button_click)
                             break
                     else:
                         break
@@ -1024,6 +1055,119 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
         pygame.draw.rect(screen, inactive_color, (x, y, width, height))
 
     text_to_button(text, text_color, x, y, width, height)
+
+
+def update_shit():
+    global display_height
+    global display_width
+    GameGrid = Grid(display_width, display_height)
+    global screen
+    settings(screen)
+
+    # Posities boten
+    global positie_short_boat1_x
+    positie_short_boat1_x = GameGrid.gridstartx + (GameGrid.gridx / 6) - (GameGrid.gridx * 1)
+    global positie_short_boat1_y
+    positie_short_boat1_y = GameGrid.gridstarty + (GameGrid.gridy / 6)
+    global positie_short_boat1_y_p2
+    positie_short_boat1_y_p2 = GameGrid.gridstarty + (GameGrid.gridy / 6) + (GameGrid.gridy * 18)
+
+    global positie_short_boat2_x
+    positie_short_boat2_x = GameGrid.gridstartx + (GameGrid.gridx / 6) - (GameGrid.gridx * 1) * 2
+    global positie_short_boat2_y
+    positie_short_boat2_y = GameGrid.gridstarty + (GameGrid.gridy / 6)
+    global positie_short_boat2_y_p2
+    positie_short_boat2_y_p2 = GameGrid.gridstarty + (GameGrid.gridy / 6) + (GameGrid.gridy * 18)
+
+    global positie_medium_boat1_x
+    positie_medium_boat1_x = GameGrid.gridstartx + (GameGrid.gridx / 6) - (GameGrid.gridx * 1) * 3
+    global positie_medium_boat1_y
+    positie_medium_boat1_y = GameGrid.gridstarty + (GameGrid.gridy / 6)
+    global positie_medium_boat1_y_p2
+    positie_medium_boat1_y_p2 = GameGrid.gridstarty + (GameGrid.gridy / 6) + (GameGrid.gridy * 17)
+
+    global positie_medium_boat2_x
+    positie_medium_boat2_x = GameGrid.gridstartx + (GameGrid.gridx / 6) - (GameGrid.gridx * 1) * 4
+    global positie_medium_boat2_y
+    positie_medium_boat2_y = GameGrid.gridstarty + (GameGrid.gridy / 6)
+    global positie_medium_boat2_y_p2
+    positie_medium_boat2_y_p2 = GameGrid.gridstarty + (GameGrid.gridy / 6) + (GameGrid.gridy * 17)
+
+    global positie_large_boat1_x
+    positie_large_boat1_x = GameGrid.gridstartx + (GameGrid.gridx / 6) - (GameGrid.gridx * 1) * 5
+    global positie_large_boat1_y
+    positie_large_boat1_y = GameGrid.gridstarty + (GameGrid.gridy / 6)
+    global positie_large_boat1_y_p2
+    positie_large_boat1_y_p2 = GameGrid.gridstarty + (GameGrid.gridy / 6) + (GameGrid.gridy * 16)
+
+    global positie_large_boat2_x
+    positie_large_boat2_x = GameGrid.gridstartx + (GameGrid.gridx / 6) - (GameGrid.gridx * 1) * 6
+    global positie_large_boat2_y
+    positie_large_boat2_y = GameGrid.gridstarty + (GameGrid.gridy / 6)
+    global positie_large_boat2_y_p2
+    positie_large_boat2_y_p2 = GameGrid.gridstarty + (GameGrid.gridy / 6) + (GameGrid.gridy * 16)
+
+    # Alle boten
+    global short_boat1
+    short_boat1 = Boat(positie_short_boat1_x, positie_short_boat1_y, 2, 3, GameGrid, 2, 2, 2, 2, 3)
+    global short_boat2
+    short_boat2 = Boat(positie_short_boat2_x, positie_short_boat2_y, 2, 3, GameGrid, 2, 2, 2, 2, 3)
+    global medium_boat1
+    medium_boat1 = Boat(positie_medium_boat1_x, positie_medium_boat1_y, 3, 2, GameGrid, 3, 3, 3, 3, 4)
+    global medium_boat2
+    medium_boat2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y, 3, 2, GameGrid, 3, 3, 3, 3, 4)
+    global large_boat1
+    large_boat1 = Boat(positie_large_boat1_x, positie_large_boat1_y, 4, 1, GameGrid, 4, 4, 4, 4, 5)
+    global large_boat2
+    large_boat2 = Boat(positie_large_boat2_x, positie_large_boat2_y, 4, 1, GameGrid, 4, 4, 4, 4, 5)
+
+    global short_boat1_p2
+    short_boat1_p2 = Boat(positie_short_boat1_x, positie_short_boat1_y_p2, 2, 3, GameGrid, 2, 2, 2, 2, 3)
+    global short_boat2_p2
+    short_boat2_p2 = Boat(positie_short_boat2_x, positie_short_boat2_y_p2, 2, 3, GameGrid, 2, 2, 2, 2, 3)
+    global medium_boat1_p2
+    medium_boat1_p2 = Boat(positie_medium_boat1_x, positie_medium_boat1_y_p2, 3, 2, GameGrid, 3, 3, 3, 3, 4)
+    global medium_boat2_p2
+    medium_boat2_p2 = Boat(positie_medium_boat2_x, positie_medium_boat2_y_p2, 3, 2, GameGrid, 3, 3, 3, 3, 4)
+    global large_boat1_p2
+    large_boat1_p2 = Boat(positie_large_boat1_x, positie_large_boat1_y_p2, 4, 1, GameGrid, 4, 4, 4, 4, 5)
+    global large_boat2_p2
+    large_boat2_p2 = Boat(positie_large_boat2_x, positie_large_boat2_y_p2, 4, 1, GameGrid, 4, 4, 4, 4, 5)
+
+    global card_adrenaline_rush
+    card_adrenaline_rush = Card("Adrenaline Rush", image1, "utility", 4)
+    global card_advanced_rifling
+    card_advanced_rifling = Card("Advanced Rifling", image2, "offense", 2)
+    global card_aluminium_hull
+    card_aluminium_hull = Card("Aluminium Hull", image3, "special", 1)
+    global card_backup
+    card_backup = Card("Backup", image4, "utility", 2)
+    global card_emp
+    card_emp = Card("EMP", image5, "offense", 4)
+    global card_extra_fuel_2
+    card_extra_fuel_2 = Card("Extra Fuel 2", image6, "utility", 6)
+    global card_extra_fuel
+    card_extra_fuel = Card("Extra Fuel", image7, "utility", 4)
+    global card_far_sight
+    card_far_sight = Card("Far Sight", image8, "special", 1)
+    global card_fmj
+    card_fmj = Card("FMJ", image10, "offense", 2)
+    global card_hack_intel
+    card_hack_intel = Card("Hack Intel", image11, "special", 1)
+    global card_jack_sparrow
+    card_jack_sparrow = Card("Jack Sparrow", image12, "special", 1)
+    global card_rally
+    card_rally = Card("Rally", image14, "utility", 1)
+    global card_reinforced_hull
+    card_reinforced_hull = Card("Reinforced Hull", image15, "defense", 2)
+    global card_repair
+    card_repair = Card("Repair", image16, "special", 2)
+    global card_rifling
+    card_rifling = Card("Rifling", image17, "offense", 2)
+    global card_sabotage
+    card_sabotage = Card("Sabotage", image18, "defense", 2)
+    global card_smokescreen
+    card_smokescreen = Card("Smokescreen", image19, "defense", 2)
 
 
 def do_action(action):
@@ -1108,35 +1252,68 @@ def do_action(action):
         Game1.available_boats.append(Game1.currentplayer.boatlist[-1])
         Game1.currentplayer.boatlist.pop()
     elif action == "settings":
-        settings_pause = True
-
-        screen.fill(white)
-        text_to_screen("Settings", black, -display_height * 0.1, "medium")
-
+        gameSettings()
+    elif action == "sound_on":
+        Game1.sound = True
+        pygame.mixer.music.play()
+    elif action == "sound_off":
+        Game1.sound = False
+        pygame.mixer.music.stop()
+    elif action == "1920*1080":
+        global display_height
+        global display_width
+        global screen
+        display_width = 1920
+        display_height = 1080
+        screen = pygame.display.set_mode((display_width, display_height))
+        update_shit()
+        pygame.display.update()
+    elif action == "1000*800":
+        display_width = 1000
+        display_height = 800
+        screen = pygame.display.set_mode((display_width, display_height))
+        update_shit()
+        pygame.display.update()
+    elif action == "fullscreen":
+        display_width = int(user32.GetSystemMetrics(0))
+        display_height = int(user32.GetSystemMetrics(1))
+        screen = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
+        update_shit()
         pygame.display.update()
 
-        while settings_pause:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        settings_pause = False
-    elif action == "sound_on":
-        sound = True
-    elif action == "sound_off":
-        sound = False
 
+def gameSettings():
+    settings_pause = True
+    while settings_pause:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    settings_pause = False
 
+        screen.fill(white)
+        text_to_screen("Settings", black, -display_height * 0.3, "medium")
+        text_to_screen("Sound:", black, -display_height * 0, "small")
+        text_to_screen("Resolution:", black, +display_height * 0.2, "small")
+        button("1920*1080", display_width-200, display_height*0.8, 200, 80, red, green, black, "1920*1080")
+        button("1000*800", 0, display_height*0.8, 200, 80, red, green, black, "1000*800")
+        button("Fullscreen", display_width/2 - 100, display_height*0.8, 200, 80, red, green, black, "fullscreen")
 
+        if Game1.sound is True:
+            sound_off_function(screen)
+        if Game1.sound is False:
+            sound_on_function(screen)
+
+        pygame.display.update()
 
 def gamePause():
     paused = True
 
     pygame.draw.rect(screen, white, (0, display_height*0.3, display_width, display_height*0.1), 0)
     text_to_screen("Het spel is gepauzeerd", black, -display_height*0.15, "medium")
-
+    settings(screen)
     pygame.display.update()
 
     while paused:
@@ -1147,6 +1324,7 @@ def gamePause():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     paused = False
+
 
 def inputName():
     gameExit = False
@@ -1249,7 +1427,7 @@ def inputName():
             elif Game1.currentplayer == P2:
                 button("Start game", display_width * 0.825, display_height * 0.81, 190, 60, green, light_blue, black, "chooseboats")
         button("Hoofdmenu", display_width * 0.825, display_height * 0.92, 190, 60, green, light_blue, black, "main")
-
+        settings(screen)
         pygame.display.update()
 
     pygame.quit()
@@ -1347,7 +1525,7 @@ def chooseBoats():
             text_to_screen("Druk op start game", black, -(display_height * 0.35), "medium")
 
         button("Hoofdmenu", display_width * 0.825, display_height * 0.92, 190, 60, green, light_blue, black, "main")
-
+        settings(screen)
         pygame.display.flip()
 
     pygame.quit()
@@ -1355,6 +1533,9 @@ def chooseBoats():
 
 
 def gameIntro():
+    if Game1.sound is True:
+        pygame.mixer.music.load("soundtrack" + str(Game1.soundtrack) + ".wav")
+        pygame.mixer.music.play()
     gameExit = False
     while not gameExit:
         for event in pygame.event.get():
@@ -1369,7 +1550,7 @@ def gameIntro():
         button("Quit", (display_width/2)-75, (display_height*0.65), 150, 50, red, light_blue,black, "quit")
 
         #screen.blit(card1.image, [50, 50])
-
+        settings(screen)
         pygame.display.update()
 
     pygame.quit()
@@ -1389,7 +1570,7 @@ def gameRules(page):
 
         elif page == "voorbereiding":
             text_to_screen("Welkom op pagina voorbereiding", black, -100, "small", -100)
-            text_to_screen("Iedere speler begint met twee schepen", black, -50, "rules", -100)
+            text_to_screen("Iedere speler begint met vier schepen", black, -50, "rules", -100)
             text_to_screen("en 2 kaarten van de basis stapel. De spelers", black, -25, "rules", -100)
             text_to_screen("plaatsen hun schepen tegen zijn/haar eigen haven",black, 0, "rules", -100)
             text_to_screen("aan in de aanvalspositie. De speler mag zelf", black, +25, "rules", -100)
@@ -1461,7 +1642,7 @@ def gameRules(page):
         if not page == "kaarten":
             button("Kaarten", display_width * 0.75, display_height * 0.6, 250, 60, red, light_blue, black, "rules_kaarten")
         button("Hoofdmenu", display_width*0.75, display_height*0.92, 250, 60, green, light_blue, black, "main")
-
+        settings(screen)
         pygame.display.update()
 
     pygame.quit()
@@ -1588,7 +1769,7 @@ def gameLoop():
          for card in Game1.currentplayer.pick_cards:
              card.draw_pick_card(screen)
              Game1.currentplayer.pick_card_length += 1
-
+         settings(screen)
          pygame.display.update()
 
 
@@ -1614,6 +1795,7 @@ def highScore():
                 text_to_screen("Er zijn nog geen spelers", black)
             button("Hoofdmenu", display_width * 0.25, display_height * 0.75, 190, 60, green, light_blue, black, "main")
             button("Quit game", display_width * 0.75-190, display_height * 0.75, 190, 60, green, light_blue, black, "quit")
+            settings(screen)
             pygame.display.update()
 
     pygame.quit()
