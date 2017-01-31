@@ -91,6 +91,7 @@ class Game:
                 element.confirm_stats()
             Game1.currentplayer.attack_amount = 2
             self.changeplayers()
+            Game1.currentplayer.draw_from_deck(Game1.normal_deck, 1)
         else:
             if Game1.setup_counter == 9:
                 text_to_screen("Er zijn boten die elkaar overlappen!", red, -display_height * 0.48)
@@ -1491,7 +1492,7 @@ def gameLoop():
              setup = False
              Game1.setup_counter = 9
              Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
-             Game1.nextplayer_ingame()
+             Game1.nextplayer_setup()
              Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
              Game1.nextplayer_ingame()
 
