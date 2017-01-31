@@ -85,8 +85,13 @@ class Game:
 
         print(self.currentplayer.currentboat.x)
         valid_turn = 0
+<<<<<<< HEAD
+        for element in Game1.currentplayer.boatlist:
+            if element.confirm():
+=======
         for boat in Game1.currentplayer.boatlist:
             if boat.confirm():
+>>>>>>> origin/master
                 valid_turn += 1
         if valid_turn == len(Game1.currentplayer.boatlist):
             for element in self.currentplayer.boatlist:
@@ -108,6 +113,7 @@ class Game:
 
     def __str__(self):
         return str(self.currentplayer.name)
+
 
 class Card:
     def __init__(self, name, image, type, amount):
