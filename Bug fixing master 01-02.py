@@ -374,6 +374,14 @@ class Player:
             enemy.sabotage_buff -= 1
             enemy.trap_cards.remove(card_sabotage)
             Game1.discard_pile.append(card_sabotage)
+            if self.currentboat.currenthp <= 0:
+                game_error("Schip van " + str(self.name) + " gezonken vanwege sabotage!")
+                self.boatlist.remove(self.currentboat)
+                self.destroyed_boats.append(self.currentboat)
+                if self.boatlist == []:
+                    enemy.score += 1
+                else:
+                    self.currentboat = self.boatlist[0]
         else:
             boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
         if self.currentboat.damage_buff > 0:
@@ -1049,7 +1057,6 @@ def game_error(text):
     textSurf, textRect = text_objects(text, red, "small")
     textRect.center = (int(display_width / 2), int(display_height / 2)-display_height*0.48)
     screen.blit(textSurf, textRect)
-    print(text)
 
 
 def text_to_screen(text, color, y_displace = 0, size = "small", x_displace = 0):
