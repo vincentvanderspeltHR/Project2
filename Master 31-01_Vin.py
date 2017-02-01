@@ -1,13 +1,8 @@
 import pygame
 import random
-<<<<<<< HEAD:Master 31-01_Vin.py
 import ctypes
 
 # pygame.mixer.music.load("soundtrack" + str(Game1.soundtrack) + ".wav")
-=======
-import database
->>>>>>> refs/remotes/origin/master:Master 31-01.py
-
 pygame.init()
 
 display_width = 1000
@@ -44,7 +39,6 @@ image18 = pygame.image.load("sabotage.jpg")
 image19 = pygame.image.load("Smokescreen.jpg")
 cardback_original = pygame.image.load("back1.jpg")
 
-<<<<<<< HEAD:Master 31-01_Vin.py
 settingsCogwheel = pygame.image.load("outline_gearwheel-512.png")
 settingsCogwheel_height = int(display_height/20)
 settingsCogwheel_width = int(display_width/20)
@@ -61,13 +55,9 @@ sound_off_width = int(display_width/20)
 sound_off = pygame.transform.scale(sound_off, [sound_off_width, sound_off_height])
 
 
-# _2 =
-
-=======
 sound = True
 
-pygame.mixer.music.load("Star_Wars_Imperial_March_Theme_8_Bit_Remix_Cover_V.wav")
->>>>>>> refs/remotes/origin/master:Master 31-01.py
+pygame.mixer.music.load("soundtrack1.wav")
 card_draw_sound = pygame.mixer.Sound("draw_card_3.ogg")
 attack_sound = pygame.mixer.Sound("62.wav")
 play_card_sound = pygame.mixer.Sound("Battlecry_1.ogg")
@@ -225,13 +215,10 @@ class Card:
             if sound is True:
                 pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Extra Fuel":
-<<<<<<< HEAD:Master 31-01_Vin.py
             Game1.currentplayer.currentboat.movement += 1
-=======
             Game1.currentplayer.currentboat.movement +=1
             if sound is True:
                 pygame.mixer.Sound.play(play_card_sound)
->>>>>>> refs/remotes/origin/master:Master 31-01.py
         elif self.name == "Extra Fuel 2":
             Game1.currentplayer.currentboat.movement += 2
             if sound is True:
@@ -432,10 +419,6 @@ class Player:
             enemy.destroyed_boats.append(boat)
             if enemy.boatlist == []:
                 Game1.currentplayer.score += 1
-                if Game1.currentplayer.score > 1:
-                    database.upload_score(Game1.currentplayer.name, Game1.currentplayer.score)
-                else:
-                    database.new_score(Game1.currentplayer.name, Game1.currentplayer.score)
             else:
                 enemy.currentboat = enemy.boatlist[0]
         self.targeted_boat = 0
@@ -449,19 +432,17 @@ class Player:
     def draw_from_deck(self, deck, draw_amount):
             while draw_amount > 0:
                 if len(deck) > 0:
-<<<<<<< HEAD:Master 31-01_Vin.py
                     draw_random = random.randint(0, len(deck)-1)
                     if len(Game1.currentplayer.cards_in_hand) < 6:
                         Game1.currentplayer.cards_in_hand.append(deck[draw_random])
                         deck.remove(deck[draw_random])
                         if Game1.sound is True:
-=======
+                            pygame.mixer.Sound.play(card_draw_sound)
                     draw_random = random.randint(0, len(deck) - 1)
                     if len(Game1.currentplayer.cards_in_hand) < 6:
                         Game1.currentplayer.cards_in_hand.append(deck[draw_random])
                         deck.remove(deck[draw_random])
                         if sound is True:
->>>>>>> refs/remotes/origin/master:Master 31-01.py
                             pygame.mixer.Sound.play(card_draw_sound)
                     else:
                         Game1.discard_pile.append(deck[draw_random])
@@ -1068,7 +1049,7 @@ def text_to_button(text, color, buttonx, buttony, buttonwidth, buttonheight, siz
     screen.blit(textSurf, textRect)
 
 
-def settings(screen, x=display_width-settingsCogwheel_width, y=0, width=settingsCogwheel_width, height=settingsCogwheel_height):
+def settings(screen, x, y=0, width=settingsCogwheel_width, height=settingsCogwheel_height):
     screen.blit(settingsCogwheel, [x, y])
     if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
         if pygame.mouse.get_pressed()[0] == 1:
@@ -1082,7 +1063,7 @@ def settings(screen, x=display_width-settingsCogwheel_width, y=0, width=settings
                         break
 
 
-def sound_on_function(screen, x=display_width/2-(sound_on_width/2) + (display_width * 0.1), y=display_height/2-(sound_on_height/2), width=sound_on_width, height=sound_on_height):
+def sound_on_function(screen, x, y, width=sound_on_width, height=sound_on_height):
     screen.blit(sound_on, [x, y])
     if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
         if pygame.mouse.get_pressed()[0] == 1:
@@ -1096,7 +1077,7 @@ def sound_on_function(screen, x=display_width/2-(sound_on_width/2) + (display_wi
                         break
 
 
-def sound_off_function(screen, x=display_width/2-(sound_off_width/2) + (display_width * 0.1), y=display_height/2-(sound_off_height/2), width=sound_off_width, height=sound_off_height):
+def sound_off_function(screen, x, y, width=sound_off_width, height=sound_off_height):
     screen.blit(sound_off, [x, y])
     if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
         if pygame.mouse.get_pressed()[0] == 1:
@@ -1119,11 +1100,7 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
                     if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
                         if event.button == 1:
                             do_action(action)
-<<<<<<< HEAD:Master 31-01_Vin.py
                             if Game1.sound is True:
-=======
-                            if sound is True:
->>>>>>> refs/remotes/origin/master:Master 31-01.py
                                 pygame.mixer.Sound.play(button_click)
                             break
                     else:
@@ -1133,118 +1110,17 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
 
     text_to_button(text, text_color, x, y, width, height)
 
-def save():
-    database.clear_save()
-    database.save_game(Game1.currentplayer , Game1.playerlist , Game1.available_boats , Game1.setup_counter , Game1.special_deck , Game1.normal_deck , Game1.discard_pile)
-    for player in Game1.playerlist:
-        database.save_player(player.name , player.score , player.boatlist , player.currentboat , player.cards_in_hand , player.pick_cards , player.trap_cards , player.destroyed_boats , player.emp_buff , player.attack_amount , player.sabotage_buff)
-        for boat in player.boatlist:
-            database.save_boat(boat.x, boat.y,
-                               boat.new_x, boat.new_y,
-                               boat.switch_x, boat.length,
-                               boat.steps, boat.original_stance,
-                               boat.new_stance, boat.hp,
-                               boat.currenthp, boat.range_buff,
-                               boat.horizontal_attackingrange,
-                               boat.vertical_attackingrange,
-                               boat.vertical_defendingrange,
-                               boat.damage_buff, boat.movement,
-                               boat.original_attack_amount,
-                               boat.attack_amount, boat.EMP,
-                               boat.special_card)
-        for boat in player.destroyed_boats:
-            database.save_boat(boat.x, boat.y,
-                               boat.new_x, boat.new_y,
-                               boat.switch_x, boat.length,
-                               boat.steps, boat.original_stance,
-                               boat.new_stance, boat.hp,
-                               boat.currenthp, boat.range_buff,
-                               boat.horizontal_attackingrange,
-                               boat.vertical_attackingrange,
-                               boat.vertical_defendingrange,
-                               boat.damage_buff, boat.movement,
-                               boat.original_attack_amount,
-                               boat.attack_amount, boat.EMP,
-                               boat.special_card)
-
-def load():
-    boat_number = 0
-    game_data = database.load_game()
-    player_data = database.load_players()
-    boat_data = database.load_boats()
-    Game1.currentplayer = game_data[0][0]
-    Game1.playerlist = game_data[0][1]
-    Game1.available_boats = game_data[0][2]
-    Game1.setup_counter = game_data[0][3]
-    Game1.special_deck = game_data[0][4]
-    Game1.normal_deck = game_data[0][5]
-    Game1.discard_pile = game_data[0][6]
-    for player in Game1.playerlist:
-        player.name = player_data[0][0]
-        player.score = player_data[0][1]
-        player.boatlist = player_data[0][2]
-        player.currentboat = player_data[0][3]
-        player.cards_in_hand = player_data[0][4]
-        player.pick_cards = player_data[0][5]
-        player.trap_cards = player_data[0][6]
-        player.destroyed_boats = player_data[0][7]
-        player.emp_buff = player_data[0][8]
-        player.attack_amount = player_data[0][9]
-        player.sabotage_buff = player_data[0][10]
-        for boat in player.boatlist:
-            boat.x = boat_data[boat_number][0]
-            boat.y = boat_data[boat_number][1]
-            boat.new_x = boat_data[boat_number][2]
-            boat.new_y = boat_data[boat_number][3]
-            boat.switch_x = boat_data[boat_number][4]
-            boat.length = boat_data[boat_number][5]
-            boat.steps = boat_data[boat_number][6]
-            boat.original_stance = boat_data[boat_number][7]
-            boat.new_stance = boat_data[boat_number][8]
-            boat.hp = boat_data[boat_number][9]
-            boat.currenthp = boat_data[boat_number][10]
-            boat.range_buff = boat_data[boat_number][11]
-            boat.horizontal_attackingrange = boat_data[boat_number][12]
-            boat.vertical_attackingrange = boat_data[boat_number][13]
-            boat.vertical_defendingrange = boat_data[boat_number][14]
-            boat.damage_buff = boat_data[boat_number][15]
-            boat.movement = boat_data[boat_number][16]
-            boat.original_attack_amount = boat_data[boat_number][17]
-            boat.attack_amount = boat_data[boat_number][18]
-            boat.EMP = boat_data[boat_number][19]
-            boat.special_card = boat_data[boat_number][20]
-            boat_number += 1
-        for boat in player.destroyed_boats:
-            boat.x = boat_data[boat_number][0]
-            boat.y = boat_data[boat_number][1]
-            boat.new_x = boat_data[boat_number][2]
-            boat.new_y = boat_data[boat_number][3]
-            boat.switch_x = boat_data[boat_number][4]
-            boat.length = boat_data[boat_number][5]
-            boat.steps = boat_data[boat_number][6]
-            boat.original_stance = boat_data[boat_number][7]
-            boat.new_stance = boat_data[boat_number][8]
-            boat.hp = boat_data[boat_number][9]
-            boat.currenthp = boat_data[boat_number][10]
-            boat.range_buff = boat_data[boat_number][11]
-            boat.horizontal_attackingrange = boat_data[boat_number][12]
-            boat.vertical_attackingrange = boat_data[boat_number][13]
-            boat.vertical_defendingrange = boat_data[boat_number][14]
-            boat.damage_buff = boat_data[boat_number][15]
-            boat.movement = boat_data[boat_number][16]
-            boat.original_attack_amount = boat_data[boat_number][17]
-            boat.attack_amount = boat_data[boat_number][18]
-            boat.EMP = boat_data[boat_number][19]
-            boat.special_card = boat_data[boat_number][20]
-            boat_number += 1
-
 
 def update_shit():
     global display_height
     global display_width
+    global GameGrid
     GameGrid = Grid(display_width, display_height)
-    global screen
-    settings(screen)
+    GameGrid.draw(screen)
+    settings(screen, display_width-settingsCogwheel_width)
+    sound_on_function(screen, display_width / 2 - (sound_on_width / 2) + 150,
+                      display_height / 2 - (sound_on_height / 2))
+    sound_off_function(screen, display_width/2-(sound_off_width/2) + 150, display_height/2-(sound_off_height/2))
 
     # Posities boten
     global positie_short_boat1_x
@@ -1484,9 +1360,9 @@ def gameSettings():
         button("Fullscreen", display_width/2 - 100, display_height*0.8, 200, 80, red, green, black, "fullscreen")
 
         if Game1.sound is True:
-            sound_off_function(screen)
+            sound_off_function(screen, display_width/2-(sound_off_width/2) + 150, display_height/2-(sound_off_height/2))
         if Game1.sound is False:
-            sound_on_function(screen)
+            sound_on_function(screen, display_width/2-(sound_on_width/2) + 150, display_height/2-(sound_on_height/2))
 
         pygame.display.update()
 
@@ -1495,7 +1371,7 @@ def gamePause():
 
     pygame.draw.rect(screen, white, (0, display_height*0.3, display_width, display_height*0.1), 0)
     text_to_screen("Het spel is gepauzeerd", black, -display_height*0.15, "medium")
-    settings(screen)
+    settings(screen, display_width-settingsCogwheel_width)
     pygame.display.update()
 
     while paused:
@@ -1609,20 +1485,13 @@ def inputName():
             elif Game1.currentplayer == P2:
                 button("Start game", display_width * 0.825, display_height * 0.81, 190, 60, green, light_blue, black, "chooseboats")
         button("Hoofdmenu", display_width * 0.825, display_height * 0.92, 190, 60, green, light_blue, black, "main")
-        settings(screen)
+        settings(screen, display_width-settingsCogwheel_width)
         pygame.display.update()
 
     pygame.quit()
     quit()
 
 def chooseBoats():
-    P1_score = database.check_name(P1.name)
-    P2_score = database.check_name(P2.name)
-    if not P1_score == []:
-        P1.score = P1_score[0][0]
-    if not P2_score == []:
-        P2.score = P2_score[0][0]
-
     gameExit = False
     while not gameExit:
         if P1.name == "set" and P2.name == "up":
@@ -1714,7 +1583,7 @@ def chooseBoats():
             text_to_screen("Druk op start game", black, -(display_height * 0.35), "medium")
 
         button("Hoofdmenu", display_width * 0.825, display_height * 0.92, 190, 60, green, light_blue, black, "main")
-        settings(screen)
+        settings(screen, display_width-settingsCogwheel_width)
         pygame.display.flip()
 
     pygame.quit()
@@ -1730,11 +1599,6 @@ def gameIntro():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameExit = True
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_s:
-                    save()
-                if event.key == pygame.K_l:
-                    load()
 
         screen.fill(white)
         text_to_screen("Battleships", black, -(display_height*0.35), "medium")
@@ -1744,7 +1608,7 @@ def gameIntro():
         button("Quit", (display_width/2)-75, (display_height*0.65), 150, 50, red, light_blue,black, "quit")
 
         #screen.blit(card1.image, [50, 50])
-        settings(screen)
+        settings(screen, display_width-settingsCogwheel_width)
         pygame.display.update()
 
     pygame.quit()
@@ -1836,7 +1700,7 @@ def gameRules(page):
         if not page == "kaarten":
             button("Kaarten", display_width * 0.75, display_height * 0.6, 250, 60, red, light_blue, black, "rules_kaarten")
         button("Hoofdmenu", display_width*0.75, display_height*0.92, 250, 60, green, light_blue, black, "main")
-        settings(screen)
+        settings(screen, display_width-settingsCogwheel_width)
         pygame.display.update()
 
     pygame.quit()
@@ -1860,8 +1724,6 @@ def gameLoop():
              elif event.type == pygame.KEYDOWN and not gameOver:
                  if event.key == pygame.K_p:
                      gamePause()
-                 elif event.key == pygame.K_s:
-                     save()
                  elif event.key == pygame.K_f:
                      P2.boatlist = []
                  if not attacking:
@@ -1967,7 +1829,7 @@ def gameLoop():
          for card in Game1.currentplayer.pick_cards:
              card.draw_pick_card(screen)
              Game1.currentplayer.pick_card_length += 1
-         settings(screen)
+         settings(screen, display_width-settingsCogwheel_width)
          pygame.display.update()
 
 
@@ -1976,7 +1838,6 @@ def gameLoop():
 
 
 def highScore():
-    scores = database.download_top_score()
     gameExit = False
     while not gameExit:
         for event in pygame.event.get():
@@ -1984,21 +1845,10 @@ def highScore():
                 gameExit = True
             screen.fill(white)
             text_to_screen("Highscores", black, -display_height*0.4)
-            if len(scores) >= 1:
-                text_to_screen("1. "+scores[0][0]+", "+str(scores[0][1]), black, -display_height*0.3)
-                if len(scores) >= 2:
-                    text_to_screen("2. "+scores[1][0]+", "+str(scores[1][1]), black, -display_height*0.2)
-                    if len(scores) >= 3:
-                        text_to_screen("3. "+scores[2][0]+", "+str(scores[2][1]), black, -display_height*0.1)
-                        if len(scores) >= 4:
-                            text_to_screen("4. "+scores[3][0]+", "+str(scores[3][1]), black)
-                            if len(scores) >= 5:
-                                text_to_screen("5. "+scores[4][0]+", "+str(scores[4][1]), black, +display_height*0.1)
-            else:
-                text_to_screen("Er zijn nog geen scores!", black)
+            text_to_screen("Er zijn nog geen scores!", black)
             button("Hoofdmenu", display_width * 0.25, display_height * 0.75, 190, 60, green, light_blue, black, "main")
             button("Quit game", display_width * 0.75-190, display_height * 0.75, 190, 60, green, light_blue, black, "quit")
-            settings(screen)
+            settings(screen, display_width-settingsCogwheel_width)
             pygame.display.update()
 
     pygame.quit()
