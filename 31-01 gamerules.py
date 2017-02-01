@@ -35,10 +35,25 @@ image17 = pygame.image.load("Rifling.jpg")
 image18 = pygame.image.load("sabotage.jpg")
 image19 = pygame.image.load("Smokescreen.jpg")
 
+settingsCogwheel = pygame.image.load("outline_gearwheel-512.png")
+settingsCogwheel_height = int(display_height/20)
+settingsCogwheel_width = int(display_width/20)
+settingsCogwheel = pygame.transform.scale(settingsCogwheel, [settingsCogwheel_width, settingsCogwheel_height])
+
+sound_on = pygame.image.load("sound_on.png")
+sound_on_height = int(display_height/20)
+sound_on_width = int(display_width/20)
+sound_on = pygame.transform.scale(sound_on, [sound_on_width, sound_on_height])
+
+sound_off = pygame.image.load("sound_off.png")
+sound_off_height = int(display_height/20)
+sound_off_width = int(display_width/20)
+sound_off = pygame.transform.scale(sound_off, [sound_off_width, sound_off_height])
+
 #icon = pygame.image.load(" ")
 #pygame.display.set_icon(icon)
 
-pygame.mixer.music.load("Star_Wars_Imperial_March_Theme_8_Bit_Remix_Cover_V.wav")
+pygame.mixer.music.load("soundtrack1.wav")
 card_draw_sound = pygame.mixer.Sound("draw_card_3.ogg")
 attack_sound = pygame.mixer.Sound("62.wav")
 play_card_sound = pygame.mixer.Sound("Battlecry_1.ogg")
@@ -893,6 +908,47 @@ def text_to_button(text, color, buttonx, buttony, buttonwidth, buttonheight, siz
     screen.blit(textSurf, textRect)
 
 
+def settings(screen, x=display_width-settingsCogwheel_width, y=0, width=settingsCogwheel_width, height=settingsCogwheel_height):
+    screen.blit(settingsCogwheel, [x, y])
+    if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
+        if pygame.mouse.get_pressed()[0] == 1:
+            while pygame.mouse.get_pressed()[0] == 1:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
+                        if event.button == 1:
+                            do_action("settings")
+                            break
+                    else:
+                        break
+
+
+def sound_on_function(screen, x=display_width/2-(sound_on_width/2), y=display_height/2-(sound_on_height/2), width=sound_on_width, height=sound_on_height):
+    screen.blit(sound_on, [x, y])
+    if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
+        if pygame.mouse.get_pressed()[0] == 1:
+            while pygame.mouse.get_pressed()[0] == 1:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
+                        if event.button == 1:
+                            do_action("sound_on")
+                            break
+                    else:
+                        break
+
+
+def sound_off_function(screen, x=display_width/2-(sound_off_width/2), y=display_height/2-(sound_off_height/2), width=sound_off_width, height=sound_off_height):
+    screen.blit(sound_off, [x, y])
+    if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
+        if pygame.mouse.get_pressed()[0] == 1:
+            while pygame.mouse.get_pressed()[0] == 1:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
+                        if event.button == 1:
+                            do_action("sound_off")
+                            break
+                    else:
+                        break
+
 def button(text, x, y, width, height, inactive_color, active_color, text_color, action = None):
     if x+width > pygame.mouse.get_pos()[0] > x and y+height > pygame.mouse.get_pos()[1] > y:
         pygame.draw.rect(screen, active_color, (x, y, width, height))
@@ -993,6 +1049,26 @@ def do_action(action):
     elif action == "remove_boat":
         Game1.available_boats.append(Game1.currentplayer.boatlist[-1])
         Game1.currentplayer.boatlist.pop()
+    elif action == "settings":
+        settings_pause = True
+
+        screen.fill(white)
+        text_to_screen("Settings", black, -display_height * 0.1, "medium")
+
+        pygame.display.update()
+
+        while settings_pause:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        settings_pause = False
+    elif action == "sound_on":
+        sound = True
+    elif action == "sound_off":
+        sound = False
 
 
 
@@ -1002,7 +1078,7 @@ def gamePause():
 
     pygame.draw.rect(screen, white, (0, display_height*0.3, display_width, display_height*0.1), 0)
     text_to_screen("Het spel is gepauzeerd", black, -display_height*0.15, "medium")
-
+    settings(screen)
     pygame.display.update()
 
     while paused:
@@ -1117,11 +1193,12 @@ def inputName():
             elif Game1.currentplayer == P2:
                 button("Start game", display_width * 0.825, display_height * 0.81, 190, 60, green, light_blue, black, "chooseboats")
         button("Hoofdmenu", display_width * 0.825, display_height * 0.92, 190, 60, green, light_blue, black, "main")
-
+        settings(screen)
         pygame.display.update()
 
     pygame.quit()
     quit()
+
 
 def chooseBoats():
     gameExit = False
@@ -1215,7 +1292,7 @@ def chooseBoats():
             text_to_screen("Druk op start game", black, -(display_height * 0.35), "medium")
 
         button("Hoofdmenu", display_width * 0.825, display_height * 0.92, 190, 60, green, light_blue, black, "main")
-
+        settings(screen)
         pygame.display.flip()
 
     pygame.quit()
@@ -1237,7 +1314,7 @@ def gameIntro():
         button("Quit", (display_width/2)-75, (display_height*0.65), 150, 50, red, light_blue,black, "quit")
 
         #screen.blit(card1.image, [50, 50])
-
+        settings(screen)
         pygame.display.update()
 
     pygame.quit()
@@ -1329,7 +1406,7 @@ def gameRules(page):
         if not page == "kaarten":
             button("Kaarten", display_width * 0.75, display_height * 0.6, 250, 60, red, light_blue, black, "rules_kaarten")
         button("Hoofdmenu", display_width*0.75, display_height*0.92, 250, 60, green, light_blue, black, "main")
-
+        settings(screen)
         pygame.display.update()
 
     pygame.quit()
@@ -1343,15 +1420,14 @@ def gameLoop():
      gameExit = False
      gameOver = False
      while not gameExit:
-
          now = pygame.time.get_ticks()
          if now - Game1.message_show >= Game1.message_cooldown:
              Game1.message_show = now
              screen.fill(white)
-
          for event in pygame.event.get():
              if event.type == pygame.QUIT:
                  gameExit = True
+
              elif event.type == pygame.KEYDOWN and not gameOver:
                  if event.key == pygame.K_p:
                      gamePause()
@@ -1449,7 +1525,7 @@ def gameLoop():
          for card in Game1.currentplayer.pick_cards:
              card.draw_pick_card(screen)
              Game1.currentplayer.pick_card_length += 1
-
+         settings(screen)
          pygame.display.update()
 
 
@@ -1475,6 +1551,7 @@ def highScore():
                 text_to_screen("Er zijn nog geen spelers", black)
             button("Hoofdmenu", display_width * 0.25, display_height * 0.75, 190, 60, green, light_blue, black, "main")
             button("Quit game", display_width * 0.75-190, display_height * 0.75, 190, 60, green, light_blue, black, "quit")
+            settings(screen)
             pygame.display.update()
 
     pygame.quit()
