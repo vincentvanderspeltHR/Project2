@@ -596,7 +596,7 @@ class Boat:
                         self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) + self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
             elif self.steps == 1 and self.original_stance == "defending":
                 if self.switch_x > display_width / 2:
-                    self.new_x = self.new_x - self.gamegrid.gridx * (self.length - 1)
+                    self.new_x = self.switch_x - self.gamegrid.gridx * (self.length - 1)
                 self.new_stance = "defending"
                 self.movement += 1
             else:

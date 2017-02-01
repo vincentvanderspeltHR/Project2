@@ -328,15 +328,15 @@ class Player:
 
     def selectedboat(self, screen):
         if self.currentboat.new_stance == "attacking":
-            pygame.draw.ellipse(screen, (255, 255, 255), (self.currentboat.new_x, self.currentboat.new_y, (self.currentboat.gamegrid.gridx)-(self.currentboat.gamegrid.gridx/4), ((self.currentboat.gamegrid.gridy)*self.currentboat.length - (self.currentboat.gamegrid.gridx/4))), 4)
+            pygame.draw.ellipse(screen, (255, 255, 255), (self.currentboat.new_x, self.currentboat.new_y, (self.currentboat.gamegrid.gridx)-(self.currentboat.gamegrid.gridx/4), ((self.currentboat.gamegrid.gridy)*self.currentboat.length - (self.currentboat.gamegrid.gridy/4))), 4)
         else:
-            pygame.draw.ellipse(screen, (255, 255, 255), (self.currentboat.new_x, self.currentboat.new_y, ((self.currentboat.gamegrid.gridy)*self.currentboat.length - (self.currentboat.gamegrid.gridx/4)), (self.currentboat.gamegrid.gridx)-(self.currentboat.gamegrid.gridx/4)), 4)
+            pygame.draw.ellipse(screen, (255, 255, 255), (self.currentboat.new_x, self.currentboat.new_y, ((self.currentboat.gamegrid.gridx)*self.currentboat.length - (self.currentboat.gamegrid.gridx/4)), (self.currentboat.gamegrid.gridy)-(self.currentboat.gamegrid.gridy/4)), 4)
 
     def draw_targetedboat(self, screen):
         if self.targeted_boat.new_stance == "attacking":
-            pygame.draw.ellipse(screen, (255, 0, 0), (self.targeted_boat.new_x, self.targeted_boat.new_y, (self.targeted_boat.gamegrid.gridx)-(self.targeted_boat.gamegrid.gridx/4), ((self.targeted_boat.gamegrid.gridy)*self.targeted_boat.length - (self.targeted_boat.gamegrid.gridx/4))), 4)
+            pygame.draw.ellipse(screen, (255, 0, 0), (self.targeted_boat.new_x, self.targeted_boat.new_y, (self.targeted_boat.gamegrid.gridx)-(self.targeted_boat.gamegrid.gridx/4), ((self.targeted_boat.gamegrid.gridy)*self.targeted_boat.length - (self.targeted_boat.gamegrid.gridy/4))), 4)
         else:
-            pygame.draw.ellipse(screen, (255, 0, 0), (self.targeted_boat.new_x, self.targeted_boat.new_y, ((self.targeted_boat.gamegrid.gridy)*self.targeted_boat.length - (self.targeted_boat.gamegrid.gridx/4)), (self.targeted_boat.gamegrid.gridx)-(self.targeted_boat.gamegrid.gridx/4)), 4)
+            pygame.draw.ellipse(screen, (255, 0, 0), (self.targeted_boat.new_x, self.targeted_boat.new_y, ((self.targeted_boat.gamegrid.gridx)*self.targeted_boat.length - (self.targeted_boat.gamegrid.gridx/4)), (self.targeted_boat.gamegrid.gridy)-(self.targeted_boat.gamegrid.gridy/4)), 4)
 
 
     def nextboat(self):
@@ -484,10 +484,6 @@ class Grid:
         while not gridlines > 20:
             pygame.draw.line(screen, (0, 0, 0), (((self.resolution_x-self.x)/2)+self.gridx*gridlines, ((self.resolution_y-self.y)/2)), (((self.resolution_x-self.x)/2)+self.gridx*gridlines, ((self.resolution_y-self.y)/2)+self.y), 2)
             gridlines += 1
-        # pygame.draw.rect(screen, black, (self.gridstartx - (display_width*0.135-5)-8, self.gridstarty, display_width*0.135, self.y / 3), 8)
-        # pygame.draw.rect(screen, black,(self.gridstartx - (display_width*0.135-5)-8, self.y + self.gridstarty - (self.y / 3), display_width*0.135, self.y / 3), 8)
-        # pygame.draw.rect(screen, black, (
-        # self.gridstartx + self.x+4, self.gridstarty + (self.y / 10) * 4, self.gridstartx, (self.y / 10) * 2), 8)
         trapcards = 0
         while not trapcards > 6:
             pygame.draw.rect(screen, black, (self.gridstartx + (self.x / 7 * trapcards), self.gridstarty - self.gridstarty * 0.75 -4, self.x / 7,self.gridstarty * 0.75), 8)
@@ -524,10 +520,9 @@ class Boat:
         self.steps = steps
         self.gamegrid = gamegrid
         self.attackingboat_width = (self.gamegrid.gridx)-(self.gamegrid.gridx/4)
-        self.attackingboat_height = ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4))
-        self.defendingboat_width = self.attackingboat_height
-        self.defendingboat_height = self.attackingboat_width
-        self.new_position = (self.new_x, self.new_y, (self.gamegrid.gridx)-(self.gamegrid.gridx/4), ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridx/4)))
+        self.attackingboat_height = ((self.gamegrid.gridy)*self.length - (self.gamegrid.gridy/4))
+        self.defendingboat_width = ((self.gamegrid.gridx)*self.length - (self.gamegrid.gridx/4))
+        self.defendingboat_height = (self.gamegrid.gridy)-(self.gamegrid.gridy/4)
         self.original_stance = "attacking"
         self.new_stance = "attacking"
         self.hp = HP
@@ -643,166 +638,174 @@ class Boat:
         if self.EMP == True:
             game_error("Schip is uitgeschakeld met EMP!")
         else:
-            if self.original_stance == "defending" and self.movement == self.steps:
-                if self.steps > 1:
-                    self.movement -= 1
-            if self.movement > 0:
-                if self.new_stance == "defending":
-                    if self.switch_x > display_width/2:
-                        self.new_x = self.new_x + self.gamegrid.gridx*(self.length - 1)
-                    self.new_stance = "attacking"
-                    if Game1.currentplayer == P2:
-                        self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) - self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
-                    if self.steps == 1 and self.original_stance == "defending":
-                        self.movement -= 1
-                else:
-                    if self.switch_x > display_width/2:
-                        self.new_x = self.new_x - self.gamegrid.gridx*(self.length - 1)
-                    self.new_stance = "defending"
-                    if Game1.currentplayer == P2:
-                        self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) + self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
-            elif self.steps == 1 and self.original_stance == "defending":
-                if self.switch_x > display_width / 2:
-                    self.new_x = self.new_x - self.gamegrid.gridx * (self.length - 1)
-                self.new_stance = "defending"
-                self.movement += 1
+            if self.attack_amount == 0:
+                game_error("Dit schip heeft al aangevallen!")
             else:
-                game_error("Niet genoeg stappen over om van positie te wisselen!")
+                if self.original_stance == "defending" and self.movement == self.steps:
+                    if self.steps > 1:
+                        self.movement -= 1
+                if self.movement > 0:
+                    if self.new_stance == "defending":
+                        if self.switch_x > display_width/2:
+                            self.new_x = self.new_x + self.gamegrid.gridx*(self.length - 1)
+                        self.new_stance = "attacking"
+                        if Game1.currentplayer == P2:
+                            self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) - self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
+                        if self.steps == 1 and self.original_stance == "defending":
+                            self.movement -= 1
+                    else:
+                        if self.switch_x > display_width/2:
+                            self.new_x = self.new_x - self.gamegrid.gridx*(self.length - 1)
+                        self.new_stance = "defending"
+                        if Game1.currentplayer == P2:
+                            self.new_y = self.new_y - (self.gamegrid.gridy * 0.6) + self.gamegrid.gridy * (self.length - 1) + (self.gamegrid.gridy * 0.6)
+                elif self.steps == 1 and self.original_stance == "defending":
+                    print(self.switch_x)
+                    print(display_width/2)
+                    if self.switch_x > display_width / 2:
+                        self.new_x = self.new_x - self.gamegrid.gridx * (self.length - 1)
+                    if Game1.currentplayer == P2:
+                        self.new_y = self.new_y + self.gamegrid.gridy * (self.length - 1)
+                    self.new_stance = "defending"
+                    self.movement += 1
+                else:
+                    game_error("Niet genoeg stappen over om van positie te wisselen!")
 
 
     def move(self, direction):
         if self.EMP == True:
             game_error("Schip is uitgeschakeld met EMP!")
-        if self.attack_amount == 0:
-            game_error("Dit schip heeft al aangevallen!")
         else:
-            if self.new_stance == "attacking":
-                if direction == "left":
-                    if self.original_stance == "defending" and self.switch_x > display_width/2:
-                        if (self.new_x - self.gamegrid.gridx) < self.switch_x:
-                            if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
-                                if self.movement > 0:
-                                    self.new_x -= self.gamegrid.gridx
-                                    self.movement -= 1
-                                    if Game1.sound == True:
-                                        pygame.mixer.Sound.play(ship_movement)
+            if self.attack_amount == 0:
+                game_error("Dit schip heeft al aangevallen!")
+            else:
+                if self.new_stance == "attacking":
+                    if direction == "left":
+                        if self.original_stance == "defending" and self.switch_x > display_width/2:
+                            if (self.new_x - self.gamegrid.gridx) < self.switch_x:
+                                if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
+                                    if self.movement > 0:
+                                        self.new_x -= self.gamegrid.gridx
+                                        self.movement -= 1
+                                        if Game1.sound == True:
+                                            pygame.mixer.Sound.play(ship_movement)
+                                else:
+                                    game_error("Niet genoeg stappen over om te bewegen!")
                             else:
-                                game_error("Niet genoeg stappen over om te bewegen!")
+                                self.movement += 1
+                                self.new_x -= self.gamegrid.gridx
                         else:
-                            self.movement += 1
-                            self.new_x -= self.gamegrid.gridx
-                    else:
-                        if (self.new_x - self.gamegrid.gridx) < self.x:
-                            if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
-                                if self.movement > 0:
-                                    self.new_x -= self.gamegrid.gridx
-                                    self.movement -= 1
-                                    if Game1.sound == True:
-                                        pygame.mixer.Sound.play(ship_movement)
+                            if (self.new_x - self.gamegrid.gridx) < self.x:
+                                if self.new_x - self.gamegrid.gridx > self.gamegrid.gridstartx:
+                                    if self.movement > 0:
+                                        self.new_x -= self.gamegrid.gridx
+                                        self.movement -= 1
+                                        if Game1.sound == True:
+                                            pygame.mixer.Sound.play(ship_movement)
+                                else:
+                                    game_error("Niet genoeg stappen over om te bewegen!")
                             else:
-                                game_error("Niet genoeg stappen over om te bewegen!")
-                        else:
-                            self.movement += 1
-                            self.new_x -= self.gamegrid.gridx
-                        self.switch_x = self.new_x
-                elif direction == "right":
-                    if self.original_stance == "defending" and self.switch_x > display_width/2:
-                        if (self.new_x + self.gamegrid.gridx) > self.switch_x:
-                            if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
-                                if self.movement > 0:
-                                    self.new_x += self.gamegrid.gridx
-                                    self.movement -= 1
-                                    if Game1.sound == True:
-                                        pygame.mixer.Sound.play(ship_movement)
+                                self.movement += 1
+                                self.new_x -= self.gamegrid.gridx
+                            self.switch_x = self.new_x
+                    elif direction == "right":
+                        if self.original_stance == "defending" and self.switch_x > display_width/2:
+                            if (self.new_x + self.gamegrid.gridx) > self.switch_x:
+                                if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
+                                    if self.movement > 0:
+                                        self.new_x += self.gamegrid.gridx
+                                        self.movement -= 1
+                                        if Game1.sound == True:
+                                            pygame.mixer.Sound.play(ship_movement)
+                                else:
+                                    game_error("Niet genoeg stappen over om te bewegen!")
                             else:
-                                game_error("Niet genoeg stappen over om te bewegen!")
+                                self.movement += 1
+                                self.new_x += self.gamegrid.gridx
                         else:
-                            self.movement += 1
-                            self.new_x += self.gamegrid.gridx
-                    else:
-                        if (self.new_x + self.gamegrid.gridx) > self.x:
-                            if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
-                                if self.movement > 0:
-                                    self.new_x += self.gamegrid.gridx
-                                    self.movement -= 1
-                                    if Game1.sound == True:
-                                        pygame.mixer.Sound.play(ship_movement)
+                            if (self.new_x + self.gamegrid.gridx) > self.x:
+                                if self.new_x + self.gamegrid.gridx < self.gamegrid.gridstartx+self.gamegrid.x:
+                                    if self.movement > 0:
+                                        self.new_x += self.gamegrid.gridx
+                                        self.movement -= 1
+                                        if Game1.sound == True:
+                                            pygame.mixer.Sound.play(ship_movement)
+                                else:
+                                    game_error("Niet genoeg stappen over om te bewegen!")
                             else:
-                                game_error("Niet genoeg stappen over om te bewegen!")
-                        else:
-                            self.movement += 1
-                            self.new_x += self.gamegrid.gridx
-                        self.switch_x = self.new_x
-                elif direction == "up":
-                    if Game1.currentplayer == P2 and self.original_stance == "defending":
-                        if (self.new_y - self.gamegrid.gridy) < self.y-(self.gamegrid.gridy*(self.length-1)):
+                                self.movement += 1
+                                self.new_x += self.gamegrid.gridx
+                            self.switch_x = self.new_x
+                    elif direction == "up":
+                        if Game1.currentplayer == P2 and self.original_stance == "defending":
+                            if (self.new_y - self.gamegrid.gridy) < self.y-(self.gamegrid.gridy*(self.length-1)):
+                                if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
+                                    if self.movement > 0:
+                                        self.new_y -= self.gamegrid.gridy
+                                        self.movement -= 1
+                                        if Game1.sound == True:
+                                            pygame.mixer.Sound.play(ship_movement)
+                                else:
+                                    game_error("Niet genoeg stappen over om te bewegen!")
+                            else:
+                                self.movement += 1
+                                self.new_y -= self.gamegrid.gridy
+                        elif (self.new_y - self.gamegrid.gridy) < self.y:
                             if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
                                 if self.movement > 0:
                                     self.new_y -= self.gamegrid.gridy
                                     self.movement -= 1
                                     if Game1.sound == True:
                                         pygame.mixer.Sound.play(ship_movement)
-                            else:
-                                game_error("Niet genoeg stappen over om te bewegen!")
+                                else:
+                                    game_error("Niet genoeg stappen over om te bewegen!")
                         else:
                             self.movement += 1
                             self.new_y -= self.gamegrid.gridy
-                    elif (self.new_y - self.gamegrid.gridy) < self.y:
-                        if self.new_y - self.gamegrid.gridy > self.gamegrid.gridstarty:
-                            if self.movement > 0:
-                                self.new_y -= self.gamegrid.gridy
-                                self.movement -= 1
-                                if Game1.sound == True:
-                                    pygame.mixer.Sound.play(ship_movement)
+                    elif direction == "down":
+                        if Game1.currentplayer == P2 and self.original_stance == "defending":
+                            if (self.new_y + self.gamegrid.gridy) > self.y-(self.gamegrid.gridy*(self.length-1)):
+                                if self.new_y + self.attackingboat_height + self.gamegrid.gridy < self.gamegrid.gridstarty + self.gamegrid.y:
+                                    if self.movement > 0:
+                                        self.new_y += self.gamegrid.gridy
+                                        self.movement -= 1
+                                        if Game1.sound == True:
+                                            pygame.mixer.Sound.play(ship_movement)
+                                else:
+                                    game_error("Niet genoeg stappen over om te bewegen!")
                             else:
-                                game_error("Niet genoeg stappen over om te bewegen!")
-                    else:
-                        self.movement += 1
-                        self.new_y -= self.gamegrid.gridy
-                elif direction == "down":
-                    if Game1.currentplayer == P2 and self.original_stance == "defending":
-                        if (self.new_y + self.gamegrid.gridy) > self.y-(self.gamegrid.gridy*(self.length-1)):
-                            if self.new_y + self.attackingboat_height + self.gamegrid.gridy < self.gamegrid.gridstarty + self.gamegrid.y:
+                                self.movement += 1
+                                self.new_y += self.gamegrid.gridy
+                        elif (self.new_y + self.gamegrid.gridy) > self.y:
+                            if self.new_y + self.attackingboat_height + self.gamegrid.gridy < self.gamegrid.gridstarty+self.gamegrid.y:
                                 if self.movement > 0:
                                     self.new_y += self.gamegrid.gridy
                                     self.movement -= 1
                                     if Game1.sound == True:
                                         pygame.mixer.Sound.play(ship_movement)
-                            else:
-                                game_error("Niet genoeg stappen over om te bewegen!")
+                                else:
+                                    game_error("Niet genoeg stappen over om te bewegen!")
                         else:
                             self.movement += 1
                             self.new_y += self.gamegrid.gridy
-                    elif (self.new_y + self.gamegrid.gridy) > self.y:
-                        if self.new_y + self.attackingboat_height + self.gamegrid.gridy < self.gamegrid.gridstarty+self.gamegrid.y:
-                            if self.movement > 0:
-                                self.new_y += self.gamegrid.gridy
-                                self.movement -= 1
-                                if Game1.sound == True:
-                                    pygame.mixer.Sound.play(ship_movement)
+                    if self.special_card == 0:
+                        if not self.y == self.new_y:
+                            if Game1.currentplayer == P1:
+                                if self.new_y + self.gamegrid.gridy*self.length > self.gamegrid.gridstarty+self.gamegrid.y:
+                                    self.special_card += 1
+                                    Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
+                                    if len(Game1.special_deck) > 0:
+                                        game_error("Speciale kaart getrokken!")
                             else:
-                                game_error("Niet genoeg stappen over om te bewegen!")
-                    else:
-                        self.movement += 1
-                        self.new_y += self.gamegrid.gridy
-                if self.special_card == 0:
-                    if not self.y == self.new_y:
-                        if Game1.currentplayer == P1:
-                            if self.new_y + self.gamegrid.gridy*self.length > self.gamegrid.gridstarty+self.gamegrid.y:
-                                self.special_card += 1
-                                Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
-                                if len(Game1.special_deck) > 0:
-                                    game_error("Speciale kaart getrokken!")
-                        else:
-                            if self.new_y - self.gamegrid.gridy < self.gamegrid.gridstarty:
-                                self.special_card += 1
-                                Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
-                                if len(Game1.special_deck) > 0:
-                                    game_error("Speciale kaart getrokken!")
-                if Game1.sound == True:
-                    pygame.mixer.Sound.play(ship_movement)
-            else:
-                game_error("Verdedigende schepen kunnen niet bewegen!")
+                                if self.new_y - self.gamegrid.gridy < self.gamegrid.gridstarty:
+                                    self.special_card += 1
+                                    Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
+                                    if len(Game1.special_deck) > 0:
+                                        game_error("Speciale kaart getrokken!")
+                    if Game1.sound == True:
+                        pygame.mixer.Sound.play(ship_movement)
+                else:
+                    game_error("Verdedigende schepen kunnen niet bewegen!")
 
     def confirm(self):
         boot = 0
@@ -1670,7 +1673,7 @@ def gameRules(page):
         elif page == "voorbereiding":
             text_to_screen("Welkom op pagina voorbereiding", black, -100, "small", -100)
             text_to_screen("Iedere speler begint met vier schepen", black, -50, "rules", -100)
-            text_to_screen("en 2 kaarten van de basis stapel. De spelers", black, -25, "rules", -100)
+            text_to_screen("en 2 kaarten van de normale stapel. De spelers", black, -25, "rules", -100)
             text_to_screen("plaatsen hun schepen tegen zijn/haar eigen haven",black, 0, "rules", -100)
             text_to_screen("aan in de aanvalspositie. De speler mag zelf", black, +25, "rules", -100)
             text_to_screen("bepalen waar de schepen staan, zolang ze maar", black, +50, "rules", -100)
