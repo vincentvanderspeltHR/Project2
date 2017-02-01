@@ -63,6 +63,7 @@ play_card_sound = pygame.mixer.Sound("Battlecry_1.ogg")
 buff_card_sound = pygame.mixer.Sound("1030.wav")
 ship_movement = pygame.mixer.Sound("movement_ship.wav")
 button_click = pygame.mixer.Sound("button_click.ogg")
+# schip zinken
 
 white = (255,255,255)
 black = (0,0,0)
@@ -1360,6 +1361,33 @@ def do_action(action):
         ship_movement = pygame.mixer.Sound("movement_ship.wav")
         button_click = pygame.mixer.Sound("button_click.ogg")
         pygame.mixer.music.play(-1, 0.0)
+    elif action == "soundtrack2":
+        pygame.mixer.music.load("soundtrack2.wav")
+        card_draw_sound = pygame.mixer.Sound("draw_card_3.ogg")
+        attack_sound = pygame.mixer.Sound("62.wav")
+        play_card_sound = pygame.mixer.Sound("Battlecry_1.ogg")
+        buff_card_sound = pygame.mixer.Sound("1030.wav")
+        ship_movement = pygame.mixer.Sound("movement_ship.wav")
+        button_click = pygame.mixer.Sound("button_click.ogg")
+        pygame.mixer.music.play(-1, 0.0)
+    elif action == "soundtrack3":
+        pygame.mixer.music.load("soundtrack3.wav")
+        card_draw_sound = pygame.mixer.Sound("draw_card_3.ogg")
+        attack_sound = pygame.mixer.Sound("62.wav")
+        play_card_sound = pygame.mixer.Sound("Battlecry_1.ogg")
+        buff_card_sound = pygame.mixer.Sound("1030.wav")
+        ship_movement = pygame.mixer.Sound("movement_ship.wav")
+        button_click = pygame.mixer.Sound("button_click.ogg")
+        pygame.mixer.music.play(-1, 0.0)
+    elif action == "soundtrack4":
+        pygame.mixer.music.load("soundtrack4.wav")
+        card_draw_sound = pygame.mixer.Sound("draw_card_3.ogg")
+        attack_sound = pygame.mixer.Sound("62.wav")
+        play_card_sound = pygame.mixer.Sound("Battlecry_1.ogg")
+        buff_card_sound = pygame.mixer.Sound("1030.wav")
+        ship_movement = pygame.mixer.Sound("movement_ship.wav")
+        button_click = pygame.mixer.Sound("button_click.ogg")
+        pygame.mixer.music.play(-1, 0.0)
 
 
 def gameSettings():
@@ -1376,13 +1404,19 @@ def gameSettings():
         screen.fill(white)
         text_to_screen("Settings", black, -display_height * 0.3, "medium")
         text_to_screen("Sound:", black, -display_height * 0, "small")
+#        if :
         text_to_screen("Resolution:", black, +display_height * 0.2, "small")
         button("1920*1080", display_width-200, display_height*0.8, 200, 80, red, green, black, "1920*1080")
         button("1000*800", 0, display_height*0.8, 200, 80, red, green, black, "1000*800")
         button("Fullscreen", display_width/2 - 100, display_height*0.8, 200, 80, red, green, black, "fullscreen")
-        button("MLG on", 10, 0, 100, 50, red, green, black, "MLG_on")
-        button("Soundtrack 1", 10, display_height/10, 100, 50, red, green, black, "soundtrack1")
 
+        button("MLG on", 10, 10, 100, 50, red, green, black, "MLG_on")
+
+        text_to_screen("Soundtracks:", black, -display_height * 0.4, "small", +display_width * 0.4)
+        button("1", display_width*0.9-50, display_height*0.1 + 50, 100, 50, red, green, black, "soundtrack1")
+        button("2", display_width * 0.9 - 50, display_height * 0.1 + 150, 100, 50, red, green, black, "soundtrack2")
+        button("3", display_width*0.9-50, display_height*0.1 + 250, 100, 50, red, green, black, "soundtrack3")
+        button("4", display_width*0.9-50, display_height*0.1 + 350, 100, 50, red, green, black, "soundtrack4")
         if Game1.sound is True:
             sound_off_function(screen, display_width/2-(sound_off_width/2) + 150, display_height/2-(sound_off_height/2))
         if Game1.sound is False:
@@ -1515,6 +1549,7 @@ def inputName():
 
     pygame.quit()
     quit()
+
 
 def chooseBoats():
     gameExit = False
