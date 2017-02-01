@@ -673,6 +673,8 @@ class Boat:
     def move(self, direction):
         if self.EMP == True:
             game_error("Schip is uitgeschakeld met EMP!")
+        if self.attack_amount == 0:
+            game_error("Dit schip heeft al aangevallen!")
         else:
             if self.new_stance == "attacking":
                 if direction == "left":
