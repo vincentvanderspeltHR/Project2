@@ -1,7 +1,6 @@
 import pygame
 import random
 import ctypes
-import battleports_db
 
 # pygame.mixer.music.load("soundtrack" + str(Game1.soundtrack) + ".wav")
 pygame.init()
@@ -56,7 +55,6 @@ sound_off_width = int(display_width/20)
 sound_off = pygame.transform.scale(sound_off, [sound_off_width, sound_off_height])
 
 
-sound = True
 
 pygame.mixer.music.load("soundtrack1.wav")
 card_draw_sound = pygame.mixer.Sound("draw_card_3.ogg")
@@ -107,6 +105,7 @@ class Game:
         self.message_cooldown = 2500
         self.sound = True
         self.soundtrack = 1
+        self.setup = True
 
     def changeplayers(self):
         if self.currentplayer == self.playerlist[0]:
@@ -197,64 +196,37 @@ class Card:
             Game1.currentplayer.currentboat.horizontal_attackingrange += Game1.currentplayer.currentboat.range_buff
             Game1.currentplayer.currentboat.vertical_attackingrange += Game1.currentplayer.currentboat.range_buff
             Game1.currentplayer.currentboat.vertical_defendingrange += Game1.currentplayer.currentboat.range_buff
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Rifling":
             Game1.currentplayer.currentboat.range_buff += 1
             Game1.currentplayer.currentboat.horizontal_attackingrange += Game1.currentplayer.currentboat.range_buff
             Game1.currentplayer.currentboat.vertical_attackingrange += Game1.currentplayer.currentboat.range_buff
             Game1.currentplayer.currentboat.vertical_defendingrange += Game1.currentplayer.currentboat.range_buff
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "FMJ":
             Game1.currentplayer.currentboat.damage_buff += 1
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Reinforced Hull":
             Game1.currentplayer.currentboat.currenthp += 1
             Game1.currentplayer.currentboat.hp += 1
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Extra Fuel":
             Game1.currentplayer.currentboat.movement += 1
-            Game1.currentplayer.currentboat.movement +=1
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Extra Fuel 2":
             Game1.currentplayer.currentboat.movement += 2
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Aluminium Hull":
             Game1.currentplayer.currentboat.steps = Game1.currentplayer.currentboat.steps*2
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Far Sight":
             Game1.currentplayer.currentboat.horizontal_attackingrange += 2
             Game1.currentplayer.currentboat.vertical_attackingrange += 2
             Game1.currentplayer.currentboat.vertical_defendingrange += 2
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Adrenaline Rush":
             Game1.currentplayer.currentboat.movement = Game1.currentplayer.currentboat.steps
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Backup":
             Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Rally":
             for boat in Game1.currentplayer.boatlist:
                 boat.movement += 1
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Repair":
             Game1.currentplayer.currentboat.currenthp = Game1.currentplayer.currentboat.hp
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "EMP":
             Game1.currentplayer.emp_buff += 1
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Hack Intel":
             if len(Game1.special_deck) == 0:
                 game_error("Er zijn geen special kaarten meer over!")
@@ -267,19 +239,15 @@ class Card:
                 Game1.currentplayer.pick_cards.append(Game1.special_deck[draw_random])
                 Game1.special_deck.remove(Game1.special_deck[draw_random])
                 draw_amount -= 1
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         elif self.name == "Sabotage":
             Game1.currentplayer.sabotage_buff += 1
             Game1.currentplayer.trap_cards.append(self)
-            if sound is True:
-                pygame.mixer.Sound.play(play_card_sound)
         else:
             pass
         Game1.currentplayer.cards_in_hand.remove(self)
         if not self.type == "special":
             Game1.discard_pile.append(self)
-        if Game1.sound is True:
+        if Game1.sound == True:
             pygame.mixer.Sound.play(play_card_sound)
 
 
@@ -393,7 +361,7 @@ class Player:
                 Game1.currentplayer.targeted_boat = Game1.currentplayer.attackable_boats[position + 1]
 
     def attack(self, boat):
-        if Game1.sound is True:
+        if Game1.sound == True:
             pygame.mixer.Sound.play(attack_sound)
 
         if Game1.currentplayer == P1:
@@ -421,10 +389,6 @@ class Player:
             enemy.destroyed_boats.append(boat)
             if enemy.boatlist == []:
                 Game1.currentplayer.score += 1
-                if Game1.currentplayer.score > 1:
-                    battleports_db.upload_score(Game1.currentplayer.name, Game1.currentplayer.score)
-                else:
-                    battleports_db.new_score(Game1.currentplayer.name, Game1.currentplayer.score)
             else:
                 enemy.currentboat = enemy.boatlist[0]
         self.targeted_boat = 0
@@ -438,17 +402,11 @@ class Player:
     def draw_from_deck(self, deck, draw_amount):
             while draw_amount > 0:
                 if len(deck) > 0:
-                    draw_random = random.randint(0, len(deck)-1)
-                    if len(Game1.currentplayer.cards_in_hand) < 6:
-                        Game1.currentplayer.cards_in_hand.append(deck[draw_random])
-                        deck.remove(deck[draw_random])
-                        if Game1.sound is True:
-                            pygame.mixer.Sound.play(card_draw_sound)
                     draw_random = random.randint(0, len(deck) - 1)
                     if len(Game1.currentplayer.cards_in_hand) < 6:
                         Game1.currentplayer.cards_in_hand.append(deck[draw_random])
                         deck.remove(deck[draw_random])
-                        if sound is True:
+                        if Game1.sound == True:
                             pygame.mixer.Sound.play(card_draw_sound)
                     else:
                         if deck == Game1.normal_deck:
@@ -706,7 +664,7 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_x -= self.gamegrid.gridx
                                     self.movement -= 1
-                                    if sound is True:
+                                    if Game1.sound == True:
                                         pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
@@ -719,7 +677,7 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_x -= self.gamegrid.gridx
                                     self.movement -= 1
-                                    if sound is True:
+                                    if Game1.sound == True:
                                         pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
@@ -734,7 +692,7 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_x += self.gamegrid.gridx
                                     self.movement -= 1
-                                    if sound is True:
+                                    if Game1.sound == True:
                                         pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
@@ -747,7 +705,7 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_x += self.gamegrid.gridx
                                     self.movement -= 1
-                                    if sound is True:
+                                    if Game1.sound == True:
                                         pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
@@ -762,7 +720,7 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_y -= self.gamegrid.gridy
                                     self.movement -= 1
-                                    if sound is True:
+                                    if Game1.sound == True:
                                         pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
@@ -774,7 +732,7 @@ class Boat:
                             if self.movement > 0:
                                 self.new_y -= self.gamegrid.gridy
                                 self.movement -= 1
-                                if sound is True:
+                                if Game1.sound == True:
                                     pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
@@ -788,7 +746,7 @@ class Boat:
                                 if self.movement > 0:
                                     self.new_y += self.gamegrid.gridy
                                     self.movement -= 1
-                                    if sound is True:
+                                    if Game1.sound == True:
                                         pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
@@ -800,7 +758,7 @@ class Boat:
                             if self.movement > 0:
                                 self.new_y += self.gamegrid.gridy
                                 self.movement -= 1
-                                if sound is True:
+                                if Game1.sound == True:
                                     pygame.mixer.Sound.play(ship_movement)
                             else:
                                 game_error("Niet genoeg stappen over om te bewegen!")
@@ -821,7 +779,7 @@ class Boat:
                                 Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
                                 if len(Game1.special_deck) > 0:
                                     game_error("Speciale kaart getrokken!")
-                if Game1.sound is True:
+                if Game1.sound == True:
                     pygame.mixer.Sound.play(ship_movement)
             else:
                 game_error("Verdedigende schepen kunnen niet bewegen!")
@@ -870,6 +828,50 @@ class Boat:
                                                 game_error("Er zijn overlappende schepen!")
                                             return False
                             tiles -= 1
+            for boat in player.destroyed_boats:
+                boot += 1
+                tiles = self.length - 1
+                if not boat == self:
+                    while tiles >= 0:
+                        if self.new_stance == "attacking":
+                            if boat.new_stance == "attacking":
+                                if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (
+                                    self.gamegrid.gridx / 6) + self.gamegrid.gridx:
+                                    if boat.new_y - (
+                                        self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (
+                                        self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:
+                                        if Game1.setup_counter == 9:
+                                            game_error("Er zijn overlappende schepen!")
+                                        return False
+                            elif boat.new_stance == "defending":
+                                if boat.new_x - (self.gamegrid.gridx / 6) < self.new_x < boat.new_x - (
+                                            self.gamegrid.gridx / 6) + self.gamegrid.gridx * boat.length:
+                                    if boat.new_y - (
+                                                self.gamegrid.gridy / 6) < self.new_y + self.gamegrid.gridy * tiles < boat.new_y - (
+                                                self.gamegrid.gridy / 6) + self.gamegrid.gridy:
+                                        if Game1.setup_counter == 9:
+                                            game_error("Er zijn overlappende schepen!")
+                                        return False
+                        elif self.new_stance == "defending":
+                            if boat.new_stance == "attacking":
+                                if boat.new_x - (
+                                            self.gamegrid.gridx / 6) < self.new_x + self.gamegrid.gridx * tiles < boat.new_x - (
+                                            self.gamegrid.gridx / 6) + self.gamegrid.gridx:
+                                    if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (
+                                                self.gamegrid.gridy / 6) + self.gamegrid.gridy * boat.length:
+                                        if Game1.setup_counter == 9:
+                                            game_error("Er zijn overlappende schepen!")
+                                        return False
+                            elif boat.new_stance == "defending":
+                                if boat.new_x - (
+                                            self.gamegrid.gridx / 6) < self.new_x + self.gamegrid.gridx * tiles < boat.new_x - (
+                                            self.gamegrid.gridx / 6) + self.gamegrid.gridx:
+                                    if boat.new_y - (self.gamegrid.gridy / 6) < self.new_y < boat.new_y - (
+                                                self.gamegrid.gridy / 6) + self.gamegrid.gridy:
+                                        if Game1.setup_counter == 9:
+                                            game_error("Er zijn overlappende schepen!")
+                                        return False
+                        tiles -= 1
 
         return True
 
@@ -1107,7 +1109,7 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
                     if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
                         if event.button == 1:
                             do_action(action)
-                            if Game1.sound is True:
+                            if Game1.sound == True:
                                 pygame.mixer.Sound.play(button_click)
                             break
                     else:
@@ -1234,110 +1236,6 @@ def update_shit():
     global card_smokescreen
     card_smokescreen = Card("Smokescreen", image19, "defense", 2)
 
-def save():
-    battleports_db.clear_save()
-    battleports_db.save_game(Game1.currentplayer.class_name , Game1.available_boats , Game1.setup_counter , Game1.special_deck , Game1.normal_deck , Game1.discard_pile)
-    for player in Game1.playerlist:
-        battleports_db.save_player(player.name , player.score , player.boatlist , player.currentboat , player.cards_in_hand , player.pick_cards , player.trap_cards , player.destroyed_boats , player.emp_buff , player.attack_amount , player.sabotage_buff)
-        for boat in player.boatlist:
-            battleports_db.save_boat(boat.x, boat.y,
-                               boat.new_x, boat.new_y,
-                               boat.switch_x, boat.length,
-                               boat.steps, boat.original_stance,
-                               boat.new_stance, boat.hp,
-                               boat.currenthp, boat.range_buff,
-                               boat.horizontal_attackingrange,
-                               boat.vertical_attackingrange,
-                               boat.vertical_defendingrange,
-                               boat.damage_buff, boat.movement,
-                               boat.original_attack_amount,
-                               boat.attack_amount, boat.EMP,
-                               boat.special_card)
-        for boat in player.destroyed_boats:
-            battleports_db.save_boat(boat.x, boat.y,
-                               boat.new_x, boat.new_y,
-                               boat.switch_x, boat.length,
-                               boat.steps, boat.original_stance,
-                               boat.new_stance, boat.hp,
-                               boat.currenthp, boat.range_buff,
-                               boat.horizontal_attackingrange,
-                               boat.vertical_attackingrange,
-                               boat.vertical_defendingrange,
-                               boat.damage_buff, boat.movement,
-                               boat.original_attack_amount,
-                               boat.attack_amount, boat.EMP,
-                               boat.special_card)
-
-def load():
-    boat_number = 0
-    game_data = battleports_db.load_game()
-    player_data = battleports_db.load_players()
-    boat_data = battleports_db.load_boats()
-    Game1.currentplayer = game_data[0][0]
-    Game1.playerlist = game_data[0][1]
-    Game1.available_boats = game_data[0][2]
-    Game1.setup_counter = game_data[0][3]
-    Game1.special_deck = game_data[0][4]
-    Game1.normal_deck = game_data[0][5]
-    Game1.discard_pile = game_data[0][6]
-    for player in Game1.playerlist:
-        player.name = player_data[0][0]
-        player.score = player_data[0][1]
-        player.boatlist = player_data[0][2]
-        player.currentboat = player_data[0][3]
-        player.cards_in_hand = player_data[0][4]
-        player.pick_cards = player_data[0][5]
-        player.trap_cards = player_data[0][6]
-        player.destroyed_boats = player_data[0][7]
-        player.emp_buff = player_data[0][8]
-        player.attack_amount = player_data[0][9]
-        player.sabotage_buff = player_data[0][10]
-        for boat in player.boatlist:
-            boat.x = boat_data[boat_number][0]
-            boat.y = boat_data[boat_number][1]
-            boat.new_x = boat_data[boat_number][2]
-            boat.new_y = boat_data[boat_number][3]
-            boat.switch_x = boat_data[boat_number][4]
-            boat.length = boat_data[boat_number][5]
-            boat.steps = boat_data[boat_number][6]
-            boat.original_stance = boat_data[boat_number][7]
-            boat.new_stance = boat_data[boat_number][8]
-            boat.hp = boat_data[boat_number][9]
-            boat.currenthp = boat_data[boat_number][10]
-            boat.range_buff = boat_data[boat_number][11]
-            boat.horizontal_attackingrange = boat_data[boat_number][12]
-            boat.vertical_attackingrange = boat_data[boat_number][13]
-            boat.vertical_defendingrange = boat_data[boat_number][14]
-            boat.damage_buff = boat_data[boat_number][15]
-            boat.movement = boat_data[boat_number][16]
-            boat.original_attack_amount = boat_data[boat_number][17]
-            boat.attack_amount = boat_data[boat_number][18]
-            boat.EMP = boat_data[boat_number][19]
-            boat.special_card = boat_data[boat_number][20]
-            boat_number += 1
-        for boat in player.destroyed_boats:
-            boat.x = boat_data[boat_number][0]
-            boat.y = boat_data[boat_number][1]
-            boat.new_x = boat_data[boat_number][2]
-            boat.new_y = boat_data[boat_number][3]
-            boat.switch_x = boat_data[boat_number][4]
-            boat.length = boat_data[boat_number][5]
-            boat.steps = boat_data[boat_number][6]
-            boat.original_stance = boat_data[boat_number][7]
-            boat.new_stance = boat_data[boat_number][8]
-            boat.hp = boat_data[boat_number][9]
-            boat.currenthp = boat_data[boat_number][10]
-            boat.range_buff = boat_data[boat_number][11]
-            boat.horizontal_attackingrange = boat_data[boat_number][12]
-            boat.vertical_attackingrange = boat_data[boat_number][13]
-            boat.vertical_defendingrange = boat_data[boat_number][14]
-            boat.damage_buff = boat_data[boat_number][15]
-            boat.movement = boat_data[boat_number][16]
-            boat.original_attack_amount = boat_data[boat_number][17]
-            boat.attack_amount = boat_data[boat_number][18]
-            boat.EMP = boat_data[boat_number][19]
-            boat.special_card = boat_data[boat_number][20]
-            boat_number += 1
 
 def do_action(action):
     if action == "quit":
@@ -1470,9 +1368,9 @@ def gameSettings():
         button("1000*800", 0, display_height*0.8, 200, 80, red, green, black, "1000*800")
         button("Fullscreen", display_width/2 - 100, display_height*0.8, 200, 80, red, green, black, "fullscreen")
 
-        if Game1.sound is True:
+        if Game1.sound == True:
             sound_off_function(screen, display_width/2-(sound_off_width/2) + 150, display_height/2-(sound_off_height/2))
-        if Game1.sound is False:
+        if Game1.sound == False:
             sound_on_function(screen, display_width/2-(sound_on_width/2) + 150, display_height/2-(sound_on_height/2))
 
         pygame.display.update()
@@ -1603,13 +1501,6 @@ def inputName():
     quit()
 
 def chooseBoats():
-    P1_score = battleports_db.check_name(P1.name)
-    P2_score = battleports_db.check_name(P2.name)
-    if not P1_score == []:
-        P1.score = P1_score[0][0]
-    if not P2_score == []:
-        P2.score = P2_score[0][0]
-
     gameExit = False
     while not gameExit:
         if P1.name == "set" and P2.name == "up":
@@ -1709,7 +1600,7 @@ def chooseBoats():
 
 
 def gameIntro():
-    if Game1.sound is True:
+    if Game1.sound == True:
         pygame.mixer.music.load("soundtrack" + str(Game1.soundtrack) + ".wav")
         pygame.mixer.music.play()
     gameExit = False
@@ -1826,7 +1717,6 @@ def gameRules(page):
 
 
 def gameLoop():
-     setup = True
      attacking = False
      gameExit = False
      gameOver = False
@@ -1851,7 +1741,7 @@ def gameLoop():
                          Game1.currentplayer.currentboat.move("left")
                      elif event.key == pygame.K_t:
                          Game1.currentplayer.cards_in_hand.append(card_sabotage)
-                     if not setup:
+                     if not Game1.setup:
                          if event.key == pygame.K_SPACE:
                              Game1.currentplayer.nextboat()
                          elif event.key == pygame.K_c:
@@ -1871,7 +1761,7 @@ def gameLoop():
                          Game1.currentplayer.next_attackable_boat()
                      elif event.key == pygame.K_RETURN:
                          Game1.currentplayer.attack(Game1.currentplayer.targeted_boat)
-                         if sound is True:
+                         if Game1.sound == True:
                              pygame.mixer.Sound.play(attack_sound)
                          attacking = False
                      elif event.key == pygame.K_BACKSPACE:
@@ -1883,7 +1773,7 @@ def gameLoop():
          screen.fill(white, (display_width*0.9, 0, display_width*0.1, display_height))
 
          GameGrid.draw(screen)
-         if not setup:
+         if not Game1.setup:
              Game1.currentplayer.currentboat.draw_range(screen)
              Game1.currentplayer.show_stats(screen)
              Game1.currentplayer.show_enemy_stats(screen)
@@ -1898,11 +1788,11 @@ def gameLoop():
          for boat in P2.destroyed_boats:
              boat.draw(screen, grey)
 
-         if not setup:
+         if not Game1.setup:
              for element in Game1.currentplayer.boatlist:
                  element.draw_new(screen)
 
-         if setup or P1.name == "set" and P2.name == "up":
+         if Game1.setup or P1.name == "set" and P2.name == "up":
              Game1.currentplayer.currentboat.movement = Game1.currentplayer.currentboat.steps
              Game1.currentplayer.currentboat.attack_amount = Game1.currentplayer.currentboat.original_attack_amount
              Game1.currentplayer.currentboat.draw_new(screen)
@@ -1918,7 +1808,7 @@ def gameLoop():
          if not gameOver:
              button("Hoofdmenu", display_width * 0.825, display_height * 0.92, 190, 60, green, light_blue, black, "main")
 
-             if setup:
+             if Game1.setup:
                  button("Volgende", display_width * 0.825, display_height * 0.81, 190, 60, green, light_blue, black,
                         "next_player_setup")
              else:
@@ -1930,9 +1820,8 @@ def gameLoop():
              Game1.nextplayer_setup()
              Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
              Game1.nextplayer_ingame()
-             if Game1.setup_counter >= 8:
-                 setup = False
-                 Game1.setup_counter = 9
+             Game1.setup = False
+             Game1.setup_counter = 9
 
          if P1.boatlist == [] or P2.boatlist == []:
              gameOver = True
@@ -1957,7 +1846,6 @@ def gameLoop():
 
 
 def highScore():
-    scores = battleports_db.download_top_score()
     gameExit = False
     while not gameExit:
         for event in pygame.event.get():
@@ -1965,20 +1853,10 @@ def highScore():
                 gameExit = True
             screen.fill(white)
             text_to_screen("Highscores", black, -display_height*0.4)
-            if len(scores) >= 1:
-                text_to_screen("1. "+scores[0][0]+", "+str(scores[0][1]), black, -display_height*0.3)
-                if len(scores) >= 2:
-                    text_to_screen("2. "+scores[1][0]+", "+str(scores[1][1]), black, -display_height*0.2)
-                    if len(scores) >= 3:
-                        text_to_screen("3. "+scores[2][0]+", "+str(scores[2][1]), black, -display_height*0.1)
-                        if len(scores) >= 4:
-                            text_to_screen("4. "+scores[3][0]+", "+str(scores[3][1]), black)
-                            if len(scores) >= 5:
-                                text_to_screen("5. "+scores[4][0]+", "+str(scores[4][1]), black, +display_height*0.1)
-            else:
-                text_to_screen("Er zijn nog geen scores!", black)
+            text_to_screen("Er zijn nog geen scores!", black)
             button("Hoofdmenu", display_width * 0.25, display_height * 0.75, 190, 60, green, light_blue, black, "main")
             button("Quit game", display_width * 0.75-190, display_height * 0.75, 190, 60, green, light_blue, black, "quit")
+            settings(screen, display_width-settingsCogwheel_width)
             pygame.display.update()
 
     pygame.quit()
