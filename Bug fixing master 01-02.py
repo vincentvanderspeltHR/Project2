@@ -192,14 +192,14 @@ class Card:
     def perform(self):
         if self.name == "Advanced Rifling":
             Game1.currentplayer.currentboat.range_buff += 2
-            Game1.currentplayer.currentboat.horizontal_attackingrange += Game1.currentplayer.currentboat.range_buff
-            Game1.currentplayer.currentboat.vertical_attackingrange += Game1.currentplayer.currentboat.range_buff
-            Game1.currentplayer.currentboat.vertical_defendingrange += Game1.currentplayer.currentboat.range_buff
+            Game1.currentplayer.currentboat.horizontal_attackingrange =  Game1.currentplayer.currentboat.original_attacking_range + Game1.currentplayer.currentboat.range_buff
+            Game1.currentplayer.currentboat.vertical_attackingrange = Game1.currentplayer.currentboat.original_attacking_range + Game1.currentplayer.currentboat.range_buff
+            Game1.currentplayer.currentboat.vertical_defendingrange = Game1.currentplayer.currentboat.original_defending_range + Game1.currentplayer.currentboat.range_buff
         elif self.name == "Rifling":
             Game1.currentplayer.currentboat.range_buff += 1
-            Game1.currentplayer.currentboat.horizontal_attackingrange += Game1.currentplayer.currentboat.range_buff
-            Game1.currentplayer.currentboat.vertical_attackingrange += Game1.currentplayer.currentboat.range_buff
-            Game1.currentplayer.currentboat.vertical_defendingrange += Game1.currentplayer.currentboat.range_buff
+            Game1.currentplayer.currentboat.horizontal_attackingrange =  Game1.currentplayer.currentboat.original_attacking_range + Game1.currentplayer.currentboat.range_buff
+            Game1.currentplayer.currentboat.vertical_attackingrange = Game1.currentplayer.currentboat.original_attacking_range + Game1.currentplayer.currentboat.range_buff
+            Game1.currentplayer.currentboat.vertical_defendingrange = Game1.currentplayer.currentboat.original_defending_range + Game1.currentplayer.currentboat.range_buff
         elif self.name == "FMJ":
             Game1.currentplayer.currentboat.damage_buff += 1
         elif self.name == "Reinforced Hull":
@@ -374,6 +374,18 @@ class Player:
             enemy.sabotage_buff -= 1
             enemy.trap_cards.remove(card_sabotage)
             Game1.discard_pile.append(card_sabotage)
+            if self.emp_buff > 0:
+                game_error("Je schip uitgeschakeld met EMP vanwege sabotage!")
+                self.EMP = True
+                self.emp_buff = 0
+            if self.currentboat.currenthp <= 0:
+                game_error("Schip van " + str(self.name) + " gezonken vanwege sabotage!")
+                self.boatlist.remove(self.currentboat)
+                self.destroyed_boats.append(self.currentboat)
+                if self.boatlist == []:
+                    enemy.score += 1
+                else:
+                    self.currentboat = self.boatlist[0]
         else:
             boat.currenthp -= (1 + Game1.currentplayer.currentboat.damage_buff)
         if self.currentboat.damage_buff > 0:
@@ -382,7 +394,7 @@ class Player:
         if self.emp_buff > 0:
             game_error("Schip uitgeschakeld met EMP!")
             self.targeted_boat.EMP = True
-            self.EMP = False
+            self.emp_buff = 0
         if boat.currenthp <= 0:
             game_error("Schip van "+str(enemy.name)+" gezonken!")
             enemy.boatlist.remove(boat)
@@ -398,6 +410,7 @@ class Player:
         self.currentboat.vertical_attackingrange -= self.currentboat.range_buff
         self.currentboat.vertical_defendingrange -= self.currentboat.range_buff
         self.currentboat.range_buff = 0
+        self.movement = 0
 
         self.attackable_boats = []
         self.targeted_boat = 0
@@ -520,10 +533,12 @@ class Boat:
         self.hp = HP
         self.currenthp = currentHP
         self.range_buff = 0
-        self.horizontal_attackingrange = attacking_range_x + self.range_buff
-        self.vertical_attackingrange = attacking_range_y + self.range_buff
+        self.original_attacking_range = attacking_range_x
+        self.original_defending_range = defending_range_y
+        self.horizontal_attackingrange = attacking_range_x
+        self.vertical_attackingrange = attacking_range_y
         self.horizontal_defendingrange = 0
-        self.vertical_defendingrange = defending_range_y + self.range_buff
+        self.vertical_defendingrange = defending_range_y
         self.damage_buff = 0
         self.flakarmor_buff = 0
         self.movement = self.steps
@@ -936,6 +951,9 @@ class Boat:
         self.vertical_defendingrange -= self.range_buff
         self.range_buff = 0
         self.EMP = False
+        self.damage_buff = 0
+
+
 
 GameGrid = Grid(display_width, display_height)
 
@@ -1049,7 +1067,6 @@ def game_error(text):
     textSurf, textRect = text_objects(text, red, "small")
     textRect.center = (int(display_width / 2), int(display_height / 2)-display_height*0.48)
     screen.blit(textSurf, textRect)
-    print(text)
 
 
 def text_to_screen(text, color, y_displace = 0, size = "small", x_displace = 0):
