@@ -1004,28 +1004,29 @@ card_rifling = Card("Rifling",image17, "offense", 2)
 card_sabotage = Card("Sabotage",image18, "defense", 2)
 card_smokescreen = Card("Smokescreen",image19, "defense", 2)
 
-Game1.allcards = [card_sabotage, card_adrenaline_rush, card_advanced_rifling, card_aluminium_hull, card_backup, card_emp, card_extra_fuel_2, card_extra_fuel, card_far_sight, card_fmj, card_hack_intel, card_rally, card_reinforced_hull, card_repair, card_rifling]
-for card in Game1.allcards:
-        if card.type == "offense":
-            Game1.offense_cards.append(card)
-            while card.amount > 0:
-                Game1.normal_deck.append(card)
-                card.amount -= 1
-        elif card.type == "defense":
-            Game1.defense_cards.append(card)
-            while card.amount > 0:
-                Game1.normal_deck.append(card)
-                card.amount -= 1
-        elif card.type == "utility":
-            Game1.utility_cards.append(card)
-            while card.amount > 0:
-                Game1.normal_deck.append(card)
-                card.amount -= 1
-        elif card.type == "special":
-            Game1.special_cards.append(card)
-            while card.amount > 0:
-                Game1.special_deck.append(card)
-                card.amount -= 1
+def assign_cards():
+    Game1.allcards = [card_sabotage, card_adrenaline_rush, card_advanced_rifling, card_aluminium_hull, card_backup, card_emp, card_extra_fuel_2, card_extra_fuel, card_far_sight, card_fmj, card_hack_intel, card_rally, card_reinforced_hull, card_repair, card_rifling]
+    for card in Game1.allcards:
+            if card.type == "offense":
+                Game1.offense_cards.append(card)
+                while card.amount > 0:
+                    Game1.normal_deck.append(card)
+                    card.amount -= 1
+            elif card.type == "defense":
+                Game1.defense_cards.append(card)
+                while card.amount > 0:
+                    Game1.normal_deck.append(card)
+                    card.amount -= 1
+            elif card.type == "utility":
+                Game1.utility_cards.append(card)
+                while card.amount > 0:
+                    Game1.normal_deck.append(card)
+                    card.amount -= 1
+            elif card.type == "special":
+                Game1.special_cards.append(card)
+                while card.amount > 0:
+                    Game1.special_deck.append(card)
+                    card.amount -= 1
 
 
 def text_objects(text, color, size = "small"):
@@ -1241,6 +1242,10 @@ def update_shit():
     global card_smokescreen
     card_smokescreen = Card("Smokescreen", image19, "defense", 2)
 
+    Game1.available_boats = [short_boat1, short_boat2, medium_boat1, medium_boat2, large_boat1, large_boat2,
+                            short_boat1_p2, short_boat2_p2, medium_boat1_p2, medium_boat2_p2, large_boat1_p2,
+                            large_boat2_p2]
+    assign_cards()
 
 def do_action(action):
     if action == "quit":
@@ -1607,6 +1612,7 @@ def chooseBoats():
 
 
 def gameIntro():
+    assign_cards()
     if Game1.sound == True:
         pygame.mixer.music.load("soundtrack" + str(Game1.soundtrack) + ".wav")
         pygame.mixer.music.play()
