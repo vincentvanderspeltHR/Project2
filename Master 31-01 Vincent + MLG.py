@@ -2,6 +2,8 @@ import pygame
 import random
 import ctypes
 
+from builtins import print
+
 pygame.init()
 
 display_width = 1000
@@ -1098,9 +1100,9 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONUP and x + width > pygame.mouse.get_pos()[0] > x and y + height > pygame.mouse.get_pos()[1] > y:
                         if event.button == 1:
-                            do_action(action)
                             if Game1.sound is True:
                                 pygame.mixer.Sound.play(button_click)
+                            do_action(action)
                             break
                     else:
                         break
@@ -1226,6 +1228,10 @@ def update_shit():
     global card_smokescreen
     card_smokescreen = Card("Smokescreen", image19, "defense", 2)
 
+    Game1.available_boats = [short_boat1, short_boat2, medium_boat1, medium_boat2, large_boat1, large_boat2,
+                            short_boat1_p2, short_boat2_p2, medium_boat1_p2, medium_boat2_p2, large_boat1_p2,
+                            large_boat2_p2]
+
 
 def do_action(action):
     if action == "quit":
@@ -1348,9 +1354,11 @@ def do_action(action):
         card_draw_sound = pygame.mixer.Sound("DAMN_SON_WHERED_YOU_FIND_THIS.wav")
         attack_sound = pygame.mixer.Sound("OMG_TRICKSHOT_CHILD.wav")
         play_card_sound = pygame.mixer.Sound("OOOOOOOOHMYGOOOOD.wav")
-        buff_card_sound = pygame.mixer.Sound("1030.wav")
-        ship_movement = pygame.mixer.Sound("wow-.wav")
-        button_click = pygame.mixer.Sound("HITMARKER.wav")
+        buff_card_sound = pygame.mixer.Sound("Oh_Baby_A_Triple.wav")
+        ship_movement = pygame.mixer.Sound("sanik.wav")
+        button_click = pygame.mixer.Sound("dank_horn_420.wav")
+        pygame.mixer.Sound.set_volume(button_click, 1.0)
+        pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1, 0.0)
     elif action == "soundtrack1":
         pygame.mixer.music.load("soundtrack1.wav")
@@ -1402,7 +1410,8 @@ def gameSettings():
                     settings_pause = False
 
         screen.fill(white)
-        text_to_screen("Settings", black, -display_height * 0.3, "medium")
+        text_to_screen("Settings", black, -display_height * 0.4, "medium")
+        text_to_screen("Klik escape om te sluiten", black, -display_height * 0.3, "small")
         text_to_screen("Sound:", black, -display_height * 0, "small")
 #        if :
         text_to_screen("Resolution:", black, +display_height * 0.2, "small")
@@ -1571,8 +1580,7 @@ def chooseBoats():
                 if (Game1.currentplayer == P1 and len(P1.boatlist) == len(P2.boatlist)):
                     if short_boat1 in Game1.available_boats:
                         button("Kort schip", display_width * 0.15, display_height * 0.3, 220, 50, red, light_blue,
-                               black,
-                               "shortboat1")
+                               black, "shortboat1")
                     if short_boat2 in Game1.available_boats:
                         button("Kort schip", display_width * 0.85 - 190, display_height * 0.3, 220, 50, red,
                                light_blue,
