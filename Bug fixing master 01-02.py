@@ -1,6 +1,7 @@
 import pygame
 import random
 import ctypes
+import battleports_db
 
 # pygame.mixer.music.load("soundtrack" + str(Game1.soundtrack) + ".wav")
 pygame.init()
@@ -384,6 +385,10 @@ class Player:
                 self.destroyed_boats.append(self.currentboat)
                 if self.boatlist == []:
                     enemy.score += 1
+                    if enemy.score > 1:
+                        battleports_db.upload_score(enemy.name, enemy.score)
+                    else:
+                        battleports_db.new_score(enemy.name, enemy.score)
                 else:
                     self.currentboat = self.boatlist[0]
         else:
@@ -401,6 +406,10 @@ class Player:
             enemy.destroyed_boats.append(boat)
             if enemy.boatlist == []:
                 self.score += 1
+                if Game1.currentplayer.score > 1:
+                    battleports_db.upload_score(Game1.currentplayer.name, Game1.currentplayer.score)
+                else:
+                    battleports_db.new_score(Game1.currentplayer.name, Game1.currentplayer.score)
             else:
                 enemy.currentboat = enemy.boatlist[0]
         self.targeted_boat = 0
@@ -566,7 +575,7 @@ class Boat:
                 pygame.draw.ellipse(screen, black, (self.x, self.y, self.defendingboat_width, self.defendingboat_height), 0)
             else:
                 pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, self.defendingboat_width, self.defendingboat_height), 0)
-        elif self.original_stance == "attacking" and not self.movement == self.steps:
+        elif self.original_stance == "attacking":
             pygame.draw.ellipse(screen, light_red, (self.new_x, self.new_y, self.attackingboat_width, self.attackingboat_height), 0)
 
     def draw_range(self, screen):
@@ -1052,6 +1061,111 @@ def assign_cards():
                     card.amount -= 1
 
 
+def save():
+    battleports_db.clear_save()
+    battleports_db.save_game(Game1.currentplayer.class_name , Game1.available_boats , Game1.setup_counter , Game1.special_deck , Game1.normal_deck , Game1.discard_pile)
+    for player in Game1.playerlist:
+        battleports_db.save_player(player.name , player.score , player.boatlist , player.currentboat , player.cards_in_hand , player.pick_cards , player.trap_cards , player.destroyed_boats , player.emp_buff , player.attack_amount , player.sabotage_buff)
+        for boat in player.boatlist:
+            battleports_db.save_boat(boat.x, boat.y,
+                               boat.new_x, boat.new_y,
+                               boat.switch_x, boat.length,
+                               boat.steps, boat.original_stance,
+                               boat.new_stance, boat.hp,
+                               boat.currenthp, boat.range_buff,
+                               boat.horizontal_attackingrange,
+                               boat.vertical_attackingrange,
+                               boat.vertical_defendingrange,
+                               boat.damage_buff, boat.movement,
+                               boat.original_attack_amount,
+                               boat.attack_amount, boat.EMP,
+                               boat.special_card)
+        for boat in player.destroyed_boats:
+            battleports_db.save_boat(boat.x, boat.y,
+                               boat.new_x, boat.new_y,
+                               boat.switch_x, boat.length,
+                               boat.steps, boat.original_stance,
+                               boat.new_stance, boat.hp,
+                               boat.currenthp, boat.range_buff,
+                               boat.horizontal_attackingrange,
+                               boat.vertical_attackingrange,
+                               boat.vertical_defendingrange,
+                               boat.damage_buff, boat.movement,
+                               boat.original_attack_amount,
+                               boat.attack_amount, boat.EMP,
+                               boat.special_card)
+
+def load():
+    boat_number = 0
+    game_data = battleports_db.load_game()
+    player_data = battleports_db.load_players()
+    boat_data = battleports_db.load_boats()
+    Game1.currentplayer = game_data[0][0]
+    Game1.playerlist = game_data[0][1]
+    Game1.available_boats = game_data[0][2]
+    Game1.setup_counter = game_data[0][3]
+    Game1.special_deck = game_data[0][4]
+    Game1.normal_deck = game_data[0][5]
+    Game1.discard_pile = game_data[0][6]
+    for player in Game1.playerlist:
+        player.name = player_data[0][0]
+        player.score = player_data[0][1]
+        player.boatlist = player_data[0][2]
+        player.currentboat = player_data[0][3]
+        player.cards_in_hand = player_data[0][4]
+        player.pick_cards = player_data[0][5]
+        player.trap_cards = player_data[0][6]
+        player.destroyed_boats = player_data[0][7]
+        player.emp_buff = player_data[0][8]
+        player.attack_amount = player_data[0][9]
+        player.sabotage_buff = player_data[0][10]
+        for boat in player.boatlist:
+            boat.x = boat_data[boat_number][0]
+            boat.y = boat_data[boat_number][1]
+            boat.new_x = boat_data[boat_number][2]
+            boat.new_y = boat_data[boat_number][3]
+            boat.switch_x = boat_data[boat_number][4]
+            boat.length = boat_data[boat_number][5]
+            boat.steps = boat_data[boat_number][6]
+            boat.original_stance = boat_data[boat_number][7]
+            boat.new_stance = boat_data[boat_number][8]
+            boat.hp = boat_data[boat_number][9]
+            boat.currenthp = boat_data[boat_number][10]
+            boat.range_buff = boat_data[boat_number][11]
+            boat.horizontal_attackingrange = boat_data[boat_number][12]
+            boat.vertical_attackingrange = boat_data[boat_number][13]
+            boat.vertical_defendingrange = boat_data[boat_number][14]
+            boat.damage_buff = boat_data[boat_number][15]
+            boat.movement = boat_data[boat_number][16]
+            boat.original_attack_amount = boat_data[boat_number][17]
+            boat.attack_amount = boat_data[boat_number][18]
+            boat.EMP = boat_data[boat_number][19]
+            boat.special_card = boat_data[boat_number][20]
+            boat_number += 1
+        for boat in player.destroyed_boats:
+            boat.x = boat_data[boat_number][0]
+            boat.y = boat_data[boat_number][1]
+            boat.new_x = boat_data[boat_number][2]
+            boat.new_y = boat_data[boat_number][3]
+            boat.switch_x = boat_data[boat_number][4]
+            boat.length = boat_data[boat_number][5]
+            boat.steps = boat_data[boat_number][6]
+            boat.original_stance = boat_data[boat_number][7]
+            boat.new_stance = boat_data[boat_number][8]
+            boat.hp = boat_data[boat_number][9]
+            boat.currenthp = boat_data[boat_number][10]
+            boat.range_buff = boat_data[boat_number][11]
+            boat.horizontal_attackingrange = boat_data[boat_number][12]
+            boat.vertical_attackingrange = boat_data[boat_number][13]
+            boat.vertical_defendingrange = boat_data[boat_number][14]
+            boat.damage_buff = boat_data[boat_number][15]
+            boat.movement = boat_data[boat_number][16]
+            boat.original_attack_amount = boat_data[boat_number][17]
+            boat.attack_amount = boat_data[boat_number][18]
+            boat.EMP = boat_data[boat_number][19]
+            boat.special_card = boat_data[boat_number][20]
+            boat_number += 1
+
 def text_objects(text, color, size = "small"):
     if size == "small":
         textSurface = smallfont.render(text, True, color)
@@ -1535,6 +1649,13 @@ def inputName():
     quit()
 
 def chooseBoats():
+    P1_score = battleports_db.check_name(P1.name)
+    P2_score = battleports_db.check_name(P2.name)
+    if not P1_score == []:
+        P1.score = P1_score[0][0]
+    if not P2_score == []:
+        P2.score = P2_score[0][0]
+
     gameExit = False
     while not gameExit:
         if P1.name == "set" and P2.name == "up":
@@ -1881,6 +2002,7 @@ def gameLoop():
 
 
 def highScore():
+    scores = battleports_db.download_top_score()
     gameExit = False
     while not gameExit:
         for event in pygame.event.get():
@@ -1888,10 +2010,20 @@ def highScore():
                 gameExit = True
             screen.fill(white)
             text_to_screen("Highscores", black, -display_height*0.4)
-            text_to_screen("Er zijn nog geen scores!", black)
+            if len(scores) >= 1:
+                text_to_screen("1. "+scores[0][0]+", "+str(scores[0][1]), black, -display_height*0.3)
+                if len(scores) >= 2:
+                    text_to_screen("2. "+scores[1][0]+", "+str(scores[1][1]), black, -display_height*0.2)
+                    if len(scores) >= 3:
+                        text_to_screen("3. "+scores[2][0]+", "+str(scores[2][1]), black, -display_height*0.1)
+                        if len(scores) >= 4:
+                            text_to_screen("4. "+scores[3][0]+", "+str(scores[3][1]), black)
+                            if len(scores) >= 5:
+                                text_to_screen("5. "+scores[4][0]+", "+str(scores[4][1]), black, +display_height*0.1)
+            else:
+                text_to_screen("Er zijn nog geen scores!", black)
             button("Hoofdmenu", display_width * 0.25, display_height * 0.75, 190, 60, green, light_blue, black, "main")
             button("Quit game", display_width * 0.75-190, display_height * 0.75, 190, 60, green, light_blue, black, "quit")
-            settings(screen, display_width-settingsCogwheel_width)
             pygame.display.update()
 
     pygame.quit()
