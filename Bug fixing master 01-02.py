@@ -105,6 +105,7 @@ class Game:
         self.message_cooldown = 2500
         self.sound = True
         self.soundtrack = 1
+        self.setup = True
 
     def changeplayers(self):
         if self.currentplayer == self.playerlist[0]:
@@ -207,7 +208,6 @@ class Card:
             Game1.currentplayer.currentboat.hp += 1
         elif self.name == "Extra Fuel":
             Game1.currentplayer.currentboat.movement += 1
-            Game1.currentplayer.currentboat.movement +=1
         elif self.name == "Extra Fuel 2":
             Game1.currentplayer.currentboat.movement += 2
         elif self.name == "Aluminium Hull":
@@ -402,12 +402,6 @@ class Player:
     def draw_from_deck(self, deck, draw_amount):
             while draw_amount > 0:
                 if len(deck) > 0:
-                    draw_random = random.randint(0, len(deck)-1)
-                    if len(Game1.currentplayer.cards_in_hand) < 6:
-                        Game1.currentplayer.cards_in_hand.append(deck[draw_random])
-                        deck.remove(deck[draw_random])
-                        if Game1.sound == True:
-                            pygame.mixer.Sound.play(card_draw_sound)
                     draw_random = random.randint(0, len(deck) - 1)
                     if len(Game1.currentplayer.cards_in_hand) < 6:
                         Game1.currentplayer.cards_in_hand.append(deck[draw_random])
@@ -785,7 +779,7 @@ class Boat:
                                 Game1.currentplayer.draw_from_deck(Game1.special_deck, 1)
                                 if len(Game1.special_deck) > 0:
                                     game_error("Speciale kaart getrokken!")
-                if Game1.Game1.sound == True:
+                if Game1.sound == True:
                     pygame.mixer.Sound.play(ship_movement)
             else:
                 game_error("Verdedigende schepen kunnen niet bewegen!")
@@ -1723,7 +1717,6 @@ def gameRules(page):
 
 
 def gameLoop():
-     setup = True
      attacking = False
      gameExit = False
      gameOver = False
@@ -1748,7 +1741,7 @@ def gameLoop():
                          Game1.currentplayer.currentboat.move("left")
                      elif event.key == pygame.K_t:
                          Game1.currentplayer.cards_in_hand.append(card_sabotage)
-                     if not setup:
+                     if not Game1.setup:
                          if event.key == pygame.K_SPACE:
                              Game1.currentplayer.nextboat()
                          elif event.key == pygame.K_c:
@@ -1780,7 +1773,7 @@ def gameLoop():
          screen.fill(white, (display_width*0.9, 0, display_width*0.1, display_height))
 
          GameGrid.draw(screen)
-         if not setup:
+         if not Game1.setup:
              Game1.currentplayer.currentboat.draw_range(screen)
              Game1.currentplayer.show_stats(screen)
              Game1.currentplayer.show_enemy_stats(screen)
@@ -1795,11 +1788,11 @@ def gameLoop():
          for boat in P2.destroyed_boats:
              boat.draw(screen, grey)
 
-         if not setup:
+         if not Game1.setup:
              for element in Game1.currentplayer.boatlist:
                  element.draw_new(screen)
 
-         if setup or P1.name == "set" and P2.name == "up":
+         if Game1.setup or P1.name == "set" and P2.name == "up":
              Game1.currentplayer.currentboat.movement = Game1.currentplayer.currentboat.steps
              Game1.currentplayer.currentboat.attack_amount = Game1.currentplayer.currentboat.original_attack_amount
              Game1.currentplayer.currentboat.draw_new(screen)
@@ -1815,7 +1808,7 @@ def gameLoop():
          if not gameOver:
              button("Hoofdmenu", display_width * 0.825, display_height * 0.92, 190, 60, green, light_blue, black, "main")
 
-             if setup:
+             if Game1.setup:
                  button("Volgende", display_width * 0.825, display_height * 0.81, 190, 60, green, light_blue, black,
                         "next_player_setup")
              else:
@@ -1827,9 +1820,8 @@ def gameLoop():
              Game1.nextplayer_setup()
              Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
              Game1.nextplayer_ingame()
-             if Game1.setup_counter >= 8:
-                 setup = False
-                 Game1.setup_counter = 9
+             Game1.setup = False
+             Game1.setup_counter = 9
 
          if P1.boatlist == [] or P2.boatlist == []:
              gameOver = True
