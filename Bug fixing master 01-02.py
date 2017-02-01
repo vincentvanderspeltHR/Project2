@@ -390,7 +390,7 @@ class Player:
         if self.emp_buff > 0:
             game_error("Schip uitgeschakeld met EMP!")
             self.targeted_boat.EMP = True
-            self.EMP = False
+            self.emp_buff = 0
         if boat.currenthp <= 0:
             game_error("Schip van "+str(enemy.name)+" gezonken!")
             enemy.boatlist.remove(boat)
@@ -945,6 +945,9 @@ class Boat:
         self.vertical_defendingrange -= self.range_buff
         self.range_buff = 0
         self.EMP = False
+        self.damage_buff = 0
+        
+
 
 GameGrid = Grid(display_width, display_height)
 
