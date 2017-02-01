@@ -1,6 +1,6 @@
 import pygame
 import random
-import database
+import battleports_db
 
 pygame.init()
 
@@ -393,9 +393,9 @@ class Player:
             if enemy.boatlist == []:
                 Game1.currentplayer.score += 1
                 if Game1.currentplayer.score > 1:
-                    database.upload_score(Game1.currentplayer.name, Game1.currentplayer.score)
+                    battleports_db.upload_score(Game1.currentplayer.name, Game1.currentplayer.score)
                 else:
-                    database.new_score(Game1.currentplayer.name, Game1.currentplayer.score)
+                    battleports_db.new_score(Game1.currentplayer.name, Game1.currentplayer.score)
             else:
                 enemy.currentboat = enemy.boatlist[0]
         self.targeted_boat = 0
@@ -1037,12 +1037,12 @@ def button(text, x, y, width, height, inactive_color, active_color, text_color, 
     text_to_button(text, text_color, x, y, width, height)
 
 def save():
-    database.clear_save()
-    database.save_game(Game1.currentplayer.class_name , Game1.available_boats , Game1.setup_counter , Game1.special_deck , Game1.normal_deck , Game1.discard_pile)
+    battleports_db.clear_save()
+    battleports_db.save_game(Game1.currentplayer.class_name , Game1.available_boats , Game1.setup_counter , Game1.special_deck , Game1.normal_deck , Game1.discard_pile)
     for player in Game1.playerlist:
-        database.save_player(player.name , player.score , player.boatlist , player.currentboat , player.cards_in_hand , player.pick_cards , player.trap_cards , player.destroyed_boats , player.emp_buff , player.attack_amount , player.sabotage_buff)
+        battleports_db.save_player(player.name , player.score , player.boatlist , player.currentboat , player.cards_in_hand , player.pick_cards , player.trap_cards , player.destroyed_boats , player.emp_buff , player.attack_amount , player.sabotage_buff)
         for boat in player.boatlist:
-            database.save_boat(boat.x, boat.y,
+            battleports_db.save_boat(boat.x, boat.y,
                                boat.new_x, boat.new_y,
                                boat.switch_x, boat.length,
                                boat.steps, boat.original_stance,
@@ -1056,7 +1056,7 @@ def save():
                                boat.attack_amount, boat.EMP,
                                boat.special_card)
         for boat in player.destroyed_boats:
-            database.save_boat(boat.x, boat.y,
+            battleports_db.save_boat(boat.x, boat.y,
                                boat.new_x, boat.new_y,
                                boat.switch_x, boat.length,
                                boat.steps, boat.original_stance,
@@ -1072,9 +1072,9 @@ def save():
 
 def load():
     boat_number = 0
-    game_data = database.load_game()
-    player_data = database.load_players()
-    boat_data = database.load_boats()
+    game_data = battleports_db.load_game()
+    player_data = battleports_db.load_players()
+    boat_data = battleports_db.load_boats()
     Game1.currentplayer = game_data[0][0]
     Game1.playerlist = game_data[0][1]
     Game1.available_boats = game_data[0][2]
@@ -1352,8 +1352,8 @@ def inputName():
     quit()
 
 def chooseBoats():
-    P1_score = database.check_name(P1.name)
-    P2_score = database.check_name(P2.name)
+    P1_score = battleports_db.check_name(P1.name)
+    P2_score = battleports_db.check_name(P2.name)
     if not P1_score == []:
         P1.score = P1_score[0][0]
     if not P2_score == []:
@@ -1709,7 +1709,7 @@ def gameLoop():
 
 
 def highScore():
-    scores = database.download_top_score()
+    scores = battleports_db.download_top_score()
     gameExit = False
     while not gameExit:
         for event in pygame.event.get():

@@ -27,13 +27,13 @@ def interact_with_database(command):
 
 
 # Uploads a score into the highscore table
-def upload_score(name, score):
-    interact_with_database("UPDATE Highscore SET Score = {} WHERE Naam = '{}'".format(score, name))
+def new_score(name, score):
+    interact_with_database("INSERT INTO Highscore VALUES('{}', {})".format(name, score))
 
 
 # Updates existing scores
-def update_score(name):
-    interact_with_database("UPDATE Highscore SET Score = Score + 1 WHERE Naam = '{}'".format(name))
+def upload_score(name, score):
+    interact_with_database("UPDATE Highscore SET Score = {} WHERE Naam = '{}'".format(score, name))
 
 
 # Downloads the top score from database
