@@ -406,6 +406,7 @@ class Player:
         self.currentboat.vertical_attackingrange -= self.currentboat.range_buff
         self.currentboat.vertical_defendingrange -= self.currentboat.range_buff
         self.currentboat.range_buff = 0
+        self.movement = 0
 
         self.attackable_boats = []
         self.targeted_boat = 0
