@@ -126,9 +126,6 @@ class Game:
             Game1.currentplayer.attack_amount = 2
             self.changeplayers()
             Game1.currentplayer.draw_from_deck(Game1.normal_deck, 1)
-        else:
-            if Game1.setup_counter == 9:
-                text_to_screen("Er zijn boten die elkaar overlappen!", red, -display_height * 0.48)
 
     def nextplayer_setup(self):
         if self.currentplayer.currentboat.confirm():
@@ -1051,7 +1048,7 @@ def game_error(text):
     textSurf, textRect = text_objects(text, red, "small")
     textRect.center = (int(display_width / 2), int(display_height / 2)-display_height*0.48)
     screen.blit(textSurf, textRect)
-    print("text")
+    print(text)
 
 
 def text_to_screen(text, color, y_displace = 0, size = "small", x_displace = 0):
