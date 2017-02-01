@@ -276,7 +276,8 @@ class Card:
         else:
             pass
         Game1.currentplayer.cards_in_hand.remove(self)
-        Game1.discard_pile.append(self)
+        if not self.type == "special":
+            Game1.discard_pile.append(self)
         if Game1.sound is True:
             pygame.mixer.Sound.play(play_card_sound)
 
@@ -445,7 +446,8 @@ class Player:
                         if sound is True:
                             pygame.mixer.Sound.play(card_draw_sound)
                     else:
-                        Game1.discard_pile.append(deck[draw_random])
+                        if deck == Game1.normal_deck:
+                            Game1.discard_pile.append(deck[draw_random])
                         deck.remove(deck[draw_random])
                     draw_amount -= 1
                 else:
@@ -1808,12 +1810,13 @@ def gameLoop():
                         "next_player_ingame")
 
          if Game1.setup_counter == 8:
-             setup = False
-             Game1.setup_counter = 9
              Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
              Game1.nextplayer_setup()
              Game1.currentplayer.draw_from_deck(Game1.normal_deck, 2)
              Game1.nextplayer_ingame()
+             if Game1.setup_counter >= 8:
+                 setup = False
+                 Game1.setup_counter = 9
 
          if P1.boatlist == [] or P2.boatlist == []:
              gameOver = True
