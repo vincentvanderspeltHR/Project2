@@ -1051,6 +1051,7 @@ def game_error(text):
     textSurf, textRect = text_objects(text, red, "small")
     textRect.center = (int(display_width / 2), int(display_height / 2)-display_height*0.48)
     screen.blit(textSurf, textRect)
+    print("text")
 
 
 def text_to_screen(text, color, y_displace = 0, size = "small", x_displace = 0):
@@ -1602,7 +1603,7 @@ def chooseBoats():
 
         button("Hoofdmenu", display_width * 0.825, display_height * 0.92, 190, 60, green, light_blue, black, "main")
         settings(screen, display_width-settingsCogwheel_width)
-        pygame.display.flip()
+        pygame.display.update()
 
     pygame.quit()
     quit()
