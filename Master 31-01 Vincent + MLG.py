@@ -1357,8 +1357,7 @@ def do_action(action):
         buff_card_sound = pygame.mixer.Sound("Oh_Baby_A_Triple.wav")
         ship_movement = pygame.mixer.Sound("sanik.wav")
         button_click = pygame.mixer.Sound("dank_horn_420.wav")
-        pygame.mixer.Sound.set_volume(button_click, 1.0)
-        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.set_volume(0.8)
         pygame.mixer.music.play(-1, 0.0)
     elif action == "soundtrack1":
         pygame.mixer.music.load("soundtrack1.wav")
@@ -1660,7 +1659,6 @@ def chooseBoats():
 
 def gameIntro():
     if Game1.sound is True:
-        pygame.mixer.music.load("soundtrack" + str(Game1.soundtrack) + ".wav")
         pygame.mixer.music.play(-1, 0.0)
     gameExit = False
     while not gameExit:
