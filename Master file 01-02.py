@@ -17,7 +17,7 @@ user32 = ctypes.windll.user32
 
 screen = pygame.display.set_mode((display_width, display_height))
 
-pygame.display.set_caption("Menu scherm")
+pygame.display.set_caption("Battleport")
 
 image1 = pygame.image.load("adrenaline rush.jpg")
 image2 = pygame.image.load("Advanced Rifling.jpg")
@@ -1389,6 +1389,8 @@ def do_action(action):
         gameRules("bewegen & posities")
     elif action == "rules_kaarten":
         gameRules("kaarten")
+    elif action == "rules_controls":
+        gameRules("besturing")
     elif action == "next_player":
         Game1.changeplayers()
     elif action == "next_player_setup":
@@ -1812,7 +1814,7 @@ def gameIntro():
                 gameExit = True
 
         screen.fill(white)
-        text_to_screen("Battleships", black, -(display_height*0.35), "medium")
+        text_to_screen("Battleport", black, -(display_height*0.35), "medium")
         button("Start game", (display_width/2)-75 , (display_height*0.35), 150, 50, red, light_blue, black, "inputname")
         button("Help", (display_width / 2) - 75, (display_height * 0.45), 150, 50, red, light_blue, black, "rules_main")
         button("Highscore",  (display_width/2)-75, (display_height*0.55), 150, 50, red, light_blue, black, "high score")
@@ -1900,6 +1902,18 @@ def gameRules(page):
             text_to_screen("zijn meestal pernamente buffs. Alle kaarten die al zijn gebruikt gaan naar de weggooistapel.", black, 0, "rules", -100)
             text_to_screen("Al deze kaarten komen weer terug in het spel zodra de normale stapel leeg is.", black, 25, "rules", -100)
 
+        elif page == "besturing":
+            text_to_screen("Welkom op pagina besturing", black, -125, "small", -100)
+            text_to_screen("Wisselen van schepen: spatie", black, -75, "rules", -100)
+            text_to_screen("Stappen zetten: de pijltjestoetsen", black, -50, "rules", -100)
+            text_to_screen("Positie wisselen tussen aanval en verdediging: C", black, -25, "rules", -100)
+            text_to_screen("Naar aanvalsmodus: A", black, 0, "rules", -100)
+            text_to_screen("In aanvalsmodus wisselen tussen doelwit schip: spatie", black, 25, "rules", -100)
+            text_to_screen("Aanval op schip bevestigen: enter", black, 50, "rules", -100)
+            text_to_screen("Om aanval te annuleren: backspace", black, 75, "rules", -100)
+            text_to_screen("Spel pauzeren: P", black, 100, "rules", -100)
+            text_to_screen("Settings menu verlaten: esc", black, 125, "rules", -100)
+
         if not page == "voorbereiding":
             button("Voorbereiding", display_width*0.75, display_height*0.2, 250, 60, red, light_blue, black, "rules_voorbereiding")
         if not page == "spelverloop":
@@ -1910,6 +1924,8 @@ def gameRules(page):
             button("Bewegen & posities", display_width * 0.75, display_height * 0.5, 250, 60, red, light_blue, black, "rules_bewegen&posities")
         if not page == "kaarten":
             button("Kaarten", display_width * 0.75, display_height * 0.6, 250, 60, red, light_blue, black, "rules_kaarten")
+        if not page == "besturing":
+            button("Besturing", display_width * 0.75, display_height * 0.7, 250, 60, red, light_blue, black, "rules_controls")
         button("Hoofdmenu", display_width*0.75, display_height*0.92, 250, 60, green, light_blue, black, "main")
         settings(screen, display_width-settingsCogwheel_width)
         pygame.display.update()
