@@ -1547,11 +1547,11 @@ def gameSettings():
         text_to_screen("Settings", black, -display_height * 0.4, "medium")
         text_to_screen("Klik escape om te sluiten", black, -display_height * 0.3, "small")
         text_to_screen("Sound:", black, -display_height * 0, "small")
-        #        if :
-        text_to_screen("Resolution:", black, +display_height * 0.2, "small")
-        button("1920*1080", display_width - 200, display_height * 0.8, 200, 80, red, green, black, "1920*1080")
-        button("1000*800", 0, display_height * 0.8, 200, 80, red, green, black, "1000*800")
-        button("Fullscreen", display_width / 2 - 100, display_height * 0.8, 200, 80, red, green, black, "fullscreen")
+        if not Game1.in_game:
+            text_to_screen("Resolution:", black, +display_height * 0.2, "small")
+            button("1920*1080", display_width-200, display_height*0.8, 200, 80, red, green, black, "1920*1080")
+            button("1000*800", 0, display_height*0.8, 200, 80, red, green, black, "1000*800")
+            button("Fullscreen", display_width/2 - 100, display_height*0.8, 200, 80, red, green, black, "fullscreen")
 
         button("MLG on", 10, 10, 100, 50, red, green, black, "MLG_on")
 
